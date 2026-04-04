@@ -1,0 +1,53 @@
+.reventes-view { max-width: 900px; }
+.page-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem; }
+.page-title { font-family:var(--font-display);font-size:32px;letter-spacing:-0.02em;margin-bottom:4px; }
+.page-sub { font-size:14px;color:var(--text2); }
+
+.rv-summary { display:flex;align-items:center;gap:0;background:var(--bg1);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden; }
+.rv-sum-item { padding:12px 20px;display:flex;flex-direction:column;gap:3px; }
+.rv-sum-sep { width:1px;background:var(--line);align-self:stretch; }
+.rv-sum-label { font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em; }
+.rv-sum-val { font-family:var(--font-display);font-size:20px; }
+.rv-sum-val.green { color:var(--green); }
+.rv-sum-val.red { color:var(--red); }
+.rv-sum-val.blue { color:var(--blue); }
+.rv-sum-val.purple { color:var(--purple); }
+
+.add-box { background:var(--bg1);border:1px solid var(--line);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem; }
+.add-grid-3 { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px; }
+.add-grid-4 { display:grid;grid-template-columns:repeat(3,1fr) auto;gap:10px;align-items:end; }
+.field { display:flex;flex-direction:column;gap:5px; }
+.field label { font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em; }
+.add-btn-rv { height:42px;background:var(--accent);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 18px;white-space:nowrap; }
+.add-btn-rv:hover { opacity:.88; }
+
+.rv-preview { background:var(--bg2);border-radius:var(--radius);padding:12px 14px;margin-top:12px; }
+.preview-row { display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--text2); }
+.preview-row span:last-child { color:var(--text);font-weight:500; }
+.preview-row.bold { font-weight:500; }
+.preview-divider { border:none;border-top:1px solid var(--line);margin:7px 0; }
+.marge-badge { padding:2px 10px;border-radius:99px;font-size:12px;font-weight:500; }
+.marge-badge.good { background:var(--green-bg);color:var(--green); }
+.marge-badge.ok   { background:var(--blue-bg);color:var(--blue); }
+.marge-badge.bad  { background:var(--red-bg);color:var(--red); }
+
+.rv-list { display:flex;flex-direction:column;gap:8px; }
+.rv-card { background:var(--bg1);border:1px solid var(--line);border-radius:var(--radius-lg);padding:1.25rem;display:flex;align-items:center;gap:16px;transition:border-color var(--transition); }
+.rv-card:hover { border-color:var(--line2); }
+.rv-card-left { display:flex;align-items:center;gap:12px;flex:0 0 260px;min-width:0; }
+.rv-card-icon { width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0; }
+.rv-card-name { font-size:15px;font-weight:500;color:var(--text);margin-bottom:5px; }
+.rv-card-meta { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
+.rv-cat-badge { font-size:11px;padding:2px 8px;border-radius:99px; }
+.rv-plat,.rv-date { font-size:11px;color:var(--text3); }
+.rv-card-nums { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:1; }
+.rv-num { background:var(--bg2);border-radius:var(--radius);padding:8px 10px;text-align:center; }
+.rv-num-label { display:block;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px; }
+.rv-num-val { font-size:14px;font-weight:500;color:var(--text); }
+.rv-num-val.muted { color:var(--text2); }
+.rv-num-val.blue { color:var(--blue); }
+.rv-del { background:transparent;color:var(--text3);padding:8px;border-radius:var(--radius);flex-shrink:0; }
+.rv-del:hover { color:var(--red);background:var(--red-bg); }
+.empty-state { font-size:14px;color:var(--text3);padding:2rem 0;text-align:center; }
+
+@media(max-width:800px) { .rv-card { flex-direction:column;align-items:flex-start; } .rv-card-left { flex:none;width:100%; } .rv-card-nums { grid-template-columns:repeat(2,1fr); } }
