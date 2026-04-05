@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Plus, Repeat, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
+import { Plus, Repeat, Trash2, ArrowUp, ArrowDown, Target } from 'lucide-react'
 import { CAT_META, DEP_CATS, REV_CATS, fmt, fmtMonth } from '../utils/storage'
-import { addTransaction, deleteTransaction, addRecurring, deleteRecurring, applyRecurringToMonth } from '../utils/db'
+import { addTransaction, deleteTransaction, addRecurring, deleteRecurring } from '../utils/db'
 import './BudgetView.css'
 
 const ALL_ICONS = { alimentation:'🛒',transport:'🚗',loisirs:'🎬',santé:'💊',logement:'🏠',vêtements:'👕',salaire:'💼',freelance:'💻',remboursement:'↩️',cadeau:'🎁',revente:'🔄',autre:'📦' }
 
-export default function BudgetView({ data, monthData, currentMonth, userId, refreshData }) {
+export default function BudgetView({ data, monthData, currentMonth, userId, refreshData, setActiveTab }) {
   const [txType, setTxType] = useState('depense')
   const [desc, setDesc] = useState('')
   const [amount, setAmount] = useState('')
@@ -14,9 +14,11 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
   const [isRecurring, setIsRecurring] = useState(false)
   const [filter, setFilter] = useState('tout')
   const [saving, setSaving] = useState(false)
+  const [selectedGoal, setSelectedGoal] = useState('')
 
   const txs = monthData?.transactions || []
   const cats = txType === 'depense' ? DEP_CATS : REV_CATS
+  const goals = data.goals || []
 
   async function handleAdd() {
     if (!desc.trim() || !amount || isNaN(+amount) || +amount <= 0) return
@@ -27,7 +29,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
     await addTransaction(userId, tx, currentMonth)
     if (isRecurring) await addRecurring(userId, tx)
     await refreshData()
-    setDesc(''); setAmount(''); setIsRecurring(false)
+    setDesc(''); setAmount(''); setIsRecurring(false); setSelectedGoal('')
     setSaving(false)
   }
 
@@ -56,12 +58,40 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
           <h1 className="page-title">{fmtMonth(currentMonth)}</h1>
           <p className="page-sub">Gestion du budget</p>
         </div>
-        <div className="budget-totals">
-          <span className="bt-rev">+{fmt(totalRev)}</span>
-          <span className="bt-sep">·</span>
-          <span className="bt-dep">−{fmt(totalDep)}</span>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div className="budget-totals">
+            <span className="bt-rev">+{fmt(totalRev)}</span>
+            <span className="bt-sep">·</span>
+            <span className="bt-dep">−{fmt(totalDep)}</span>
+          </div>
+          <button
+            onClick={() => setActiveTab('goals')}
+            style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',border:'1px solid var(--line2)',borderRadius:'var(--radius)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}
+          >
+            <Target size={14}/> Mes objectifs
+          </button>
         </div>
       </div>
+
+      {goals.length > 0 && (
+        <div className="fade-up stagger-1" style={{display:'flex',gap:8,marginBottom:'1rem',flexWrap:'wrap'}}>
+          {goals.filter(g => g.saved < g.target).map(g => {
+            const pct = Math.min(100, g.target > 0 ? g.saved / g.target * 100 : 0)
+            return (
+              <div key={g.id} onClick={() => setActiveTab('goals')} style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg1)',border:'1px solid var(--line)',borderRadius:'var(--radius)',padding:'8px 12px',cursor:'pointer',flex:'1',minWidth:160}}>
+                <span style={{fontSize:18}}>{g.icon}</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:12,color:'var(--text2)',marginBottom:3}}>{g.label}</div>
+                  <div style={{height:4,background:'var(--bg3)',borderRadius:2,overflow:'hidden'}}>
+                    <div style={{width:pct+'%',height:'100%',background:g.color,borderRadius:2}}/>
+                  </div>
+                </div>
+                <span style={{fontSize:12,color:g.color,fontWeight:500,whiteSpace:'nowrap'}}>{pct.toFixed(0)}%</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       <div className="add-box fade-up stagger-1">
         <div className="type-switch">
