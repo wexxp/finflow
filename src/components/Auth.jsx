@@ -20,7 +20,7 @@ export default function Auth() {
     } else {
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) setError('Erreur lors de la création du compte.')
-      else setSuccess('Compte créé ! Tu peux te connecter.')
+      else setSuccess('Compte créé ! Vérifie tes emails pour confirmer ton compte.')
     }
     setLoading(false)
   }
@@ -30,7 +30,7 @@ export default function Auth() {
       <div className="auth-card">
         <div className="auth-brand">
           <span className="auth-icon">◈</span>
-          <span className="auth-name">FinFlow</span>
+          <span className="auth-name">ICEdep</span>
         </div>
         <p className="auth-sub">
           {mode === 'login' ? 'Connecte-toi à ton espace' : 'Crée ton compte gratuitement'}
