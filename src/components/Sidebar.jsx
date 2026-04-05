@@ -17,7 +17,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
     <aside className="sidebar">
       <div className="sidebar-brand">
         <span className="brand-icon">◈</span>
-        <span className="brand-name">iceDEP</span>
+        <span className="brand-name">ICEdep</span>
       </div>
 
       <div className="month-nav">
