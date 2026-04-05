@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'FinFlow',
-        short_name: 'FinFlow',
+        name: 'ICEdep',
+        short_name: 'ICEdep',
         description: 'Gérez vos finances simplement',
         theme_color: '#0c0c0e',
         background_color: '#0c0c0e',
