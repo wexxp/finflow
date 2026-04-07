@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../supabaseClient'; // Vérifie bien que le chemin vers ton client Supabase est correct
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
