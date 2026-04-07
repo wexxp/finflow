@@ -9,6 +9,7 @@ import BudgetView from './components/BudgetView'
 import ReventesView from './components/ReventesView'
 import AnnualView from './components/AnnualView'
 import GoalsView from './components/GoalsView'
+import AdminDashboard from './components/AdminDashboard' // Chemin mis à jour !
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -16,6 +17,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [currentMonth, setCurrentMonth] = useState(monthKey())
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -24,7 +26,11 @@ export default function App() {
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (!session) { setData(null); setLoading(false) }
+      if (!session) { 
+        setData(null); 
+        setIsAdmin(false);
+        setLoading(false) 
+      }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -32,10 +38,24 @@ export default function App() {
   useEffect(() => {
     if (!session) return
     setLoading(true)
-    fetchAllUserData(session.user.id).then(d => {
-      setData(d)
-      setLoading(false)
-    })
+    
+    const checkAdminAndFetchData = async () => {
+      const userData = await fetchAllUserData(session.user.id);
+      setData(userData);
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (profile?.is_admin) {
+        setIsAdmin(true);
+      }
+      setLoading(false);
+    }
+
+    checkAdminAndFetchData();
   }, [session])
 
   const refreshData = useCallback(async () => {
@@ -84,7 +104,16 @@ export default function App() {
 
   const monthData = data.months[currentMonth] || { transactions: [], reventes: [], budget: 2000 }
   const allMonthKeys = Object.keys(data.months).sort().reverse()
-  const views = { dashboard: Dashboard, budget: BudgetView, reventes: ReventesView, annual: AnnualView, goals: GoalsView }
+  
+  const views = { 
+    dashboard: Dashboard, 
+    budget: BudgetView, 
+    reventes: ReventesView, 
+    annual: AnnualView, 
+    goals: GoalsView,
+    admin: AdminDashboard 
+  }
+  
   const View = views[activeTab] || Dashboard
 
   return (
@@ -94,6 +123,7 @@ export default function App() {
         currentMonth={currentMonth} setCurrentMonth={goToMonth}
         allMonthKeys={allMonthKeys} navigateMonth={navigateMonth}
         data={data} onSignOut={signOut} userEmail={session.user.email}
+        isAdmin={isAdmin} // On envoie l'info à la sidebar
       />
       <main className="app-main">
         <View

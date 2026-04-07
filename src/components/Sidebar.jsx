@@ -1,4 +1,4 @@
-import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut } from 'lucide-react'
+import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, ShieldCheck } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import './Sidebar.css'
 
@@ -10,7 +10,7 @@ const NAV = [
   { id: 'goals',     label: 'Objectifs',        icon: Target },
 ]
 
-export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail }) {
+export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, isAdmin }) {
   const stats = computeStats(data.months[currentMonth])
 
   return (
@@ -56,6 +56,18 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             </button>
           )
         })}
+
+        {/* AJOUT DU BOUTON ADMIN CONDITIONNEL */}
+        {isAdmin && (
+          <button
+            className={`nav-item admin-btn ${activeTab === 'admin' ? 'active' : ''}`}
+            onClick={() => setActiveTab('admin')}
+            style={{ marginTop: '10px', color: '#ffcc00', borderTop: '1px solid #333', paddingTop: '10px' }}
+          >
+            <ShieldCheck size={18}/>
+            <span>Administration</span>
+          </button>
+        )}
       </nav>
 
       <div className="sidebar-months">
