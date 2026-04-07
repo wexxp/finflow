@@ -1,105 +1,130 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient'; // Vérifie bien que le chemin vers ton client Supabase est correct
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../utils/supabase';
+import { Shield, Users, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 
-const AdminDashboard = () => {
+export default function AdminDashboard({ setActiveTab }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
-
-        if (profile?.is_admin) {
-          setIsAdmin(true);
-          fetchAdminData();
-        } else {
-          setLoading(false);
-        }
-      }
-    };
-    checkAdmin();
+    fetchUsers();
   }, []);
 
-  const fetchAdminData = async () => {
-    // On récupère les profils ET on calcule le total des ventes par utilisateur
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select(`
-        email, 
-        created_at,
-        reventes (vente)
-      `);
+  async function fetchUsers() {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    const formattedData = profilesData.map(profile => ({
-      email: profile.email,
-      date: new Date(profile.created_at).toLocaleDateString(),
-      totalVentes: profile.reventes?.reduce((sum, item) => sum + (item.vente || 0), 0) || 0
-    }));
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (err) {
+      console.error("Erreur lors de la récupération des utilisateurs:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    setUsers(formattedData);
-    setLoading(false);
-  };
+  async function toggleAdmin(userId, currentStatus) {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_admin: !currentStatus })
+        .eq('id', userId);
 
-  if (loading) return <div style={styles.center}>Chargement du panneau de contrôle...</div>;
-  if (!isAdmin) return <div style={styles.center}>🚫 Accès strictement réservé à l'administrateur.</div>;
+      if (error) throw error;
+      
+      setMessage({ type: 'success', text: 'Statut mis à jour !' });
+      fetchUsers();
+      
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Erreur lors de la mise à jour.' });
+    }
+  }
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1>Tableau de Bord Administrateur 👑</h1>
-        <p>Suivi global des utilisateurs et des performances.</p>
+    <div className="admin-container" style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto', color: 'var(--text1)' }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Shield size={32} color="#ffcc00" />
+          <h1 style={{ fontSize: '1.8rem', margin: 0 }}>Panel Administration</h1>
+        </div>
+        <button 
+          onClick={() => setActiveTab('dashboard')}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg3)', border: 'none', padding: '0.6rem 1rem', borderRadius: '8px', color: 'var(--text1)', cursor: 'pointer' }}
+        >
+          <ArrowLeft size={18} /> Retour
+        </button>
       </header>
 
-      <div style={styles.statsGrid}>
-        <div style={styles.statCard}>
-          <h3>Utilisateurs</h3>
-          <p style={styles.statNumber}>{users.length}</p>
+      {message && (
+        <div style={{ 
+          padding: '1rem', 
+          borderRadius: '8px', 
+          marginBottom: '1rem', 
+          backgroundColor: message.type === 'success' ? '#10b98122' : '#ef444422',
+          color: message.type === 'success' ? '#10b981' : '#ef4444',
+          border: `1px solid ${message.type === 'success' ? '#10b981' : '#ef4444'}`
+        }}>
+          {message.text}
         </div>
-        <div style={styles.statCard}>
-          <h3>Volume Total des Ventes</h3>
-          <p style={styles.statNumber}>{users.reduce((a, b) => a + b.totalVentes, 0).toFixed(2)} €</p>
-        </div>
-      </div>
+      )}
 
-      <table style={styles.table}>
-        <thead>
-          <tr style={styles.tableHeader}>
-            <th>Email</th>
-            <th>Date d'inscription</th>
-            <th>Total Ventes (€)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u, i) => (
-            <tr key={i} style={styles.tableRow}>
-              <td>{u.email}</td>
-              <td>{u.date}</td>
-              <td style={{ fontWeight: 'bold' }}>{u.totalVentes.toFixed(2)} €</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={{ background: 'var(--bg2)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--bg3)' }}>
+        <div style={{ padding: '1rem', borderBottom: '1px solid var(--bg3)', background: 'var(--bg3)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Users size={18} />
+          <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Gestion des utilisateurs</h2>
+        </div>
+
+        {loading ? (
+          <div style={{ padding: '2rem', textAlign: 'center' }}>Chargement...</div>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--bg3)', color: 'var(--text2)', fontSize: '0.9rem' }}>
+                <th style={{ padding: '1rem' }}>Email</th>
+                <th style={{ padding: '1rem' }}>ID</th>
+                <th style={{ padding: '1rem' }}>Admin</th>
+                <th style={{ padding: '1rem' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id} style={{ borderBottom: '1px solid var(--bg3)' }}>
+                  <td style={{ padding: '1rem' }}>{user.email || 'N/A'}</td>
+                  <td style={{ padding: '1rem', fontSize: '0.8rem', color: 'var(--text2)' }}>{user.id.slice(0, 8)}...</td>
+                  <td style={{ padding: '1rem' }}>
+                    {user.is_admin ? 
+                      <CheckCircle size={18} color="#10b981" /> : 
+                      <XCircle size={18} color="#ef4444" />
+                    }
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <button 
+                      onClick={() => toggleAdmin(user.id, user.is_admin)}
+                      style={{ 
+                        padding: '0.4rem 0.8rem', 
+                        borderRadius: '6px', 
+                        border: '1px solid var(--bg3)', 
+                        background: 'transparent', 
+                        color: 'var(--text1)', 
+                        cursor: 'pointer',
+                        fontSize: '0.8rem'
+                      }}
+                    >
+                      {user.is_admin ? 'Retirer Admin' : 'Nommer Admin'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: { padding: '40px', fontFamily: 'Arial, sans-serif', maxWidth: '1000px', margin: '0 auto' },
-  header: { borderBottom: '2px solid #eee', marginBottom: '30px' },
-  center: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '20px' },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' },
-  statCard: { background: '#f8f9fa', padding: '20px', borderRadius: '10px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
-  statNumber: { fontSize: '24px', fontWeight: 'bold', color: '#007bff' },
-  table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' },
-  tableHeader: { backgroundColor: '#343a40', color: 'white', textAlign: 'left' },
-  tableRow: { borderBottom: '1px solid #ddd', padding: '10px' },
-};
-
-export default AdminDashboard;
+}

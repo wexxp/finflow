@@ -9,7 +9,7 @@ import BudgetView from './components/BudgetView'
 import ReventesView from './components/ReventesView'
 import AnnualView from './components/AnnualView'
 import GoalsView from './components/GoalsView'
-import AdminDashboard from './components/AdminDashboard' // Chemin mis à jour !
+import AdminDashboard from './components/AdminDashboard'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -27,8 +27,8 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       if (!session) { 
-        setData(null); 
-        setIsAdmin(false);
+        setData(null)
+        setIsAdmin(false)
         setLoading(false) 
       }
     })
@@ -38,24 +38,22 @@ export default function App() {
   useEffect(() => {
     if (!session) return
     setLoading(true)
-    
-    const checkAdminAndFetchData = async () => {
-      const userData = await fetchAllUserData(session.user.id);
-      setData(userData);
+
+    const loadUserData = async () => {
+      const d = await fetchAllUserData(session.user.id)
+      setData(d)
 
       const { data: profile } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', session.user.id)
-        .single();
+        .single()
       
-      if (profile?.is_admin) {
-        setIsAdmin(true);
-      }
-      setLoading(false);
+      setIsAdmin(profile?.is_admin || false)
+      setLoading(false)
     }
 
-    checkAdminAndFetchData();
+    loadUserData()
   }, [session])
 
   const refreshData = useCallback(async () => {
@@ -113,7 +111,6 @@ export default function App() {
     goals: GoalsView,
     admin: AdminDashboard 
   }
-  
   const View = views[activeTab] || Dashboard
 
   return (
@@ -123,7 +120,7 @@ export default function App() {
         currentMonth={currentMonth} setCurrentMonth={goToMonth}
         allMonthKeys={allMonthKeys} navigateMonth={navigateMonth}
         data={data} onSignOut={signOut} userEmail={session.user.email}
-        isAdmin={isAdmin} // On envoie l'info à la sidebar
+        isAdmin={isAdmin}
       />
       <main className="app-main">
         <View

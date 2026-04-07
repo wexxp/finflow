@@ -57,7 +57,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
           )
         })}
 
-        {/* AJOUT DU BOUTON ADMIN CONDITIONNEL */}
+        {/* Bouton Admin */}
         {isAdmin && (
           <button
             className={`nav-item admin-btn ${activeTab === 'admin' ? 'active' : ''}`}
