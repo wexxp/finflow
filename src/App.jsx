@@ -9,7 +9,7 @@ import BudgetView from './components/BudgetView'
 import ReventesView from './components/ReventesView'
 import AnnualView from './components/AnnualView'
 import GoalsView from './components/GoalsView'
-import AdminDashboard from './components/AdminDashboard'
+import AdminView from './components/AdminView'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -26,11 +26,7 @@ export default function App() {
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (!session) { 
-        setData(null)
-        setIsAdmin(false)
-        setLoading(false) 
-      }
+      if (!session) { setData(null); setLoading(false) }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -38,22 +34,14 @@ export default function App() {
   useEffect(() => {
     if (!session) return
     setLoading(true)
-
-    const loadUserData = async () => {
-      const d = await fetchAllUserData(session.user.id)
+    Promise.all([
+      fetchAllUserData(session.user.id),
+      supabase.from('profiles').select('is_admin').eq('id', session.user.id).single()
+    ]).then(([d, profileRes]) => {
       setData(d)
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', session.user.id)
-        .single()
-      
-      setIsAdmin(profile?.is_admin || false)
+      setIsAdmin(profileRes.data?.is_admin || false)
       setLoading(false)
-    }
-
-    loadUserData()
+    })
   }, [session])
 
   const refreshData = useCallback(async () => {
@@ -102,16 +90,9 @@ export default function App() {
 
   const monthData = data.months[currentMonth] || { transactions: [], reventes: [], budget: 2000 }
   const allMonthKeys = Object.keys(data.months).sort().reverse()
-  
-  const views = { 
-    dashboard: Dashboard, 
-    budget: BudgetView, 
-    reventes: ReventesView, 
-    annual: AnnualView, 
-    goals: GoalsView,
-    admin: AdminDashboard 
-  }
-  const View = views[activeTab] || Dashboard
+
+  const views = { dashboard: Dashboard, budget: BudgetView, reventes: ReventesView, annual: AnnualView, goals: GoalsView }
+  const View = views[activeTab]
 
   return (
     <div className="app-layout">
@@ -123,12 +104,17 @@ export default function App() {
         isAdmin={isAdmin}
       />
       <main className="app-main">
-        <View
-          data={data} monthData={monthData} currentMonth={currentMonth}
-          userId={session.user.id} refreshData={refreshData}
-          navigateMonth={navigateMonth} setActiveTab={setActiveTab}
-          updateData={setData}
-        />
+        {activeTab === 'admin' && isAdmin
+          ? <AdminView />
+          : View
+            ? <View
+                data={data} monthData={monthData} currentMonth={currentMonth}
+                userId={session.user.id} refreshData={refreshData}
+                navigateMonth={navigateMonth} setActiveTab={setActiveTab}
+                updateData={setData}
+              />
+            : null
+        }
       </main>
     </div>
   )

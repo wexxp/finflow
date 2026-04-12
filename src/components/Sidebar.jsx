@@ -1,4 +1,4 @@
-import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import './Sidebar.css'
 
@@ -56,16 +56,14 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             </button>
           )
         })}
-
-        {/* Bouton Admin */}
         {isAdmin && (
           <button
-            className={`nav-item admin-btn ${activeTab === 'admin' ? 'active' : ''}`}
+            className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`}
             onClick={() => setActiveTab('admin')}
-            style={{ marginTop: '10px', color: '#ffcc00', borderTop: '1px solid #333', paddingTop: '10px' }}
+            style={{ marginTop: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}
           >
-            <ShieldCheck size={18}/>
-            <span>Administration</span>
+            <Shield size={18} style={{ color: 'var(--accent)' }}/>
+            <span style={{ color: 'var(--accent)' }}>Administration</span>
           </button>
         )}
       </nav>
@@ -92,7 +90,10 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
       </div>
 
       <div className="sidebar-user">
-        <div className="user-email">{userEmail}</div>
+        <div className="user-email">
+          {isAdmin && <Shield size={11} style={{ color: 'var(--accent)', marginRight: 4 }}/>}
+          {userEmail}
+        </div>
         <button className="signout-btn" onClick={onSignOut}>
           <LogOut size={12} style={{ marginRight: 5 }}/>
           Déconnexion
