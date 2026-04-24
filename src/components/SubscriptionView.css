@@ -1,0 +1,26 @@
+.sub-view { max-width: 480px; margin: 0 auto; padding: 2rem 0; }
+
+.sub-header { text-align: center; margin-bottom: 2rem; }
+.sub-badge { display: inline-block; padding: 4px 14px; border-radius: 99px; background: var(--accent-bg); color: var(--accent); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 1rem; }
+.sub-title { font-family: var(--font-display); font-size: 32px; letter-spacing: -0.02em; margin-bottom: 8px; }
+.sub-desc { font-size: 15px; color: var(--text2); }
+
+.sub-card { background: var(--bg1); border: 1px solid var(--line2); border-radius: var(--radius-xl); padding: 2rem; }
+
+.sub-price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+.sub-amount { font-family: var(--font-display); font-size: 48px; color: var(--text); }
+.sub-period { font-size: 18px; color: var(--text2); }
+.sub-cancel { font-size: 13px; color: var(--text3); margin-bottom: 1.5rem; }
+
+.sub-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.75rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--line); }
+.sub-feature { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text2); }
+.sub-feature-icon { width: 22px; height: 22px; border-radius: 50%; background: var(--green-bg); color: var(--green); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+.sub-paypal-wrap { margin-bottom: 1rem; }
+.sub-loading { text-align: center; color: var(--text3); font-size: 13px; padding: 1rem; }
+.sub-secure { text-align: center; font-size: 12px; color: var(--text3); }
+
+.sub-success { text-align: center; padding: 3rem; background: var(--bg1); border: 1px solid var(--green); border-radius: var(--radius-xl); }
+.sub-success-icon { font-size: 48px; margin-bottom: 1rem; }
+.sub-success h2 { font-family: var(--font-display); font-size: 24px; margin-bottom: 8px; }
+.sub-success p { font-size: 14px; color: var(--text2); }

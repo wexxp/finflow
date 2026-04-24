@@ -10,6 +10,7 @@ import ReventesView from './components/ReventesView'
 import AnnualView from './components/AnnualView'
 import GoalsView from './components/GoalsView'
 import AdminView from './components/AdminView'
+import SubscriptionView from './components/SubscriptionView'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -70,27 +71,14 @@ export default function App() {
     await ensureMonth(key)
   }, [ensureMonth])
 
-  async function signOut() {
-    await supabase.auth.signOut()
-  }
+  async function signOut() { await supabase.auth.signOut() }
 
-  if (loading) return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'var(--text2)',fontFamily:'var(--font-body)'}}>
-      Chargement…
-    </div>
-  )
-
+  if (loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'var(--text2)',fontFamily:'var(--font-body)'}}>Chargement…</div>
   if (!session) return <Auth />
-
-  if (!data) return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'var(--text2)',fontFamily:'var(--font-body)'}}>
-      Chargement des données…
-    </div>
-  )
+  if (!data) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'var(--text2)',fontFamily:'var(--font-body)'}}>Chargement des données…</div>
 
   const monthData = data.months[currentMonth] || { transactions: [], reventes: [], budget: 2000 }
   const allMonthKeys = Object.keys(data.months).sort().reverse()
-
   const views = { dashboard: Dashboard, budget: BudgetView, reventes: ReventesView, annual: AnnualView, goals: GoalsView }
   const View = views[activeTab]
 
@@ -106,14 +94,11 @@ export default function App() {
       <main className="app-main">
         {activeTab === 'admin' && isAdmin
           ? <AdminView />
+          : activeTab === 'subscription'
+          ? <SubscriptionView userEmail={session.user.email}/>
           : View
-            ? <View
-                data={data} monthData={monthData} currentMonth={currentMonth}
-                userId={session.user.id} refreshData={refreshData}
-                navigateMonth={navigateMonth} setActiveTab={setActiveTab}
-                updateData={setData}
-              />
-            : null
+          ? <View data={data} monthData={monthData} currentMonth={currentMonth} userId={session.user.id} refreshData={refreshData} navigateMonth={navigateMonth} setActiveTab={setActiveTab} updateData={setData}/>
+          : null
         }
       </main>
     </div>

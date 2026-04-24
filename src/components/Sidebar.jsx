@@ -1,4 +1,4 @@
-import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield } from 'lucide-react'
+import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import './Sidebar.css'
 
@@ -46,24 +46,19 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
         {NAV.map(item => {
           const Icon = item.icon
           return (
-            <button
-              key={item.id}
-              className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
-            >
-              <Icon size={18}/>
-              <span>{item.label}</span>
+            <button key={item.id} className={`nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
+              <Icon size={18}/><span>{item.label}</span>
             </button>
           )
         })}
+
+        <button className={`nav-item premium-btn ${activeTab === 'subscription' ? 'active' : ''}`} onClick={() => setActiveTab('subscription')}>
+          <Zap size={18} style={{ color: 'var(--gold)' }}/><span style={{ color: 'var(--gold)' }}>Premium</span>
+        </button>
+
         {isAdmin && (
-          <button
-            className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`}
-            onClick={() => setActiveTab('admin')}
-            style={{ marginTop: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}
-          >
-            <Shield size={18} style={{ color: 'var(--accent)' }}/>
-            <span style={{ color: 'var(--accent)' }}>Administration</span>
+          <button className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => setActiveTab('admin')} style={{ marginTop: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+            <Shield size={18} style={{ color: 'var(--accent)' }}/><span style={{ color: 'var(--accent)' }}>Administration</span>
           </button>
         )}
       </nav>
@@ -74,15 +69,9 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
           {allMonthKeys.map(key => {
             const s = computeStats(data.months[key])
             return (
-              <button
-                key={key}
-                className={`sm-item ${key === currentMonth ? 'active' : ''}`}
-                onClick={() => setCurrentMonth(key)}
-              >
+              <button key={key} className={`sm-item ${key === currentMonth ? 'active' : ''}`} onClick={() => setCurrentMonth(key)}>
                 <span className="sm-name">{fmtMonth(key)}</span>
-                <span className={`sm-bal ${s.balance >= 0 ? 'pos' : 'neg'}`}>
-                  {s.balance >= 0 ? '+' : '−'}{fmt(Math.abs(s.balance))}
-                </span>
+                <span className={`sm-bal ${s.balance >= 0 ? 'pos' : 'neg'}`}>{s.balance >= 0 ? '+' : '−'}{fmt(Math.abs(s.balance))}</span>
               </button>
             )
           })}
@@ -95,8 +84,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
           {userEmail}
         </div>
         <button className="signout-btn" onClick={onSignOut}>
-          <LogOut size={12} style={{ marginRight: 5 }}/>
-          Déconnexion
+          <LogOut size={12} style={{ marginRight: 5 }}/> Déconnexion
         </button>
       </div>
     </aside>
