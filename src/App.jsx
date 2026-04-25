@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './utils/supabase'
 import { fetchAllUserData, applyRecurringToMonth } from './utils/db'
 import { monthKey } from './utils/storage'
+import LandingPage from './components/LandingPage'
 import Auth from './components/Auth'
 import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
@@ -13,11 +14,7 @@ import AdminView from './components/AdminView'
 import SubscriptionView from './components/SubscriptionView'
 import LockedView from './components/LockedView'
 
-const PREMIUM_TABS = {
-  reventes: 'Reventes',
-  annual: 'Vue annuelle',
-  goals: 'Objectifs',
-}
+const PREMIUM_TABS = { reventes:'Reventes', annual:'Vue annuelle', goals:'Objectifs' }
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -27,15 +24,16 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isAdmin, setIsAdmin] = useState(false)
   const [isPremium, setIsPremium] = useState(false)
+  const [authMode, setAuthMode] = useState(null) // null=landing, 'login', 'register'
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      if (!session) setLoading(false)
+      setLoading(false)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (!session) { setData(null); setLoading(false) }
+      if (!session) { setData(null); setAuthMode(null) }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -83,15 +81,21 @@ export default function App() {
   async function signOut() { await supabase.auth.signOut() }
 
   if (loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'var(--text2)',fontFamily:'var(--font-body)'}}>Chargement…</div>
-  if (!session) return <Auth />
+
+  // Not logged in
+  if (!session) {
+    if (authMode === 'login' || authMode === 'register') {
+      return <Auth defaultMode={authMode}/>
+    }
+    return <LandingPage onLogin={() => setAuthMode('login')} onRegister={() => setAuthMode('register')}/>
+  }
+
   if (!data) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'var(--text2)',fontFamily:'var(--font-body)'}}>Chargement des données…</div>
 
   const monthData = data.months[currentMonth] || { transactions: [], reventes: [], budget: 2000 }
   const allMonthKeys = Object.keys(data.months).sort().reverse()
   const views = { dashboard: Dashboard, budget: BudgetView, reventes: ReventesView, annual: AnnualView, goals: GoalsView }
   const View = views[activeTab]
-
-  // Check if current tab is premium-locked
   const isLocked = PREMIUM_TABS[activeTab] && !isPremium
 
   function renderContent() {
@@ -111,9 +115,7 @@ export default function App() {
         data={data} onSignOut={signOut} userEmail={session.user.email}
         isAdmin={isAdmin} isPremium={isPremium}
       />
-      <main className="app-main">
-        {renderContent()}
-      </main>
+      <main className="app-main">{renderContent()}</main>
     </div>
   )
 }
