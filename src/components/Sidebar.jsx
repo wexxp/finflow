@@ -1,17 +1,25 @@
-import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap } from 'lucide-react'
+import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import './Sidebar.css'
 
 const NAV = [
-  { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-  { id: 'budget',    label: 'Budget',           icon: Wallet },
-  { id: 'reventes',  label: 'Reventes',         icon: RefreshCw },
-  { id: 'annual',    label: 'Vue annuelle',     icon: BarChart2 },
-  { id: 'goals',     label: 'Objectifs',        icon: Target },
+  { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, premium: false },
+  { id: 'budget',    label: 'Budget',           icon: Wallet,          premium: false },
+  { id: 'reventes',  label: 'Reventes',         icon: RefreshCw,       premium: true  },
+  { id: 'annual',    label: 'Vue annuelle',     icon: BarChart2,       premium: true  },
+  { id: 'goals',     label: 'Objectifs',        icon: Target,          premium: true  },
 ]
 
-export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, isAdmin }) {
+export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, isAdmin, isPremium }) {
   const stats = computeStats(data.months[currentMonth])
+
+  function handleNav(item) {
+    if (item.premium && !isPremium) {
+      setActiveTab('subscription')
+    } else {
+      setActiveTab(item.id)
+    }
+  }
 
   return (
     <aside className="sidebar">
@@ -45,20 +53,38 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
       <nav className="sidebar-nav">
         {NAV.map(item => {
           const Icon = item.icon
+          const locked = item.premium && !isPremium
           return (
-            <button key={item.id} className={`nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
-              <Icon size={18}/><span>{item.label}</span>
+            <button
+              key={item.id}
+              className={`nav-item ${activeTab === item.id ? 'active' : ''} ${locked ? 'locked' : ''}`}
+              onClick={() => handleNav(item)}
+            >
+              <Icon size={18}/>
+              <span>{item.label}</span>
+              {locked && <Lock size={12} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
             </button>
           )
         })}
 
-        <button className={`nav-item premium-btn ${activeTab === 'subscription' ? 'active' : ''}`} onClick={() => setActiveTab('subscription')}>
-          <Zap size={18} style={{ color: 'var(--gold)' }}/><span style={{ color: 'var(--gold)' }}>Premium</span>
+        <button
+          className={`nav-item premium-btn ${activeTab === 'subscription' ? 'active' : ''}`}
+          onClick={() => setActiveTab('subscription')}
+        >
+          <Zap size={18} style={{ color: 'var(--gold)' }}/>
+          <span style={{ color: isPremium ? 'var(--gold)' : 'var(--gold)' }}>
+            {isPremium ? '⭐ Premium actif' : 'Passer Premium'}
+          </span>
         </button>
 
         {isAdmin && (
-          <button className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => setActiveTab('admin')} style={{ marginTop: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}>
-            <Shield size={18} style={{ color: 'var(--accent)' }}/><span style={{ color: 'var(--accent)' }}>Administration</span>
+          <button
+            className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`}
+            onClick={() => setActiveTab('admin')}
+            style={{ marginTop: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}
+          >
+            <Shield size={18} style={{ color: 'var(--accent)' }}/>
+            <span style={{ color: 'var(--accent)' }}>Administration</span>
           </button>
         )}
       </nav>
@@ -81,6 +107,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
       <div className="sidebar-user">
         <div className="user-email">
           {isAdmin && <Shield size={11} style={{ color: 'var(--accent)', marginRight: 4 }}/>}
+          {isPremium && <Zap size={11} style={{ color: 'var(--gold)', marginRight: 4 }}/>}
           {userEmail}
         </div>
         <button className="signout-btn" onClick={onSignOut}>

@@ -19,6 +19,7 @@ export default function App() {
   const [currentMonth, setCurrentMonth] = useState(monthKey())
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isPremium, setIsPremium] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -37,10 +38,11 @@ export default function App() {
     setLoading(true)
     Promise.all([
       fetchAllUserData(session.user.id),
-      supabase.from('profiles').select('is_admin').eq('id', session.user.id).single()
+      supabase.from('profiles').select('is_admin, is_premium').eq('id', session.user.id).single()
     ]).then(([d, profileRes]) => {
       setData(d)
       setIsAdmin(profileRes.data?.is_admin || false)
+      setIsPremium(profileRes.data?.is_premium || profileRes.data?.is_admin || false)
       setLoading(false)
     })
   }, [session])
@@ -89,15 +91,15 @@ export default function App() {
         currentMonth={currentMonth} setCurrentMonth={goToMonth}
         allMonthKeys={allMonthKeys} navigateMonth={navigateMonth}
         data={data} onSignOut={signOut} userEmail={session.user.email}
-        isAdmin={isAdmin}
+        isAdmin={isAdmin} isPremium={isPremium}
       />
       <main className="app-main">
         {activeTab === 'admin' && isAdmin
-          ? <AdminView />
+          ? <AdminView isPremium={isPremium}/>
           : activeTab === 'subscription'
           ? <SubscriptionView userEmail={session.user.email}/>
           : View
-          ? <View data={data} monthData={monthData} currentMonth={currentMonth} userId={session.user.id} refreshData={refreshData} navigateMonth={navigateMonth} setActiveTab={setActiveTab} updateData={setData}/>
+          ? <View data={data} monthData={monthData} currentMonth={currentMonth} userId={session.user.id} refreshData={refreshData} navigateMonth={navigateMonth} setActiveTab={setActiveTab} updateData={setData} isPremium={isPremium}/>
           : null
         }
       </main>

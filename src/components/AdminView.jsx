@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
-import { Users, TrendingUp, TrendingDown, RefreshCw, Shield, ShieldOff } from 'lucide-react'
+import { Users, TrendingUp, TrendingDown, RefreshCw, Shield, ShieldOff, Zap, ZapOff } from 'lucide-react'
 import { fmt } from '../utils/storage'
 import './AdminView.css'
 
 export default function AdminView() {
   const [users, setUsers] = useState([])
-  const [stats, setStats] = useState({ total: 0, totalTx: 0, totalRv: 0 })
+  const [stats, setStats] = useState({ total: 0, totalTx: 0, totalRv: 0, totalPremium: 0 })
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(null)
 
@@ -19,11 +19,9 @@ export default function AdminView() {
       supabase.from('transactions').select('user_id, amount, type'),
       supabase.from('reventes').select('user_id, vente, achat, frais'),
     ])
-
     const profiles = profilesRes.data || []
     const txs = txRes.data || []
     const rvs = rvRes.data || []
-
     const enriched = profiles.map(p => {
       const userTxs = txs.filter(t => t.user_id === p.id)
       const userRvs = rvs.filter(r => r.user_id === p.id)
@@ -32,15 +30,26 @@ export default function AdminView() {
       const benefRv = userRvs.reduce((s, r) => s + (r.vente - r.achat - r.frais), 0)
       return { ...p, revenus, depenses, benefRv, nbTx: userTxs.length, nbRv: userRvs.length }
     })
-
     setUsers(enriched)
-    setStats({ total: profiles.length, totalTx: txs.length, totalRv: rvs.length })
+    setStats({
+      total: profiles.length,
+      totalTx: txs.length,
+      totalRv: rvs.length,
+      totalPremium: profiles.filter(p => p.is_premium).length,
+    })
     setLoading(false)
   }
 
   async function toggleAdmin(user) {
-    setUpdating(user.id)
+    setUpdating(user.id + '_admin')
     await supabase.from('profiles').update({ is_admin: !user.is_admin }).eq('id', user.id)
+    await loadData()
+    setUpdating(null)
+  }
+
+  async function togglePremium(user) {
+    setUpdating(user.id + '_premium')
+    await supabase.from('profiles').update({ is_premium: !user.is_premium }).eq('id', user.id)
     await loadData()
     setUpdating(null)
   }
@@ -62,33 +71,25 @@ export default function AdminView() {
       </div>
 
       <div className="admin-kpis fade-up stagger-1">
-        <div className="admin-kpi">
-          <Users size={20} style={{ color:'var(--accent)' }}/>
-          <div><div className="admin-kpi-val">{stats.total}</div><div className="admin-kpi-label">Utilisateurs</div></div>
-        </div>
-        <div className="admin-kpi">
-          <TrendingUp size={20} style={{ color:'var(--green)' }}/>
-          <div><div className="admin-kpi-val">{stats.totalTx}</div><div className="admin-kpi-label">Transactions</div></div>
-        </div>
-        <div className="admin-kpi">
-          <TrendingDown size={20} style={{ color:'var(--purple)' }}/>
-          <div><div className="admin-kpi-val">{stats.totalRv}</div><div className="admin-kpi-label">Reventes</div></div>
-        </div>
+        <div className="admin-kpi"><Users size={20} style={{ color:'var(--accent)' }}/><div><div className="admin-kpi-val">{stats.total}</div><div className="admin-kpi-label">Utilisateurs</div></div></div>
+        <div className="admin-kpi"><Zap size={20} style={{ color:'var(--gold)' }}/><div><div className="admin-kpi-val">{stats.totalPremium}</div><div className="admin-kpi-label">Premium</div></div></div>
+        <div className="admin-kpi"><TrendingUp size={20} style={{ color:'var(--green)' }}/><div><div className="admin-kpi-val">{stats.totalTx}</div><div className="admin-kpi-label">Transactions</div></div></div>
+        <div className="admin-kpi"><TrendingDown size={20} style={{ color:'var(--purple)' }}/><div><div className="admin-kpi-val">{stats.totalRv}</div><div className="admin-kpi-label">Reventes</div></div></div>
       </div>
 
       <div className="admin-table fade-up stagger-2">
         <div className="box-title" style={{ marginBottom:'1rem' }}>Utilisateurs inscrits</div>
-        {users.length === 0 && <p style={{ color:'var(--text3)', fontSize:14 }}>Aucun utilisateur</p>}
         <table className="user-table">
           <thead>
             <tr>
               <th>Email</th>
               <th>Inscrit le</th>
-              <th>Transactions</th>
+              <th>Tx</th>
               <th>Revenus</th>
               <th>Dépenses</th>
-              <th>Reventes</th>
+              <th>Rv</th>
               <th>Bénéf.</th>
+              <th>Premium</th>
               <th>Admin</th>
             </tr>
           </thead>
@@ -96,7 +97,8 @@ export default function AdminView() {
             {users.map(u => (
               <tr key={u.id}>
                 <td className="user-email-cell">
-                  {u.is_admin && <Shield size={12} style={{ color:'var(--accent)', marginRight:5 }}/>}
+                  {u.is_admin && <Shield size={12} style={{ color:'var(--accent)', marginRight:4 }}/>}
+                  {u.is_premium && <Zap size={12} style={{ color:'var(--gold)', marginRight:4 }}/>}
                   {u.email}
                 </td>
                 <td>{u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}</td>
@@ -104,26 +106,17 @@ export default function AdminView() {
                 <td style={{ color:'var(--green)' }}>+{fmt(u.revenus)}</td>
                 <td style={{ color:'var(--red)' }}>−{fmt(u.depenses)}</td>
                 <td>{u.nbRv}</td>
-                <td style={{ color: u.benefRv >= 0 ? 'var(--green)' : 'var(--red)' }}>
-                  {u.benefRv >= 0 ? '+' : '−'}{fmt(Math.abs(u.benefRv))}
+                <td style={{ color: u.benefRv >= 0 ? 'var(--green)' : 'var(--red)' }}>{u.benefRv >= 0 ? '+' : '−'}{fmt(Math.abs(u.benefRv))}</td>
+                <td>
+                  <button onClick={() => togglePremium(u)} disabled={updating === u.id + '_premium'}
+                    style={{ display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:'var(--radius)',border:u.is_premium?'1px solid var(--gold)':'1px solid var(--line2)',background:u.is_premium?'var(--gold-bg)':'transparent',color:u.is_premium?'var(--gold)':'var(--text3)',fontSize:12,cursor:'pointer',whiteSpace:'nowrap' }}>
+                    {updating === u.id + '_premium' ? '…' : u.is_premium ? <><Zap size={12}/> Actif</> : <><ZapOff size={12}/> Inactif</>}
+                  </button>
                 </td>
                 <td>
-                  <button
-                    onClick={() => toggleAdmin(u)}
-                    disabled={updating === u.id}
-                    style={{
-                      display:'flex', alignItems:'center', gap:5,
-                      padding:'4px 10px', borderRadius:'var(--radius)',
-                      border: u.is_admin ? '1px solid var(--accent)' : '1px solid var(--line2)',
-                      background: u.is_admin ? 'var(--accent-bg)' : 'transparent',
-                      color: u.is_admin ? 'var(--accent)' : 'var(--text3)',
-                      fontSize:12, cursor:'pointer', whiteSpace:'nowrap'
-                    }}
-                  >
-                    {updating === u.id ? '…' : u.is_admin
-                      ? <><Shield size={12}/> Admin</>
-                      : <><ShieldOff size={12}/> Non admin</>
-                    }
+                  <button onClick={() => toggleAdmin(u)} disabled={updating === u.id + '_admin'}
+                    style={{ display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:'var(--radius)',border:u.is_admin?'1px solid var(--accent)':'1px solid var(--line2)',background:u.is_admin?'var(--accent-bg)':'transparent',color:u.is_admin?'var(--accent)':'var(--text3)',fontSize:12,cursor:'pointer',whiteSpace:'nowrap' }}>
+                    {updating === u.id + '_admin' ? '…' : u.is_admin ? <><Shield size={12}/> Admin</> : <><ShieldOff size={12}/> Non</>}
                   </button>
                 </td>
               </tr>
