@@ -11,6 +11,13 @@ import AnnualView from './components/AnnualView'
 import GoalsView from './components/GoalsView'
 import AdminView from './components/AdminView'
 import SubscriptionView from './components/SubscriptionView'
+import LockedView from './components/LockedView'
+
+const PREMIUM_TABS = {
+  reventes: 'Reventes',
+  annual: 'Vue annuelle',
+  goals: 'Objectifs',
+}
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -84,6 +91,17 @@ export default function App() {
   const views = { dashboard: Dashboard, budget: BudgetView, reventes: ReventesView, annual: AnnualView, goals: GoalsView }
   const View = views[activeTab]
 
+  // Check if current tab is premium-locked
+  const isLocked = PREMIUM_TABS[activeTab] && !isPremium
+
+  function renderContent() {
+    if (activeTab === 'admin' && isAdmin) return <AdminView />
+    if (activeTab === 'subscription') return <SubscriptionView userEmail={session.user.email}/>
+    if (isLocked) return <LockedView featureName={PREMIUM_TABS[activeTab]} setActiveTab={setActiveTab}/>
+    if (View) return <View data={data} monthData={monthData} currentMonth={currentMonth} userId={session.user.id} refreshData={refreshData} navigateMonth={navigateMonth} setActiveTab={setActiveTab} updateData={setData} isPremium={isPremium}/>
+    return null
+  }
+
   return (
     <div className="app-layout">
       <Sidebar
@@ -94,14 +112,7 @@ export default function App() {
         isAdmin={isAdmin} isPremium={isPremium}
       />
       <main className="app-main">
-        {activeTab === 'admin' && isAdmin
-          ? <AdminView isPremium={isPremium}/>
-          : activeTab === 'subscription'
-          ? <SubscriptionView userEmail={session.user.email}/>
-          : View
-          ? <View data={data} monthData={monthData} currentMonth={currentMonth} userId={session.user.id} refreshData={refreshData} navigateMonth={navigateMonth} setActiveTab={setActiveTab} updateData={setData} isPremium={isPremium}/>
-          : null
-        }
+        {renderContent()}
       </main>
     </div>
   )

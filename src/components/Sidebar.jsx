@@ -13,14 +13,6 @@ const NAV = [
 export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, isAdmin, isPremium }) {
   const stats = computeStats(data.months[currentMonth])
 
-  function handleNav(item) {
-    if (item.premium && !isPremium) {
-      setActiveTab('subscription')
-    } else {
-      setActiveTab(item.id)
-    }
-  }
-
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
@@ -58,7 +50,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             <button
               key={item.id}
               className={`nav-item ${activeTab === item.id ? 'active' : ''} ${locked ? 'locked' : ''}`}
-              onClick={() => handleNav(item)}
+              onClick={() => setActiveTab(item.id)}
             >
               <Icon size={18}/>
               <span>{item.label}</span>
@@ -68,13 +60,12 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
         })}
 
         <button
-          className={`nav-item premium-btn ${activeTab === 'subscription' ? 'active' : ''}`}
+          className={`nav-item ${activeTab === 'subscription' ? 'active' : ''}`}
           onClick={() => setActiveTab('subscription')}
+          style={{ marginTop: 4 }}
         >
           <Zap size={18} style={{ color: 'var(--gold)' }}/>
-          <span style={{ color: isPremium ? 'var(--gold)' : 'var(--gold)' }}>
-            {isPremium ? '⭐ Premium actif' : 'Passer Premium'}
-          </span>
+          <span style={{ color: 'var(--gold)' }}>{isPremium ? '⭐ Premium actif' : 'Passer Premium'}</span>
         </button>
 
         {isAdmin && (
