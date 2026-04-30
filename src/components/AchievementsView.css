@@ -1,0 +1,217 @@
+.achievements-view { max-width: 980px; }
+
+/* ── Résumé global dans le page-header ── */
+.ach-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.ach-summary-num {
+  font-family: var(--font-display);
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.ach-summary-current { color: var(--gold); }
+.ach-summary-sep     { color: var(--text3); font-size: 22px; }
+.ach-summary-total   { color: var(--text2); font-size: 22px; }
+.ach-summary-label   {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+}
+
+/* ── Barre de progression globale ── */
+.ach-overall {
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.ach-overall-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ach-overall-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ach-overall-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+/* ── Catégorie ── */
+.ach-category { margin-bottom: 2rem; }
+.ach-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.875rem;
+  padding: 0 4px;
+}
+.ach-category-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0;
+}
+.ach-category-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  padding: 4px 10px;
+  background: var(--bg2);
+  border-radius: 99px;
+}
+
+/* ── Grille de trophées ── */
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.achievement-card {
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.achievement-card.unlocked:hover { transform: translateY(-2px); }
+.achievement-card.locked { opacity: 0.65; }
+
+.ach-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ach-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ach-icon { font-size: 24px; line-height: 1; }
+
+.ach-info { flex: 1; min-width: 0; }
+.ach-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+.ach-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+.ach-tier {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--text3);
+  background: var(--bg2);
+}
+.ach-desc {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.ach-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Barre de progression ── */
+.ach-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ach-progress-track {
+  flex: 1;
+  height: 5px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ach-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ach-progress-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* ── Empty state ── */
+.ach-empty {
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text3);
+  font-size: 14px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .achievements-view { max-width: 100%; }
+  .page-title { font-size: 24px; }
+  .page-header { margin-bottom: 1.25rem; }
+  .ach-summary-num { font-size: 26px; }
+  .ach-summary-sep, .ach-summary-total { font-size: 18px; }
+  .ach-overall { padding: 1rem; }
+  .ach-grid { grid-template-columns: 1fr; }
+  .ach-category-title { font-size: 17px; }
+}
+
+@media (max-width: 480px) {
+  .achievement-card { padding: 0.875rem 1rem; }
+  .ach-icon-wrap { width: 42px; height: 42px; }
+  .ach-icon { font-size: 20px; }
+}

@@ -1,5 +1,6 @@
-import { TrendingUp, TrendingDown, RefreshCw, Activity, ArrowRight } from 'lucide-react'
+import { TrendingUp, TrendingDown, RefreshCw, Activity, ArrowRight, Trophy } from 'lucide-react'
 import { computeStats, fmt, fmtSigned, fmtMonth, CAT_META } from '../utils/storage'
+import { computeAchievements, getAllReventes, summary as achSummary } from '../utils/achievements'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
 import './Dashboard.css'
 
@@ -18,10 +19,16 @@ function KpiCard({ label, value, color, icon: Icon, sub, delay }) {
   )
 }
 
-export default function Dashboard({ data, monthData, currentMonth, setActiveTab }) {
+export default function Dashboard({ data, monthData, currentMonth, setActiveTab, isPremium }) {
   const stats = computeStats(monthData)
   const txs = monthData?.transactions || []
   const rvs = monthData?.reventes || []
+
+  // Trophées (toutes périodes confondues)
+  const allRvs = getAllReventes(data)
+  const achievements = computeAchievements(allRvs)
+  const ach = achSummary(achievements)
+  const lastUnlocked = [...achievements].filter(a => a.unlocked).slice(-3).reverse()
 
   // Spending by cat for pie
   const depBycat = {}
@@ -70,6 +77,29 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab 
         <KpiCard label="Bénéf. reventes" value={fmtSigned(stats.totalRvBenef)} color="var(--purple)" icon={RefreshCw} sub={`${rvs.length} article${rvs.length > 1 ? 's' : ''} · ${rvs.filter(r=>r.vente>0).length} vendu${rvs.filter(r=>r.vente>0).length > 1 ? 's' : ''}`} delay={3}/>
         <KpiCard label="Taux d'épargne" value={stats.savingRate.toFixed(1) + ' %'} color="var(--gold)" icon={Activity} sub={`Score santé : ${stats.healthScore}/100`} delay={4}/>
       </div>
+
+      {isPremium && allRvs.length > 0 && (
+        <button className="trophy-widget fade-up stagger-2" onClick={() => setActiveTab('achievements')}>
+          <div className="trophy-widget-icon">
+            <Trophy size={20}/>
+          </div>
+          <div className="trophy-widget-info">
+            <div className="trophy-widget-top">
+              <span className="trophy-widget-title">Trophées</span>
+              <span className="trophy-widget-count">{ach.unlocked} / {ach.total}</span>
+            </div>
+            <div className="trophy-widget-track">
+              <div className="trophy-widget-fill" style={{ width: `${ach.pct}%` }}/>
+            </div>
+            {lastUnlocked.length > 0 && (
+              <div className="trophy-widget-last">
+                Dernier : {lastUnlocked.map(a => `${a.icon} ${a.title}`).join(' · ')}
+              </div>
+            )}
+          </div>
+          <ArrowRight size={16} className="trophy-widget-arrow"/>
+        </button>
+      )}
 
       <div className="dash-row">
         <div className="dash-card chart-card fade-up stagger-3">

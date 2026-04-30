@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User } from 'lucide-react'
+import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User, Trophy } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import './Sidebar.css'
 
@@ -86,6 +86,16 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
           >
             <Zap size={18} style={{ color: 'var(--gold)' }}/>
             <span style={{ color: 'var(--gold)' }}>{isPremium ? '⭐ Premium actif' : 'Passer Premium'}</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'achievements' ? 'active' : ''} ${!isPremium ? 'locked' : ''}`}
+            onClick={() => setActiveTab('achievements')}
+            style={{ marginTop: 4 }}
+          >
+            <Trophy size={18} style={{ color: isPremium ? 'var(--gold)' : undefined }}/>
+            <span>Trophées</span>
+            {!isPremium && <Lock size={12} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
           </button>
 
           <button
@@ -206,6 +216,14 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             </div>
 
             <div className="mobile-more-actions">
+              <button
+                className={`mobile-more-btn ${activeTab === 'achievements' ? 'active' : ''}`}
+                onClick={() => handleTabChange('achievements')}
+              >
+                <Trophy size={16} style={{ color: 'var(--gold)' }}/>
+                <span>Trophées</span>
+                {!isPremium && <Lock size={11} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
+              </button>
               <button
                 className={`mobile-more-btn ${activeTab === 'profile' ? 'active' : ''}`}
                 onClick={() => handleTabChange('profile')}

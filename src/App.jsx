@@ -14,8 +14,9 @@ import AdminView from './components/AdminView'
 import SubscriptionView from './components/SubscriptionView'
 import LockedView from './components/LockedView'
 import ProfileView from './components/ProfileView'
+import AchievementsView from './components/AchievementsView'
 
-const PREMIUM_TABS = { reventes:'Reventes', annual:'Vue annuelle', goals:'Objectifs' }
+const PREMIUM_TABS = { reventes:'Reventes', annual:'Vue annuelle', goals:'Objectifs', achievements:'Trophées' }
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -110,7 +111,7 @@ export default function App() {
 
   const monthData = data.months[currentMonth] || { transactions: [], reventes: [], budget: 2000 }
   const allMonthKeys = Object.keys(data.months).sort().reverse()
-  const views = { dashboard: Dashboard, budget: BudgetView, reventes: ReventesView, annual: AnnualView, goals: GoalsView }
+  const views = { dashboard: Dashboard, budget: BudgetView, reventes: ReventesView, annual: AnnualView, goals: GoalsView, achievements: AchievementsView }
   const View = views[activeTab]
   const isLocked = PREMIUM_TABS[activeTab] && !isPremium
 
