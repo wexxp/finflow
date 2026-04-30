@@ -131,6 +131,67 @@
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--line);
 }
+
+/* Avatar circulaire (image ou initiales) */
+.avatar-chip-img {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+  border: 1px solid var(--line2);
+}
+.avatar-chip-placeholder {
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 500;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+/* Carte user cliquable (footer sidebar desktop) */
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  margin: 0 -8px 8px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  transition: var(--transition);
+}
+.user-card:hover { background: var(--bg2); border-color: var(--line); }
+
+.user-card-info { flex: 1; min-width: 0; }
+.user-card-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-card-email {
+  font-size: 11px;
+  color: var(--text3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* Conservé pour compat */
 .user-email {
   font-size: 12px;
   color: var(--text3);
@@ -307,9 +368,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     padding: 1rem 1.25rem 0.75rem;
     border-bottom: 1px solid var(--line);
   }
+
+  /* Compat (ancienne classe) */
   .mobile-more-user {
     display: flex;
     align-items: center;
@@ -322,6 +386,44 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 200px;
+  }
+
+  /* Nouvelle carte user cliquable dans le drawer */
+  .mobile-more-user-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin: 0;
+    font-family: var(--font-body);
+    text-align: left;
+    min-width: 0;
+    border-radius: var(--radius);
+    transition: var(--transition);
+  }
+  .mobile-more-user-card:hover { background: var(--bg2); }
+  .mobile-more-user-info { flex: 1; min-width: 0; }
+  .mobile-more-user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mobile-more-user-email {
+    font-size: 12px;
+    color: var(--text3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
   }
   .mobile-more-close {
     width: 32px;

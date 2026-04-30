@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, Zap, Shield, TrendingUp, RefreshCw } from 'lucide-react'
+import { Check, Zap, Shield, TrendingUp, RefreshCw, ExternalLink, Sparkles } from 'lucide-react'
 import './SubscriptionView.css'
 
 const PLAN_ID = 'P-7Y373755ED226545YNHWAAGY'
@@ -14,12 +14,16 @@ const FEATURES = [
   { icon: Check,      text: 'Catégories et plateformes personnalisables' },
 ]
 
-export default function SubscriptionView({ userEmail }) {
+export default function SubscriptionView({ userEmail, isPremium, isAdmin }) {
   const buttonRef = useRef(null)
   const [paypalReady, setPaypalReady] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
 
+  // Vue dédiée pour les utilisateurs déjà Premium / Admin (pas de paywall)
+  const alreadyActive = isPremium || isAdmin
+
   useEffect(() => {
+    if (alreadyActive) return // pas besoin de PayPal
     if (document.getElementById('paypal-sdk')) {
       setPaypalReady(true)
       return
@@ -30,9 +34,10 @@ export default function SubscriptionView({ userEmail }) {
     script.setAttribute('data-sdk-integration-source', 'button-factory')
     script.onload = () => setPaypalReady(true)
     document.body.appendChild(script)
-  }, [])
+  }, [alreadyActive])
 
   useEffect(() => {
+    if (alreadyActive) return
     if (!paypalReady || !buttonRef.current) return
     if (buttonRef.current.children.length > 0) return
 
@@ -43,7 +48,7 @@ export default function SubscriptionView({ userEmail }) {
         setSubscribed(true)
       }
     }).render(buttonRef.current)
-  }, [paypalReady])
+  }, [paypalReady, alreadyActive])
 
   if (subscribed) {
     return (
@@ -53,6 +58,56 @@ export default function SubscriptionView({ userEmail }) {
           <h2>Merci pour ton abonnement !</h2>
           <p>Tu as maintenant accès à toutes les fonctionnalités d'ICEdep Premium.</p>
         </div>
+      </div>
+    )
+  }
+
+  if (alreadyActive) {
+    return (
+      <div className="sub-view">
+        <div className="sub-header fade-up">
+          <div className="sub-badge gold-badge">
+            <Zap size={12} style={{ marginRight: 4 }}/> {isAdmin ? 'Accès Administrateur' : 'Premium actif'}
+          </div>
+          <h1 className="sub-title">
+            <Sparkles size={26} style={{ verticalAlign: '-3px', marginRight: 8, color: 'var(--gold)' }}/>
+            Tu profites de tout
+          </h1>
+          <p className="sub-desc">Toutes les fonctionnalités ICEdep sont débloquées sur ton compte.</p>
+        </div>
+
+        <div className="sub-card sub-card-active fade-up stagger-1">
+          <div className="sub-active-row">
+            <div className="sub-active-icon">⭐</div>
+            <div className="sub-active-info">
+              <div className="sub-active-label">Abonnement</div>
+              <div className="sub-active-value">{isAdmin ? 'Compte administrateur' : 'ICEdep Premium · 4,99€ / mois'}</div>
+              <div className="sub-active-email">{userEmail}</div>
+            </div>
+          </div>
+
+          <div className="sub-features">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="sub-feature">
+                <div className="sub-feature-icon active"><Check size={14}/></div>
+                <span>{f.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {!isAdmin && (
+            <a
+              className="sub-manage-link"
+              href="https://www.paypal.com/myaccount/autopay/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Gérer mon abonnement sur PayPal <ExternalLink size={13}/>
+            </a>
+          )}
+        </div>
+
+        <p className="sub-thanks">Merci de soutenir ICEdep 💜</p>
       </div>
     )
   }

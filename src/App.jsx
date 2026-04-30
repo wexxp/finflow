@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './utils/supabase'
-import { fetchAllUserData, applyRecurringToMonth } from './utils/db'
+import { fetchAllUserData, applyRecurringToMonth, fetchProfile } from './utils/db'
 import { monthKey } from './utils/storage'
 import LandingPage from './components/LandingPage'
 import Auth from './components/Auth'
@@ -13,6 +13,7 @@ import GoalsView from './components/GoalsView'
 import AdminView from './components/AdminView'
 import SubscriptionView from './components/SubscriptionView'
 import LockedView from './components/LockedView'
+import ProfileView from './components/ProfileView'
 
 const PREMIUM_TABS = { reventes:'Reventes', annual:'Vue annuelle', goals:'Objectifs' }
 
@@ -24,6 +25,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isAdmin, setIsAdmin] = useState(false)
   const [isPremium, setIsPremium] = useState(false)
+  const [displayName, setDisplayName] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
   const [authMode, setAuthMode] = useState(null) // null=landing, 'login', 'register'
 
   useEffect(() => {
@@ -43,11 +46,14 @@ export default function App() {
     setLoading(true)
     Promise.all([
       fetchAllUserData(session.user.id),
-      supabase.from('profiles').select('is_admin, is_premium').eq('id', session.user.id).single()
+      fetchProfile(session.user.id)
     ]).then(([d, profileRes]) => {
       setData(d)
-      setIsAdmin(profileRes.data?.is_admin || false)
-      setIsPremium(profileRes.data?.is_premium || profileRes.data?.is_admin || false)
+      const p = profileRes.data || {}
+      setIsAdmin(p.is_admin || false)
+      setIsPremium(p.is_premium || p.is_admin || false)
+      setDisplayName(p.display_name || '')
+      setAvatarUrl(p.avatar_url || '')
       setLoading(false)
     })
   }, [session])
@@ -56,6 +62,16 @@ export default function App() {
     if (!session) return
     const d = await fetchAllUserData(session.user.id)
     setData(d)
+  }, [session])
+
+  const refreshProfile = useCallback(async () => {
+    if (!session) return
+    const { data: p } = await fetchProfile(session.user.id)
+    if (!p) return
+    setIsAdmin(p.is_admin || false)
+    setIsPremium(p.is_premium || p.is_admin || false)
+    setDisplayName(p.display_name || '')
+    setAvatarUrl(p.avatar_url || '')
   }, [session])
 
   const ensureMonth = useCallback(async (key) => {
@@ -100,7 +116,8 @@ export default function App() {
 
   function renderContent() {
     if (activeTab === 'admin' && isAdmin) return <AdminView />
-    if (activeTab === 'subscription') return <SubscriptionView userEmail={session.user.email}/>
+    if (activeTab === 'subscription') return <SubscriptionView userEmail={session.user.email} isPremium={isPremium} isAdmin={isAdmin}/>
+    if (activeTab === 'profile') return <ProfileView userId={session.user.id} userEmail={session.user.email} displayName={displayName} avatarUrl={avatarUrl} isPremium={isPremium} isAdmin={isAdmin} refreshProfile={refreshProfile}/>
     if (isLocked) return <LockedView featureName={PREMIUM_TABS[activeTab]} setActiveTab={setActiveTab}/>
     if (View) return <View data={data} monthData={monthData} currentMonth={currentMonth} userId={session.user.id} refreshData={refreshData} navigateMonth={navigateMonth} setActiveTab={setActiveTab} updateData={setData} isPremium={isPremium}/>
     return null
@@ -113,6 +130,7 @@ export default function App() {
         currentMonth={currentMonth} setCurrentMonth={goToMonth}
         allMonthKeys={allMonthKeys} navigateMonth={navigateMonth}
         data={data} onSignOut={signOut} userEmail={session.user.email}
+        displayName={displayName} avatarUrl={avatarUrl}
         isAdmin={isAdmin} isPremium={isPremium}
       />
       <main className="app-main">{renderContent()}</main>

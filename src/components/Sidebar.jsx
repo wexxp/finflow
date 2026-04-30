@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X } from 'lucide-react'
+import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import './Sidebar.css'
 
@@ -11,13 +11,24 @@ const NAV = [
   { id: 'goals',     label: 'Objectifs',        shortLabel: 'Objectifs',icon: Target,         premium: true  },
 ]
 
-export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, isAdmin, isPremium }) {
+export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, displayName, avatarUrl, isAdmin, isPremium }) {
   const [showMore, setShowMore] = useState(false)
   const stats = computeStats(data.months[currentMonth])
+
+  const userLabel = displayName || userEmail
+  const initials = (displayName || userEmail || '?').trim().slice(0, 2).toUpperCase()
 
   function handleTabChange(id) {
     setActiveTab(id)
     setShowMore(false)
+  }
+
+  function AvatarChip({ size = 28 }) {
+    const px = `${size}px`
+    if (avatarUrl) {
+      return <img src={avatarUrl} alt="" className="avatar-chip-img" style={{ width: px, height: px }}/>
+    }
+    return <div className="avatar-chip-placeholder" style={{ width: px, height: px, fontSize: size * 0.4 }}>{initials}</div>
   }
 
   return (
@@ -77,6 +88,15 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             <span style={{ color: 'var(--gold)' }}>{isPremium ? '⭐ Premium actif' : 'Passer Premium'}</span>
           </button>
 
+          <button
+            className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+            style={{ marginTop: 4 }}
+          >
+            <User size={18}/>
+            <span>Mon profil</span>
+          </button>
+
           {isAdmin && (
             <button
               className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`}
@@ -105,11 +125,17 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
         </div>
 
         <div className="sidebar-user">
-          <div className="user-email">
-            {isAdmin && <Shield size={11} style={{ color: 'var(--accent)', marginRight: 4 }}/>}
-            {isPremium && <Zap size={11} style={{ color: 'var(--gold)', marginRight: 4 }}/>}
-            {userEmail}
-          </div>
+          <button className="user-card" onClick={() => setActiveTab('profile')}>
+            <AvatarChip size={36}/>
+            <div className="user-card-info">
+              <div className="user-card-name">
+                {displayName || userEmail.split('@')[0]}
+                {isAdmin && <Shield size={11} style={{ color: 'var(--accent)', marginLeft: 4 }}/>}
+                {isPremium && <Zap size={11} style={{ color: 'var(--gold)', marginLeft: 4 }}/>}
+              </div>
+              {displayName && <div className="user-card-email">{userEmail}</div>}
+            </div>
+          </button>
           <button className="signout-btn" onClick={onSignOut}>
             <LogOut size={12} style={{ marginRight: 5 }}/> Déconnexion
           </button>
@@ -165,15 +191,28 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
         <div className="mobile-more-overlay" onClick={() => setShowMore(false)}>
           <div className="mobile-more-sheet" onClick={e => e.stopPropagation()}>
             <div className="mobile-more-header">
-              <div className="mobile-more-user">
-                {isAdmin && <Shield size={12} style={{ color: 'var(--accent)' }}/>}
-                {isPremium && <Zap size={12} style={{ color: 'var(--gold)' }}/>}
-                <span className="mobile-more-email">{userEmail}</span>
-              </div>
+              <button className="mobile-more-user-card" onClick={() => handleTabChange('profile')}>
+                <AvatarChip size={40}/>
+                <div className="mobile-more-user-info">
+                  <div className="mobile-more-user-name">
+                    {displayName || userEmail.split('@')[0]}
+                    {isAdmin && <Shield size={11} style={{ color: 'var(--accent)', marginLeft: 4 }}/>}
+                    {isPremium && <Zap size={11} style={{ color: 'var(--gold)', marginLeft: 4 }}/>}
+                  </div>
+                  <div className="mobile-more-user-email">{userEmail}</div>
+                </div>
+              </button>
               <button className="mobile-more-close" onClick={() => setShowMore(false)}><X size={18}/></button>
             </div>
 
             <div className="mobile-more-actions">
+              <button
+                className={`mobile-more-btn ${activeTab === 'profile' ? 'active' : ''}`}
+                onClick={() => handleTabChange('profile')}
+              >
+                <User size={16}/>
+                <span>Mon profil</span>
+              </button>
               <button
                 className={`mobile-more-btn ${activeTab === 'subscription' ? 'active' : ''}`}
                 onClick={() => handleTabChange('subscription')}

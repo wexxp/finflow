@@ -83,6 +83,14 @@ export async function deleteRevente(id) {
   return supabase.from('reventes').delete().eq('id', id)
 }
 
+export async function updateProfile(userId, fields) {
+  return supabase.from('profiles').update(fields).eq('id', userId)
+}
+
+export async function fetchProfile(userId) {
+  return supabase.from('profiles').select('is_admin, is_premium, display_name, avatar_url').eq('id', userId).single()
+}
+
 export async function addRecurring(userId, item) {
   const { data, error } = await supabase.from('recurring_items').insert({
     user_id: userId,
