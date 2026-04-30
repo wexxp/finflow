@@ -114,6 +114,9 @@ export function computeStats(monthData) {
   const totalRev = txs.filter(t => t.type === 'revenu').reduce((s, t) => s + t.amount, 0)
   const totalDep = txs.filter(t => t.type === 'depense').reduce((s, t) => s + t.amount, 0)
 
+  // Épargne = dépense particulière qu'on ne pénalise pas dans la santé financière
+  const totalEpargne = txs.filter(t => t.type === 'depense' && t.cat === 'épargne').reduce((s, t) => s + t.amount, 0)
+
   // Reventes : achats = sorties de caisse, ventes = entrées de caisse
   const totalRvAchat  = rvs.reduce((s, r) => s + (r.achat || 0) + (r.frais || 0), 0)
   const totalRvVente  = rvs.filter(r => r.vente > 0).reduce((s, r) => s + r.vente, 0)
@@ -123,9 +126,14 @@ export function computeStats(monthData) {
   const effectiveRev = totalRev + totalRvVente
   const effectiveDep = totalDep + totalRvAchat
 
+  // Solde réel : argent qui reste vraiment en compte
   const balance = totalRev - totalDep + totalRvBenef
-  const savingRate = effectiveRev > 0 ? Math.max(0, balance / effectiveRev * 100) : 0
+
+  // Score de santé : on bonifie l'épargne (l'argent mis sur un objectif n'est pas "perdu", il est mis de côté)
+  // realSavings = ce qu'il reste + ce qu'on s'est volontairement mis de côté
+  const realSavings = balance + totalEpargne
+  const savingRate = effectiveRev > 0 ? Math.max(0, realSavings / effectiveRev * 100) : 0
   const healthScore = Math.min(100, Math.round(savingRate * 2))
 
-  return { totalRev, totalDep, totalRvBenef, totalRvAchat, totalRvVente, effectiveRev, effectiveDep, balance, savingRate, healthScore }
+  return { totalRev, totalDep, totalEpargne, totalRvBenef, totalRvAchat, totalRvVente, effectiveRev, effectiveDep, balance, savingRate, healthScore, realSavings }
 }

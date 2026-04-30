@@ -31,6 +31,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
   const [editVente,setEditVente]=useState('')
   const [editFrais,setEditFrais]=useState('')
   const [filterStatus,setFilterStatus]=useState('tout')
+  const [errMsg,setErrMsg]=useState('')
   const [showCustom,setShowCustom]=useState(false)
   const [customPlatforms,setCustomPlatforms]=useState([])
   const [customSubs,setCustomSubs]=useState({})
@@ -55,7 +56,13 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
   async function handleAdd() {
     if(!name.trim()||isNaN(+achat)||+achat<0) return
     setSaving(true)
-    await addRevente(userId, { name:name.trim(), cat, sub_cat:subCat||null, plat, achat:+achat, frais:+frais||0, vente:+vente||0, icon:DEFAULT_CATS[cat]?.icon||'📦', date:new Date().toISOString().split('T')[0] }, currentMonth)
+    setErrMsg('')
+    const { error } = await addRevente(userId, { name:name.trim(), cat, sub_cat:subCat||null, plat, achat:+achat, frais:+frais||0, vente:+vente||0, icon:DEFAULT_CATS[cat]?.icon||'📦', date:new Date().toISOString().split('T')[0] }, currentMonth)
+    if (error) {
+      setErrMsg(`❌ Échec de l'ajout : ${error.message}`)
+      setSaving(false)
+      return
+    }
     await refreshData()
     setName(''); setAchat(''); setFrais('0'); setVente(''); setSubCat('')
     setSaving(false)
@@ -167,6 +174,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
           <div className="field"><label>Prix de vente (€) <span style={{color:'var(--text3)',fontWeight:400}}>— optionnel</span></label><input type="number" placeholder="Laisser vide si pas encore vendu" value={vente} onChange={e=>setVente(e.target.value)} min="0" step="0.01"/></div>
           <div className="field"><label>&nbsp;</label><button className="add-btn-rv" onClick={handleAdd} disabled={saving}><Plus size={16}/> Ajouter</button></div>
         </div>
+        {errMsg && <div style={{marginTop:10,padding:'8px 12px',background:'var(--red-bg)',color:'var(--red)',borderRadius:'var(--radius)',fontSize:13}}>{errMsg}</div>}
         {showPreview && (
           <div className="rv-preview fade-in">
             <div className="preview-row"><span>Coût total</span><span>{fmt(a+f)}</span></div>

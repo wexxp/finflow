@@ -52,11 +52,10 @@ export async function deleteTransaction(id) {
 }
 
 export async function addRevente(userId, rv, monthKey) {
-  const { data, error } = await supabase.from('reventes').insert({
+  const insertObj = {
     user_id: userId,
     name: rv.name,
     cat: rv.cat,
-    sub_cat: rv.sub_cat || null,
     plat: rv.plat,
     achat: rv.achat,
     frais: rv.frais,
@@ -64,7 +63,19 @@ export async function addRevente(userId, rv, monthKey) {
     icon: rv.icon,
     date: rv.date,
     month_key: monthKey,
-  }).select().single()
+  }
+  // Inclus sub_cat seulement si renseigné (évite les erreurs si la colonne n'existe pas encore)
+  if (rv.sub_cat) insertObj.sub_cat = rv.sub_cat
+
+  let { data, error } = await supabase.from('reventes').insert(insertObj).select().single()
+
+  // Si la colonne sub_cat n'existe pas encore, retry sans
+  if (error && rv.sub_cat && /sub_cat/i.test(error.message || '')) {
+    delete insertObj.sub_cat
+    const retry = await supabase.from('reventes').insert(insertObj).select().single()
+    data = retry.data
+    error = retry.error
+  }
   return { data, error }
 }
 

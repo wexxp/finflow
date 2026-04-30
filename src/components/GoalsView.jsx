@@ -13,6 +13,7 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
   const [icon,setIcon]=useState(GOAL_ICONS[0])
   const [color,setColor]=useState(GOAL_COLORS[0])
   const [addAmounts,setAddAmounts]=useState({})
+  const [errMsg,setErrMsg]=useState('')
 
   const goals=data.goals||[]
   const totalTarget=goals.reduce((s,g)=>s+g.target,0)
@@ -33,16 +34,19 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
   async function handleAddToGoal(g) {
     const amt=+addAmounts[g.id]
     if(!amt||isNaN(amt)||amt<=0)return
+    setErrMsg('')
     const newSaved=Math.min(g.target,g.saved+amt)
-    await updateGoal(g.id,newSaved)
-    await addTransaction(userId, {
+    const goalRes = await updateGoal(g.id,newSaved)
+    if (goalRes?.error) { setErrMsg(`❌ Mise à jour objectif: ${goalRes.error.message}`); return }
+    const { error: txErr } = await addTransaction(userId, {
       type: 'depense',
       desc: `Épargne — ${g.label}`,
       amount: amt,
       cat: 'épargne',
-      icon: g.icon,
+      icon: g.icon || '🏦',
       date: new Date().toISOString().split('T')[0],
     }, currentMonth)
+    if (txErr) { setErrMsg(`❌ Création de la dépense: ${txErr.message}`); return }
     await refreshData()
     setAddAmounts(prev=>({...prev,[g.id]:''}))
   }
@@ -59,6 +63,8 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
           </div>
         )}
       </div>
+
+      {errMsg && <div style={{marginBottom:'1rem',padding:'10px 14px',background:'var(--red-bg)',color:'var(--red)',borderRadius:'var(--radius)',fontSize:13}}>{errMsg}</div>}
 
       <div className="add-box fade-up stagger-1">
         <div className="add-box-title"><Plus size={14}/> Nouvel objectif</div>
