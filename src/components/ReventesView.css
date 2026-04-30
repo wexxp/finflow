@@ -39,6 +39,7 @@
 .rv-card-name { font-size:15px;font-weight:500;color:var(--text);margin-bottom:5px; }
 .rv-card-meta { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
 .rv-cat-badge { font-size:11px;padding:2px 8px;border-radius:99px; }
+.rv-sub-cat { font-size:11px;color:var(--text2);padding:2px 8px;border-radius:99px;background:var(--bg3); }
 .rv-plat,.rv-date { font-size:11px;color:var(--text3); }
 .rv-card-nums { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:1; }
 .rv-num { background:var(--bg2);border-radius:var(--radius);padding:8px 10px;text-align:center; }

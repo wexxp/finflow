@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Plus, Trash2, Target } from 'lucide-react'
 import { fmt } from '../utils/storage'
-import { addGoal, updateGoal, deleteGoal } from '../utils/db'
+import { addGoal, updateGoal, deleteGoal, addTransaction } from '../utils/db'
 import './GoalsView.css'
 
 const GOAL_COLORS=['#7c6aff','#4ade80','#60a5fa','#fbbf24','#f472b6','#f87171','#a78bfa']
 const GOAL_ICONS=['✈️','🏠','💻','🚗','🎓','💍','🏋️','🎮','📱','🌴']
 
-export default function GoalsView({ data, userId, refreshData }) {
+export default function GoalsView({ data, userId, refreshData, currentMonth }) {
   const [label,setLabel]=useState('')
   const [target,setTarget]=useState('')
   const [icon,setIcon]=useState(GOAL_ICONS[0])
@@ -35,6 +35,14 @@ export default function GoalsView({ data, userId, refreshData }) {
     if(!amt||isNaN(amt)||amt<=0)return
     const newSaved=Math.min(g.target,g.saved+amt)
     await updateGoal(g.id,newSaved)
+    await addTransaction(userId, {
+      type: 'depense',
+      desc: `Épargne — ${g.label}`,
+      amount: amt,
+      cat: 'épargne',
+      icon: g.icon,
+      date: new Date().toISOString().split('T')[0],
+    }, currentMonth)
     await refreshData()
     setAddAmounts(prev=>({...prev,[g.id]:''}))
   }

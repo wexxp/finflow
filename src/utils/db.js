@@ -56,6 +56,7 @@ export async function addRevente(userId, rv, monthKey) {
     user_id: userId,
     name: rv.name,
     cat: rv.cat,
+    sub_cat: rv.sub_cat || null,
     plat: rv.plat,
     achat: rv.achat,
     frais: rv.frais,

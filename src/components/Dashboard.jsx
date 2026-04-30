@@ -43,12 +43,13 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab 
   // Recent transactions
   const recent = [...txs].reverse().slice(0, 5)
 
-  // Predict end of month (extrapolate based on spending rate)
+  // Predict end of month (extrapolate based on spending/earning rate so far)
   const dayOfMonth = new Date().getDate()
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
   const ratio = daysInMonth / Math.max(dayOfMonth, 1)
-  const predictedDep = Math.round(stats.totalDep * ratio)
-  const predictedBalance = Math.round(stats.totalRev - predictedDep + stats.totalRvBenef)
+  const predictedRev = Math.round(stats.effectiveRev * ratio)
+  const predictedDep = Math.round(stats.effectiveDep * ratio)
+  const predictedBalance = predictedRev - predictedDep
 
   return (
     <div className="dashboard">
@@ -64,9 +65,9 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab 
       </div>
 
       <div className="kpi-grid">
-        <KpiCard label="Revenus" value={fmt(stats.totalRev)} color="var(--green)" icon={TrendingUp} sub={`${txs.filter(t=>t.type==='revenu').length} entrées`} delay={1}/>
-        <KpiCard label="Dépenses" value={fmt(stats.totalDep)} color="var(--red)" icon={TrendingDown} sub={`${txs.filter(t=>t.type==='depense').length} sorties`} delay={2}/>
-        <KpiCard label="Reventes" value={fmtSigned(stats.totalRvBenef)} color="var(--purple)" icon={RefreshCw} sub={`${rvs.length} articles`} delay={3}/>
+        <KpiCard label="Revenus" value={fmt(stats.effectiveRev)} color="var(--green)" icon={TrendingUp} sub={stats.totalRvVente > 0 ? `dont ${fmt(stats.totalRvVente)} reventes` : `${txs.filter(t=>t.type==='revenu').length} entrées`} delay={1}/>
+        <KpiCard label="Dépenses" value={fmt(stats.effectiveDep)} color="var(--red)" icon={TrendingDown} sub={stats.totalRvAchat > 0 ? `dont ${fmt(stats.totalRvAchat)} achats reventes` : `${txs.filter(t=>t.type==='depense').length} sorties`} delay={2}/>
+        <KpiCard label="Bénéf. reventes" value={fmtSigned(stats.totalRvBenef)} color="var(--purple)" icon={RefreshCw} sub={`${rvs.length} article${rvs.length > 1 ? 's' : ''} · ${rvs.filter(r=>r.vente>0).length} vendu${rvs.filter(r=>r.vente>0).length > 1 ? 's' : ''}`} delay={3}/>
         <KpiCard label="Taux d'épargne" value={stats.savingRate.toFixed(1) + ' %'} color="var(--gold)" icon={Activity} sub={`Score santé : ${stats.healthScore}/100`} delay={4}/>
       </div>
 

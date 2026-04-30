@@ -55,7 +55,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
   async function handleAdd() {
     if(!name.trim()||isNaN(+achat)||+achat<0) return
     setSaving(true)
-    await addRevente(userId, { name:name.trim(), cat, plat, achat:+achat, frais:+frais||0, vente:+vente||0, icon:DEFAULT_CATS[cat]?.icon||'📦', date:new Date().toISOString().split('T')[0] }, currentMonth)
+    await addRevente(userId, { name:name.trim(), cat, sub_cat:subCat||null, plat, achat:+achat, frais:+frais||0, vente:+vente||0, icon:DEFAULT_CATS[cat]?.icon||'📦', date:new Date().toISOString().split('T')[0] }, currentMonth)
     await refreshData()
     setName(''); setAchat(''); setFrais('0'); setVente(''); setSubCat('')
     setSaving(false)
@@ -137,7 +137,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
       )}
 
       <div className="add-box fade-up stagger-1">
-        <div class="add-grid-3">
+        <div className="add-grid-3">
           <div className="field"><label>Article</label><input placeholder="Ex: Nike Air Max…" value={name} onChange={e=>setName(e.target.value)}/></div>
           <div className="field"><label>Catégorie</label>
             <select value={cat} onChange={e=>{setCat(e.target.value);setSubCat('')}}>
@@ -208,6 +208,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
                   </div>
                   <div className="rv-card-meta">
                     <span className="rv-cat-badge" style={{background:bgcol+'22',color:bgcol}}>{r.cat}</span>
+                    {r.sub_cat && <span className="rv-sub-cat">{r.sub_cat}</span>}
                     <span className="rv-plat">{r.plat}</span>
                     <span className="rv-date">{d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
                   </div>

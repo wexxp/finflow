@@ -75,6 +75,7 @@ export const CAT_META = {
   santé:         { icon: '💊', color: '#f87171',  bg: 'rgba(248,113,113,0.12)', text: '#f87171'  },
   logement:      { icon: '🏠', color: '#fbbf24',  bg: 'rgba(251,191,36,0.12)',  text: '#fbbf24'  },
   vêtements:     { icon: '👕', color: '#f472b6',  bg: 'rgba(244,114,182,0.12)', text: '#f472b6'  },
+  épargne:       { icon: '🏦', color: '#34d399',  bg: 'rgba(52,211,153,0.12)',  text: '#34d399'  },
   // revenus
   salaire:       { icon: '💼', color: '#4ade80',  bg: 'rgba(74,222,128,0.12)',  text: '#4ade80'  },
   freelance:     { icon: '💻', color: '#60a5fa',  bg: 'rgba(96,165,250,0.12)',  text: '#60a5fa'  },
@@ -84,7 +85,7 @@ export const CAT_META = {
   autre:         { icon: '📦', color: '#9997a0',  bg: 'rgba(153,151,160,0.12)', text: '#9997a0'  },
 }
 
-export const DEP_CATS = ['alimentation','transport','loisirs','santé','logement','vêtements','autre']
+export const DEP_CATS = ['alimentation','transport','loisirs','santé','logement','vêtements','épargne','autre']
 export const REV_CATS = ['salaire','freelance','remboursement','cadeau','revente','autre']
 
 export function fmtMonth(key) {
@@ -109,11 +110,22 @@ export function fmtSigned(n) {
 export function computeStats(monthData) {
   const txs = monthData?.transactions || []
   const rvs = monthData?.reventes || []
+
   const totalRev = txs.filter(t => t.type === 'revenu').reduce((s, t) => s + t.amount, 0)
   const totalDep = txs.filter(t => t.type === 'depense').reduce((s, t) => s + t.amount, 0)
-  const totalRvBenef = rvs.reduce((s, r) => s + (r.vente - r.achat - r.frais), 0)
+
+  // Reventes : achats = sorties de caisse, ventes = entrées de caisse
+  const totalRvAchat  = rvs.reduce((s, r) => s + (r.achat || 0) + (r.frais || 0), 0)
+  const totalRvVente  = rvs.filter(r => r.vente > 0).reduce((s, r) => s + r.vente, 0)
+  const totalRvBenef  = totalRvVente - totalRvAchat   // peut être négatif si articles non encore vendus
+
+  // Totaux "cash flow complet" (budget + reventes)
+  const effectiveRev = totalRev + totalRvVente
+  const effectiveDep = totalDep + totalRvAchat
+
   const balance = totalRev - totalDep + totalRvBenef
-  const savingRate = totalRev > 0 ? Math.max(0, balance / totalRev * 100) : 0
+  const savingRate = effectiveRev > 0 ? Math.max(0, balance / effectiveRev * 100) : 0
   const healthScore = Math.min(100, Math.round(savingRate * 2))
-  return { totalRev, totalDep, totalRvBenef, balance, savingRate, healthScore }
+
+  return { totalRev, totalDep, totalRvBenef, totalRvAchat, totalRvVente, effectiveRev, effectiveDep, balance, savingRate, healthScore }
 }
