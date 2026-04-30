@@ -51,3 +51,26 @@
 .empty-state { font-size:14px;color:var(--text3);padding:2rem 0;text-align:center; }
 
 @media(max-width:800px) { .rv-card { flex-direction:column;align-items:flex-start; } .rv-card-left { flex:none;width:100%; } .rv-card-nums { grid-template-columns:repeat(2,1fr); } }
+
+@media(max-width:768px) {
+  .reventes-view { max-width:100%; }
+  .page-title { font-size:24px; }
+  .page-header { margin-bottom:1.25rem; }
+  /* Summary bar : scroll horizontal plutôt que tronqué */
+  .rv-summary { overflow-x:auto; }
+  .rv-sum-item { padding:10px 14px; flex-shrink:0; }
+  .rv-sum-val { font-size:17px; }
+  /* Formulaire ajout */
+  .add-grid-3 { grid-template-columns:1fr 1fr; }
+  .add-grid-4 { grid-template-columns:1fr 1fr; }
+  .add-btn-rv { width:100%; }
+}
+
+@media(max-width:480px) {
+  .page-title { font-size:22px; }
+  .add-grid-3 { grid-template-columns:1fr; }
+  .add-grid-4 { grid-template-columns:1fr; }
+  .rv-card-nums { grid-template-columns:repeat(2,1fr); gap:6px; }
+  .add-box { padding:1rem; }
+  .rv-card { padding:1rem; }
+}

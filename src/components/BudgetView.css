@@ -71,3 +71,23 @@
 .empty-state { font-size:13px;color:var(--text3);padding:1rem 0; }
 
 @media (max-width:800px) { .budget-body { grid-template-columns:1fr; } }
+
+@media (max-width:768px) {
+  .budget-view { max-width:100%; }
+  .page-title { font-size:24px; }
+  .page-header { margin-bottom:1.25rem; }
+  .budget-totals { font-size:18px; }
+  .add-fields { gap:6px; }
+}
+
+@media (max-width:480px) {
+  .page-title { font-size:22px; }
+  .type-switch { width:100%; }
+  .ts-btn { flex:1; justify-content:center; }
+  .add-fields input[type="text"] { min-width:0; }
+  .add-box { padding:1rem; }
+  .rec-item { flex-wrap:wrap; }
+  .rec-amount { min-width:0; }
+  .tx-panel, .cat-panel { padding:1rem; }
+  .tx-filters { flex-wrap:wrap; gap:4px; }
+}

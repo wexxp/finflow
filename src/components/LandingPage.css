@@ -187,6 +187,25 @@
   .testimonials-grid { grid-template-columns:1fr; }
   .stats-row { gap:1.5rem;flex-wrap:wrap; }
   .landing-nav { padding:1rem 1.25rem; }
+  .landing-nav-links { gap:0.5rem; }
   .hero { padding:4rem 1.25rem 3rem; }
+  .hero-subtitle { font-size:16px; }
   .landing-footer { flex-direction:column;gap:8px;text-align:center; }
+  .features-section { padding:3rem 1.25rem; }
+  .pricing-section { padding:3rem 1.25rem; }
+  .pricing-cards { gap:12px; }
+  .pricing-card { width:100%;max-width:360px; }
+  .testimonials-section { padding:3rem 1.25rem; }
+  .cta-section { padding:3rem 1.25rem; }
+}
+
+@media(max-width:480px) {
+  .landing-nav { padding:0.875rem 1rem; }
+  .nav-link { display:none; } /* Cache les liens de nav secondaires sur mobile */
+  .hero { padding:3rem 1rem 2rem; }
+  .hero-subtitle { font-size:15px; }
+  .btn-primary-lg, .btn-ghost-lg { padding:12px 20px;font-size:15px; }
+  .stats-row { justify-content:center; }
+  .stat-val { font-size:28px; }
+  .pricing-price { font-size:32px; }
 }

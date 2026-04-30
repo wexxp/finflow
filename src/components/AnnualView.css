@@ -30,3 +30,20 @@
 .health-mini span { font-size:12px;color:var(--text2);min-width:20px; }
 
 @media(max-width:800px) { .annual-kpis{grid-template-columns:repeat(2,1fr)} .ann-row{grid-template-columns:1fr} }
+
+@media(max-width:768px) {
+  .annual-view { max-width:100%; }
+  .page-title { font-size:24px; }
+  .page-header { margin-bottom:1.25rem; }
+  .ann-chart-card { padding:1rem; }
+  .ann-table { padding:1rem; }
+}
+
+@media(max-width:480px) {
+  .page-title { font-size:22px; }
+  .annual-kpis { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .ann-kpi-val { font-size:18px; }
+  /* Table responsive : masquer colonnes secondaires */
+  .month-table th:nth-child(n+4),
+  .month-table td:nth-child(n+4) { display:none; }
+}

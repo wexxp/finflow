@@ -100,3 +100,18 @@
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .dash-row { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 768px) {
+  .dashboard { max-width: 100%; }
+  .page-title { font-size: 24px; }
+  .page-header { margin-bottom: 1.25rem; }
+  .prediction-badge { font-size: 12px; padding: 6px 10px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .kpi-value { font-size: 20px; }
+  .page-title { font-size: 22px; }
+  .dash-card { padding: 1rem; }
+  .tx-mini { padding: 8px 10px; gap: 10px; }
+}

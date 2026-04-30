@@ -11,6 +11,13 @@
 }
 
 @media (max-width: 768px) {
-  .app-layout { flex-direction: column; }
-  .app-main { padding: 1rem; }
+  .app-layout {
+    flex-direction: column;
+  }
+  .app-main {
+    padding: 0.875rem;
+    /* espace pour le header fixe en haut (56px) et la bottom nav (64px) */
+    padding-top: calc(56px + 0.875rem);
+    padding-bottom: calc(64px + 1rem + env(safe-area-inset-bottom));
+  }
 }

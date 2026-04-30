@@ -57,4 +57,23 @@
 .goal-add-btn { width:42px;height:42px;color:#fff;border-radius:var(--radius);font-size:20px;font-weight:300;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
 .goal-add-btn:hover { opacity:.85; }
 
-@media(max-width:600px) { .goals-grid{grid-template-columns:1fr} }
+@media(max-width:768px) {
+  .goals-view { max-width:100%; }
+  .page-title { font-size:24px; }
+  .page-header { margin-bottom:1.25rem; }
+  .goals-summary { overflow-x:auto; }
+  .gs-item { padding:10px 14px; flex-shrink:0; }
+  .gs-val { font-size:17px; }
+}
+
+@media(max-width:600px) {
+  .goals-grid { grid-template-columns:1fr; }
+  .add-goal-fields input:first-child { min-width:0; }
+  .add-box { padding:1rem; }
+}
+
+@media(max-width:480px) {
+  .page-title { font-size:22px; }
+  .goal-card { padding:1.125rem; }
+  .goal-icon-big { width:40px; height:40px; font-size:20px; }
+}
