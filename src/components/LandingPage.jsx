@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import {
-  ArrowRight, Sparkles, TrendingUp, Wallet, Target, BarChart3,
-  RefreshCw, Zap, Shield, Check, Trophy
+  ArrowRight, Sparkles, Brain, Wallet, Target, BarChart3,
+  RefreshCw, Zap, Shield, Check
 } from 'lucide-react'
 import './LandingPage.css'
-
-const PLATFORMS = ['Vinted', 'Leboncoin', 'Vestiaire Collectif', 'eBay', 'Prego', 'Sell', 'Facebook Marketplace', 'De main en main']
 
 function scrollToId(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
@@ -56,16 +54,16 @@ export default function LandingPage({ onLogin, onRegister }) {
         <div className="hero-content">
           <div className="hero-eyebrow">
             <span className="eyebrow-dot" />
-            <span>Pensé pour les revendeurs Vinted &amp; Leboncoin</span>
+            <span>Gérez vos finances intelligemment</span>
           </div>
 
           <h1 className="hero-title">
-            La finance,<br/>
-            <span className="hero-title-em">la tête froide.</span>
+            Gardez la <span className="hero-title-em">tête froide</span><br/>
+            sur vos dépenses.
           </h1>
 
           <p className="hero-sub">
-            Le seul gestionnaire qui comprend ton activité de revente. Marges, prévisions, objectifs — sans la complexité d'un tableur.
+            ICEdep, c'est le gestionnaire de finances pensé pour les revendeurs et ceux qui veulent vraiment maîtriser leur budget — sans la complexité d'Excel.
           </p>
 
           <div className="hero-cta-row">
@@ -88,21 +86,6 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
       </section>
 
-      {/* ════════ MARQUEE plateformes ════════ */}
-      <section className="marquee-section">
-        <span className="marquee-label">Compatible avec toutes les plateformes</span>
-        <div className="marquee">
-          <div className="marquee-track">
-            {[...PLATFORMS, ...PLATFORMS, ...PLATFORMS].map((p, i) => (
-              <span key={i} className="marquee-item">
-                <span className="marquee-dot" />
-                {p}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ════════ FEATURES (Bento) ════════ */}
       <section className="features-section" id="features">
         <div className="section-head">
@@ -112,69 +95,64 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
 
         <div className="bento-grid">
-          {/* Big card — Reventes (occupe 2 lignes × 4 cols) */}
+          {/* Big card — Suivi reventes (4×2) */}
           <article className="bento-card bento-lg">
             <div className="bento-head">
               <div className="bento-icon"><RefreshCw size={18}/></div>
               <span className="bento-tag">Premium</span>
             </div>
             <h3 className="bento-title">Suivi des reventes</h3>
-            <p className="bento-desc">Achat, frais, vente. ICEdep calcule tes marges, ton bénéfice cumulé, et ton délai de vente moyen — automatiquement.</p>
+            <p className="bento-desc">Entrez votre prix d'achat, vos frais et votre prix de vente. ICEdep calcule votre marge et votre bénéfice automatiquement.</p>
             <div className="bento-mockup">
               <ReventesMiniMock />
             </div>
           </article>
 
-          {/* Médium — Budget */}
+          {/* Médium — Budget mensuel (2×1) */}
           <article className="bento-card bento-md">
             <div className="bento-head">
               <div className="bento-icon"><Wallet size={18}/></div>
             </div>
             <h3 className="bento-title">Budget mensuel</h3>
-            <p className="bento-desc">Dépenses, revenus, récurrents automatiques. Vue claire mois par mois.</p>
+            <p className="bento-desc">Suivez vos dépenses et revenus mois par mois. Ajoutez des récurrents automatiques et visualisez où va votre argent.</p>
           </article>
 
-          {/* Médium — Objectifs */}
+          {/* Médium — Objectifs d'épargne (2×1) */}
           <article className="bento-card bento-md">
             <div className="bento-head">
               <div className="bento-icon"><Target size={18}/></div>
               <span className="bento-tag">Premium</span>
             </div>
             <h3 className="bento-title">Objectifs d'épargne</h3>
-            <p className="bento-desc">Vacances, achat, projet. L'épargne ne pénalise plus ton score de santé.</p>
+            <p className="bento-desc">Définissez des projets (vacances, achat...) et suivez votre progression vers chaque objectif mois après mois.</p>
           </article>
 
-          {/* Small — Vue annuelle */}
+          {/* Small — Vue annuelle (3×1) */}
           <article className="bento-card bento-sm">
             <div className="bento-head">
               <div className="bento-icon"><BarChart3 size={18}/></div>
+              <span className="bento-tag">Premium</span>
             </div>
             <h3 className="bento-title">Vue annuelle</h3>
-            <p className="bento-desc">Toute l'année en un coup d'œil.</p>
+            <p className="bento-desc">Visualisez l'évolution de votre solde sur toute l'année avec des graphiques clairs et votre score de santé financière.</p>
           </article>
 
-          {/* Small — Prévisions */}
+          {/* Small — Revenus récurrents (3×1) */}
           <article className="bento-card bento-sm">
             <div className="bento-head">
-              <div className="bento-icon"><TrendingUp size={18}/></div>
+              <div className="bento-icon"><Zap size={18}/></div>
             </div>
-            <h3 className="bento-title">Prévisions</h3>
-            <p className="bento-desc">Solde de fin de mois calculé sur ton rythme.</p>
+            <h3 className="bento-title">Revenus récurrents</h3>
+            <p className="bento-desc">Configurez votre salaire, votre loyer une seule fois. Ils apparaissent automatiquement chaque nouveau mois.</p>
           </article>
 
-          {/* Wide — Trophées */}
+          {/* Wide — Dépenses froides (6×1) */}
           <article className="bento-card bento-wide">
             <div className="bento-head">
-              <div className="bento-icon gold-icon"><Trophy size={18}/></div>
-              <span className="bento-tag gold-tag">24 trophées</span>
+              <div className="bento-icon"><Brain size={18}/></div>
             </div>
-            <h3 className="bento-title">Le revendeur en toi mérite des médailles</h3>
-            <p className="bento-desc">1ère vente, 100 ventes, 10 000€ cumulés, mois en feu, marge ×3, année régulière. Bronze, silver, gold, platinum — chaque palier compte.</p>
-            <div className="trophy-row">
-              {['🎯','💰','🔥','💯','💎','👑','🏆','🚀'].map((e, i) => (
-                <span key={i} className="trophy-chip" style={{ animationDelay: `${i * 80}ms` }}>{e}</span>
-              ))}
-            </div>
+            <h3 className="bento-title">Des décisions réfléchies, pas impulsives</h3>
+            <p className="bento-desc">ICEdep vous aide à garder la tête froide sur vos finances. Pas de notifications anxiogènes, pas de gamification toxique — juste des chiffres clairs pour des décisions éclairées.</p>
           </article>
         </div>
       </section>
@@ -260,7 +238,7 @@ export default function LandingPage({ onLogin, onRegister }) {
       <section className="testimonial-section" id="testimonial">
         <div className="quote-mark" aria-hidden="true">"</div>
         <blockquote className="testimonial-quote">
-          J'avais arrêté de tracker mes reventes parce qu'Excel me prenait trop de temps. Avec ICEdep, je vois en 5 secondes que je gagne plus sur Vestiaire que sur Vinted. Game changer.
+          J'avais arrêté de suivre mes reventes parce qu'Excel me prenait trop de temps. Avec ICEdep, je vois en 5 secondes que je gagne plus sur Vestiaire que sur Vinted. Indispensable.
         </blockquote>
         <div className="testimonial-author">
           <span className="author-avatar">M</span>
@@ -274,12 +252,12 @@ export default function LandingPage({ onLogin, onRegister }) {
       {/* ════════ FINAL CTA ════════ */}
       <section className="final-cta">
         <h2 className="final-cta-title">
-          Prêt à maîtriser<br/>
-          <span className="hero-title-em">tes finances</span> ?
+          Prêt à garder la <span className="hero-title-em">tête froide</span><br/>
+          sur vos finances ?
         </h2>
-        <p className="final-cta-sub">Rejoins ICEdep gratuitement. Aucune carte requise.</p>
+        <p className="final-cta-sub">Rejoignez ICEdep gratuitement. Aucune carte requise.</p>
         <button className="btn-primary-lg" onClick={onRegister}>
-          Commencer maintenant <ArrowRight size={16}/>
+          Créer mon compte gratuit <ArrowRight size={16}/>
         </button>
       </section>
 
