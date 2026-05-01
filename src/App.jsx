@@ -33,6 +33,16 @@ export default function App() {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [authMode, setAuthMode] = useState(null) // null=landing, 'login', 'register'
 
+  // Petit ping cristallin au changement d'onglet (skip le mount initial)
+  const isFirstTabRender = useRef(true)
+  useEffect(() => {
+    if (isFirstTabRender.current) {
+      isFirstTabRender.current = false
+      return
+    }
+    playTabSwitch()
+  }, [activeTab])
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
