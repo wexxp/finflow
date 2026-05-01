@@ -104,7 +104,53 @@
   padding: 1rem 0.75rem;
   overflow-y: auto;
 }
-.sm-title { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); padding: 0 8px; margin-bottom: 6px; }
+.sm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  margin-bottom: 8px;
+}
+.sm-title { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); }
+.sm-count { font-size: 10px; color: var(--text3); }
+
+/* Pills d'années — accès rapide */
+.sm-years {
+  display: flex;
+  gap: 4px;
+  padding: 0 4px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.sm-years::-webkit-scrollbar { display: none; }
+.sm-year {
+  flex-shrink: 0;
+  padding: 4px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--text3);
+  background: var(--bg2);
+  border: 1px solid transparent;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.sm-year:hover { color: var(--text); background: var(--bg3); }
+.sm-year.active {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
+.sm-empty {
+  padding: 14px 8px;
+  font-size: 12px;
+  color: var(--text3);
+  text-align: center;
+}
+
 .sm-list { display: flex; flex-direction: column; gap: 2px; }
 .sm-item {
   display: flex;

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User, Trophy } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import './Sidebar.css'
@@ -14,6 +14,25 @@ const NAV = [
 export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, displayName, avatarUrl, isAdmin, isPremium }) {
   const [showMore, setShowMore] = useState(false)
   const stats = computeStats(data.months[currentMonth])
+
+  // ── Sessions : navigation par année ──────────────────
+  const [viewYear, setViewYear] = useState(() => currentMonth.split('-')[0])
+
+  // Quand on navigue avec les flèches mois, l'année affichée suit
+  useEffect(() => {
+    setViewYear(currentMonth.split('-')[0])
+  }, [currentMonth])
+
+  const years = useMemo(() => {
+    const set = new Set(allMonthKeys.map(k => k.split('-')[0]))
+    set.add(currentMonth.split('-')[0]) // assure que l'année courante apparaît
+    return [...set].sort().reverse() // plus récente en premier
+  }, [allMonthKeys, currentMonth])
+
+  const monthsOfYear = useMemo(
+    () => allMonthKeys.filter(k => k.startsWith(viewYear + '-')),
+    [allMonthKeys, viewYear]
+  )
 
   const userLabel = displayName || userEmail
   const initials = (displayName || userEmail || '?').trim().slice(0, 2).toUpperCase()
@@ -120,9 +139,28 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
         </nav>
 
         <div className="sidebar-months">
-          <div className="sm-title">Sessions</div>
+          <div className="sm-header">
+            <span className="sm-title">Sessions</span>
+            <span className="sm-count">{monthsOfYear.length} mois</span>
+          </div>
+          {years.length > 1 && (
+            <div className="sm-years">
+              {years.map(y => (
+                <button
+                  key={y}
+                  className={`sm-year ${y === viewYear ? 'active' : ''}`}
+                  onClick={() => setViewYear(y)}
+                >
+                  {y}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="sm-list">
-            {allMonthKeys.map(key => {
+            {monthsOfYear.length === 0 && (
+              <div className="sm-empty">Aucun mois enregistré pour {viewYear}</div>
+            )}
+            {monthsOfYear.map(key => {
               const s = computeStats(data.months[key])
               return (
                 <button key={key} className={`sm-item ${key === currentMonth ? 'active' : ''}`} onClick={() => setCurrentMonth(key)}>
@@ -250,9 +288,28 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             </div>
 
             <div className="mobile-sessions-section">
-              <div className="sm-title">Sessions</div>
+              <div className="sm-header">
+                <span className="sm-title">Sessions</span>
+                <span className="sm-count">{monthsOfYear.length} mois</span>
+              </div>
+              {years.length > 1 && (
+                <div className="sm-years">
+                  {years.map(y => (
+                    <button
+                      key={y}
+                      className={`sm-year ${y === viewYear ? 'active' : ''}`}
+                      onClick={() => setViewYear(y)}
+                    >
+                      {y}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="sm-list">
-                {allMonthKeys.slice(0, 8).map(key => {
+                {monthsOfYear.length === 0 && (
+                  <div className="sm-empty">Aucun mois pour {viewYear}</div>
+                )}
+                {monthsOfYear.map(key => {
                   const s = computeStats(data.months[key])
                   return (
                     <button
