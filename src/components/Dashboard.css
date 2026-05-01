@@ -37,17 +37,49 @@
 }
 
 .kpi-card {
-  background: var(--bg1);
+  position: relative;
+  background: linear-gradient(180deg, var(--bg1) 0%, rgba(255, 255, 255, 0.008) 100%);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  transition: border-color var(--transition), transform var(--transition);
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  overflow: hidden;
 }
-.kpi-card:hover { border-color: var(--line2); transform: translateY(-2px); }
-.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); }
-.kpi-icon-wrap { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-.kpi-value { font-family: var(--font-display); font-size: 24px; margin-bottom: 4px; }
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-color, transparent) 50%, transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.kpi-card:hover {
+  border-color: var(--line2);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.5);
+}
+.kpi-card:hover::after { opacity: 0.5; }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); font-weight: 500; }
+.kpi-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--accent-color, var(--line)) 25%, transparent);
+}
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  letter-spacing: -0.025em;
+  margin-bottom: 4px;
+  line-height: 1.05;
+}
 .kpi-sub { font-size: 12px; color: var(--text3); }
 
 /* ── Mini-widget des trophées ── */

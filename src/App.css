@@ -1,6 +1,20 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Aurora très discrète : ajoute juste de la profondeur sans distraire */
+.app-layout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px circle at 85% -10%, rgba(124, 106, 255, 0.08), transparent 55%),
+    radial-gradient(700px circle at 0% 110%, rgba(167, 139, 250, 0.05), transparent 55%);
 }
 
 .app-main {
