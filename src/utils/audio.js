@@ -32,18 +32,15 @@ export function toggleMuted() {
 }
 
 /**
- * Petit "ping" cristallin pour le changement d'onglet.
- * Deux sinus harmoniques (fondamentale + quinte aiguë) avec filtre passe-bas
- * et enveloppe ADSR douce. ~130ms, volume bas.
+ * Petit "tap" très fin pour le changement d'onglet.
+ * Un seul sinus (pur, pas de doublage) avec un léger settle de pitch
+ * pour un toucher plus tactile. ~110ms, volume très bas.
  */
 export function playTabSwitch() {
   if (isMuted()) return
   const ctx = getCtx()
   if (!ctx) return
 
-  // Beaucoup de navigateurs suspendent l'AudioContext tant qu'il n'y a pas
-  // eu d'interaction utilisateur. Le premier appel se fait toujours suite à
-  // un click, donc resume() reprendra silencieusement.
   if (ctx.state === 'suspended') {
     ctx.resume().catch(() => {})
   }
@@ -51,38 +48,32 @@ export function playTabSwitch() {
   try {
     const now = ctx.currentTime
 
-    // Fondamentale (~ré aigu) + quinte une octave au-dessus
-    const osc1 = ctx.createOscillator()
-    const osc2 = ctx.createOscillator()
-    osc1.type = 'sine'
-    osc2.type = 'sine'
-    osc1.frequency.setValueAtTime(880, now)   // ~A5
-    osc2.frequency.setValueAtTime(1318, now)  // ~E6 (quinte)
+    // Sinus pur — démarre légèrement plus haut puis settle (sensation tactile)
+    const osc = ctx.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(1050, now)
+    osc.frequency.exponentialRampToValueAtTime(988, now + 0.04) // ~B5
 
-    // Lowpass doux pour adoucir le rendu
+    // Lowpass discret pour adoucir
     const filter = ctx.createBiquadFilter()
     filter.type = 'lowpass'
-    filter.frequency.setValueAtTime(3500, now)
-    filter.Q.setValueAtTime(0.7, now)
+    filter.frequency.setValueAtTime(4500, now)
+    filter.Q.setValueAtTime(0.5, now)
 
-    // Enveloppe ADSR : attack rapide (5ms), release exponentiel (130ms)
+    // Enveloppe : attack 7ms (smooth, pas de click), release exp 100ms
     const gain = ctx.createGain()
-    const peak = 0.045 // volume bas pour ne pas être intrusif
+    const peak = 0.022 // ~50 % du volume précédent
     gain.gain.setValueAtTime(0, now)
-    gain.gain.linearRampToValueAtTime(peak, now + 0.005)
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13)
+    gain.gain.linearRampToValueAtTime(peak, now + 0.007)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1)
 
-    // Routing : oscillators → filter → gain → output
-    osc1.connect(filter)
-    osc2.connect(filter)
+    osc.connect(filter)
     filter.connect(gain)
     gain.connect(ctx.destination)
 
-    osc1.start(now)
-    osc2.start(now)
-    osc1.stop(now + 0.14)
-    osc2.stop(now + 0.14)
+    osc.start(now)
+    osc.stop(now + 0.11)
   } catch {
-    // Audio est non-critique — on échoue silencieusement
+    // Audio non-critique
   }
 }
