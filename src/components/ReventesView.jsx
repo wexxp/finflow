@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Clock, CheckCircle, Edit3, X, Settings } from 'lucide-react'
 import { fmt, fmtMonth } from '../utils/storage'
 import { addRevente, deleteRevente } from '../utils/db'
 import { supabase } from '../utils/supabase'
+import { AnimatedAmount, AnimatedPercent, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
 import './ReventesView.css'
 
 const DEFAULT_CATS = {
@@ -88,15 +90,20 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
       <div className="page-header fade-up">
         <div><h1 className="page-title">{fmtMonth(currentMonth)}</h1><p className="page-sub">Suivi des reventes</p></div>
         <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
-          <div className="rv-summary">
-            <div className="rv-sum-item"><span className="rv-sum-label">Revendu</span><span className="rv-sum-val blue">{fmt(totalVente)}</span></div>
+          <motion.div
+            className="rv-summary"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
+          >
+            <div className="rv-sum-item"><span className="rv-sum-label">Revendu</span><span className="rv-sum-val blue"><AnimatedAmount value={totalVente}/></span></div>
             <div className="rv-sum-sep"/>
-            <div className="rv-sum-item"><span className="rv-sum-label">Bénéfice</span><span className={`rv-sum-val ${totalBenef>=0?'green':'red'}`}>{totalBenef>=0?'+':'−'}{fmt(Math.abs(totalBenef))}</span></div>
+            <div className="rv-sum-item"><span className="rv-sum-label">Bénéfice</span><span className={`rv-sum-val ${totalBenef>=0?'green':'red'}`}><AnimatedAmount value={totalBenef} signed/></span></div>
             <div className="rv-sum-sep"/>
-            <div className="rv-sum-item"><span className="rv-sum-label">Marge moy.</span><span className="rv-sum-val purple">{avgMarge.toFixed(1)} %</span></div>
+            <div className="rv-sum-item"><span className="rv-sum-label">Marge moy.</span><span className="rv-sum-val purple"><AnimatedPercent value={avgMarge}/></span></div>
             <div className="rv-sum-sep"/>
             <div className="rv-sum-item"><span className="rv-sum-label">En attente</span><span className="rv-sum-val" style={{color:'var(--gold)'}}>{enAttente.length} article{enAttente.length>1?'s':''}</span></div>
-          </div>
+          </motion.div>
           <button onClick={()=>setShowCustom(!showCustom)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 12px',border:'1px solid var(--line2)',borderRadius:'var(--radius)',background:showCustom?'var(--accent-bg)':'transparent',color:showCustom?'var(--accent)':'var(--text2)',fontSize:13,cursor:'pointer'}}>
             <Settings size={14}/> Personnaliser
           </button>
@@ -195,8 +202,14 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
         ))}
       </div>
 
-      <div className="rv-list fade-up stagger-2">
+      <motion.div
+        className="rv-list"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
         {filtered.length===0&&<p className="empty-state">Aucun article ici !</p>}
+        <AnimatePresence>
         {[...filtered].reverse().map(r=>{
           const estVendu=r.vente>0
           const cout=r.achat+r.frais, benef=r.vente-cout
@@ -205,7 +218,15 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
           const bgcol=CAT_COLORS[r.cat]||'#9997a0'
           const d=new Date(r.date+'T00:00:00')
           return (
-            <div key={r.id} className="rv-card" style={{opacity:estVendu?1:0.85,borderStyle:estVendu?'solid':'dashed'}}>
+            <motion.div
+              key={r.id}
+              className="rv-card"
+              style={{opacity:estVendu?1:0.85,borderStyle:estVendu?'solid':'dashed'}}
+              variants={fadeUpVariants}
+              exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
+              whileHover={{ y: -2, transition: SPRING_GENTLE }}
+              layout
+            >
               <div className="rv-card-left">
                 <div className="rv-card-icon" style={{background:bgcol+'22',color:bgcol}}>{DEFAULT_CATS[r.cat]?.icon||'📦'}</div>
                 <div>
@@ -243,10 +264,11 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
                 {!estVendu&&editingId!==r.id&&<button onClick={()=>{setEditingId(r.id);setEditVente('');setEditFrais(String(r.frais||0))}} style={{height:32,padding:'0 10px',background:'var(--green-bg)',color:'var(--green)',border:'1px solid var(--green)',borderRadius:'var(--radius)',fontSize:12,fontWeight:500,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Edit3 size={11}/> Vendu !</button>}
                 <button className="rv-del" onClick={()=>handleDelete(r.id)}><Trash2 size={14}/></button>
               </div>
-            </div>
+            </motion.div>
           )
         })}
-      </div>
+        </AnimatePresence>
+      </motion.div>
     </div>
   )
 }

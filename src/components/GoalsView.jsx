@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Plus, Trash2, Target } from 'lucide-react'
 import { fmt } from '../utils/storage'
 import { addGoal, updateGoal, deleteGoal, addTransaction } from '../utils/db'
+import { AnimatedAmount, AnimatedPercent, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
 import './GoalsView.css'
 
 const GOAL_COLORS=['#7c6aff','#4ade80','#60a5fa','#fbbf24','#f472b6','#f87171','#a78bfa']
@@ -88,7 +90,12 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
         </div>
       </div>
 
-      <div className="goals-grid fade-up stagger-2">
+      <motion.div
+        className="goals-grid"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
         {goals.length===0&&(
           <div className="empty-goals">
             <Target size={40} style={{color:'var(--text3)',marginBottom:12}}/>
@@ -100,21 +107,49 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
           const pct=Math.min(100,g.target>0?(g.saved/g.target*100):0)
           const done=pct>=100
           return(
-            <div key={g.id} className={`goal-card ${done?'done':''}`} style={{'--goal-color':g.color}}>
+            <motion.div
+              key={g.id}
+              className={`goal-card ${done?'done':''}`}
+              style={{'--goal-color':g.color}}
+              variants={fadeUpVariants}
+              whileHover={{ y: -4, transition: SPRING_GENTLE }}
+            >
               <div className="goal-card-top">
-                <div className="goal-icon-big" style={{background:g.color+'22',color:g.color}}>{g.icon}</div>
+                <motion.div
+                  className="goal-icon-big"
+                  style={{background:g.color+'22',color:g.color}}
+                  whileHover={{ rotate: [0, -10, 10, 0], transition: { duration: 0.5 } }}
+                >{g.icon}</motion.div>
                 <div className="goal-card-info">
                   <div className="goal-label">{g.label}</div>
-                  <div className="goal-amounts"><span style={{color:g.color}}>{fmt(g.saved)}</span><span className="goal-sep">sur</span><span>{fmt(g.target)}</span></div>
+                  <div className="goal-amounts">
+                    <span style={{color:g.color}}><AnimatedAmount value={g.saved} duration={1.1}/></span>
+                    <span className="goal-sep">sur</span>
+                    <span>{fmt(g.target)}</span>
+                  </div>
                 </div>
                 <button className="goal-del" onClick={()=>handleDeleteGoal(g.id)}><Trash2 size={14}/></button>
               </div>
               <div className="goal-progress-wrap">
-                <div className="goal-progress-track"><div className="goal-progress-fill" style={{width:pct+'%',background:g.color}}/></div>
+                <div className="goal-progress-track">
+                  <motion.div
+                    className="goal-progress-fill"
+                    style={{background:g.color}}
+                    initial={{ width: 0 }}
+                    animate={{ width: pct + '%' }}
+                    transition={{ duration: 1.2, ease: EASE_OUT_EXPO, delay: 0.15 }}
+                  />
+                </div>
                 <div className="goal-pct-row">
-                  <span className="goal-pct" style={{color:g.color}}>{pct.toFixed(0)} %</span>
+                  <span className="goal-pct" style={{color:g.color}}><AnimatedPercent value={pct} decimals={0}/></span>
                   {!done&&<span className="goal-remaining">encore {fmt(g.target-g.saved)}</span>}
-                  {done&&<span className="goal-done-badge" style={{background:g.color+'22',color:g.color}}>Objectif atteint !</span>}
+                  {done&&<motion.span
+                    className="goal-done-badge"
+                    style={{background:g.color+'22',color:g.color}}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ ...SPRING_GENTLE, delay: 0.3 }}
+                  >Objectif atteint !</motion.span>}
                 </div>
               </div>
               {!done&&(
@@ -124,13 +159,20 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
                     onChange={e=>setAddAmounts(prev=>({...prev,[g.id]:e.target.value}))}
                     onKeyDown={e=>e.key==='Enter'&&handleAddToGoal(g)}
                   />
-                  <button className="goal-add-btn" onClick={()=>handleAddToGoal(g)} style={{background:g.color}}>+</button>
+                  <motion.button
+                    className="goal-add-btn"
+                    onClick={()=>handleAddToGoal(g)}
+                    style={{background:g.color}}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                    transition={SPRING_GENTLE}
+                  >+</motion.button>
                 </div>
               )}
-            </div>
+            </motion.div>
           )
         })}
-      </div>
+      </motion.div>
     </div>
   )
 }

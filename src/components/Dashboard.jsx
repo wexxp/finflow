@@ -1,21 +1,44 @@
 import { TrendingUp, TrendingDown, RefreshCw, Activity, ArrowRight, Trophy } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { computeStats, fmt, fmtSigned, fmtMonth, CAT_META } from '../utils/storage'
 import { computeAchievements, getAllReventes, summary as achSummary } from '../utils/achievements'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
+import { AnimatedAmount, AnimatedPercent, SPRING_GENTLE, EASE_OUT_EXPO } from '../utils/motion'
 import './Dashboard.css'
 
-function KpiCard({ label, value, color, icon: Icon, sub, delay }) {
+function KpiCard({ label, rawValue, displayValue, color, icon: Icon, sub, index, animatedKind = 'amount', signed = false, suffix = '€' }) {
+  let animatedNode
+  if (animatedKind === 'amount') {
+    animatedNode = <AnimatedAmount value={rawValue} signed={signed} suffix={suffix}/>
+  } else if (animatedKind === 'percent') {
+    animatedNode = <AnimatedPercent value={rawValue}/>
+  } else {
+    animatedNode = displayValue
+  }
+
   return (
-    <div className={`kpi-card fade-up stagger-${delay}`} style={{ '--accent-color': color }}>
+    <motion.div
+      className="kpi-card"
+      style={{ '--accent-color': color }}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.05 + index * 0.07, ease: EASE_OUT_EXPO }}
+      whileHover={{ y: -4, transition: SPRING_GENTLE }}
+    >
       <div className="kpi-top">
         <span className="kpi-label">{label}</span>
-        <div className="kpi-icon-wrap" style={{ background: color + '22' }}>
+        <motion.div
+          className="kpi-icon-wrap"
+          style={{ background: color + '22' }}
+          whileHover={{ rotate: -6, scale: 1.08 }}
+          transition={SPRING_GENTLE}
+        >
           <Icon size={16} style={{ color }} />
-        </div>
+        </motion.div>
       </div>
-      <div className="kpi-value" style={{ color }}>{value}</div>
+      <div className="kpi-value" style={{ color }}>{animatedNode}</div>
       {sub && <div className="kpi-sub">{sub}</div>}
-    </div>
+    </motion.div>
   )
 }
 
@@ -60,7 +83,12 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
 
   return (
     <div className="dashboard">
-      <div className="page-header fade-up">
+      <motion.div
+        className="page-header"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: EASE_OUT_EXPO }}
+      >
         <div>
           <h1 className="page-title">{fmtMonth(currentMonth)}</h1>
           <p className="page-sub">Tableau de bord — vue d'ensemble</p>
@@ -69,17 +97,25 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
           <Activity size={14} />
           <span>Prévision fin de mois : <strong style={{ color: predictedBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>{fmtSigned(predictedBalance)}</strong></span>
         </div>
-      </div>
+      </motion.div>
 
       <div className="kpi-grid">
-        <KpiCard label="Revenus" value={fmt(stats.effectiveRev)} color="var(--green)" icon={TrendingUp} sub={stats.totalRvVente > 0 ? `dont ${fmt(stats.totalRvVente)} reventes` : `${txs.filter(t=>t.type==='revenu').length} entrées`} delay={1}/>
-        <KpiCard label="Dépenses" value={fmt(stats.effectiveDep)} color="var(--red)" icon={TrendingDown} sub={stats.totalRvAchat > 0 ? `dont ${fmt(stats.totalRvAchat)} achats reventes` : `${txs.filter(t=>t.type==='depense').length} sorties`} delay={2}/>
-        <KpiCard label="Bénéf. reventes" value={fmtSigned(stats.totalRvBenef)} color="var(--purple)" icon={RefreshCw} sub={`${rvs.length} article${rvs.length > 1 ? 's' : ''} · ${rvs.filter(r=>r.vente>0).length} vendu${rvs.filter(r=>r.vente>0).length > 1 ? 's' : ''}`} delay={3}/>
-        <KpiCard label="Taux d'épargne" value={stats.savingRate.toFixed(1) + ' %'} color="var(--gold)" icon={Activity} sub={`Score santé : ${stats.healthScore}/100`} delay={4}/>
+        <KpiCard label="Revenus"        rawValue={stats.effectiveRev}    color="var(--green)"  icon={TrendingUp}   sub={stats.totalRvVente > 0 ? `dont ${fmt(stats.totalRvVente)} reventes` : `${txs.filter(t=>t.type==='revenu').length} entrées`} index={0}/>
+        <KpiCard label="Dépenses"       rawValue={stats.effectiveDep}    color="var(--red)"    icon={TrendingDown} sub={stats.totalRvAchat > 0 ? `dont ${fmt(stats.totalRvAchat)} achats reventes` : `${txs.filter(t=>t.type==='depense').length} sorties`} index={1}/>
+        <KpiCard label="Bénéf. reventes" rawValue={stats.totalRvBenef}    signed                color="var(--purple)" icon={RefreshCw}    sub={`${rvs.length} article${rvs.length > 1 ? 's' : ''} · ${rvs.filter(r=>r.vente>0).length} vendu${rvs.filter(r=>r.vente>0).length > 1 ? 's' : ''}`} index={2}/>
+        <KpiCard label="Taux d'épargne"  rawValue={stats.savingRate}      animatedKind="percent" color="var(--gold)"   icon={Activity}     sub={`Score santé : ${stats.healthScore}/100`} index={3}/>
       </div>
 
       {isPremium && allRvs.length > 0 && (
-        <button className="trophy-widget fade-up stagger-2" onClick={() => setActiveTab('achievements')}>
+        <motion.button
+          className="trophy-widget"
+          onClick={() => setActiveTab('achievements')}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.45, ease: EASE_OUT_EXPO }}
+          whileHover={{ y: -2, transition: SPRING_GENTLE }}
+          whileTap={{ scale: 0.985 }}
+        >
           <div className="trophy-widget-icon">
             <Trophy size={20}/>
           </div>
@@ -89,7 +125,12 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
               <span className="trophy-widget-count">{ach.unlocked} / {ach.total}</span>
             </div>
             <div className="trophy-widget-track">
-              <div className="trophy-widget-fill" style={{ width: `${ach.pct}%` }}/>
+              <motion.div
+                className="trophy-widget-fill"
+                initial={{ width: 0 }}
+                animate={{ width: `${ach.pct}%` }}
+                transition={{ duration: 1.1, delay: 0.65, ease: EASE_OUT_EXPO }}
+              />
             </div>
             {lastUnlocked.length > 0 && (
               <div className="trophy-widget-last">
@@ -98,11 +139,17 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
             )}
           </div>
           <ArrowRight size={16} className="trophy-widget-arrow"/>
-        </button>
+        </motion.button>
       )}
 
       <div className="dash-row">
-        <div className="dash-card chart-card fade-up stagger-3">
+        <motion.div
+          className="dash-card chart-card"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.55, ease: EASE_OUT_EXPO }}
+          whileHover={{ y: -2, transition: SPRING_GENTLE }}
+        >
           <div className="card-header">
             <span className="card-title">Évolution du solde</span>
             <button className="card-link" onClick={() => setActiveTab('annual')}>Vue annuelle <ArrowRight size={13}/></button>
@@ -124,9 +171,15 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
               <Area type="monotone" dataKey="balance" stroke="var(--accent)" strokeWidth={2} fill="url(#balGrad)"/>
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
 
-        <div className="dash-card pie-card fade-up stagger-4">
+        <motion.div
+          className="dash-card pie-card"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.65, ease: EASE_OUT_EXPO }}
+          whileHover={{ y: -2, transition: SPRING_GENTLE }}
+        >
           <div className="card-header">
             <span className="card-title">Dépenses</span>
           </div>
@@ -151,20 +204,32 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
               </div>
             </>
           ) : <p style={{ color: 'var(--text3)', fontSize: 13, padding: '1rem 0' }}>Aucune dépense ce mois</p>}
-        </div>
+        </motion.div>
       </div>
 
-      <div className="dash-card fade-up stagger-5">
+      <motion.div
+        className="dash-card"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, delay: 0.75, ease: EASE_OUT_EXPO }}
+      >
         <div className="card-header">
           <span className="card-title">Transactions récentes</span>
           <button className="card-link" onClick={() => setActiveTab('budget')}>Voir tout <ArrowRight size={13}/></button>
         </div>
         <div className="tx-mini-list">
           {recent.length === 0 && <p style={{ color: 'var(--text3)', fontSize: 13, padding: '0.5rem 0' }}>Aucune transaction</p>}
-          {recent.map(t => {
+          {recent.map((t, i) => {
             const m = CAT_META[t.cat] || CAT_META.autre
             return (
-              <div key={t.id} className="tx-mini">
+              <motion.div
+                key={t.id}
+                className="tx-mini"
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.35, delay: 0.85 + i * 0.06, ease: EASE_OUT_EXPO }}
+                whileHover={{ x: 3, transition: SPRING_GENTLE }}
+              >
                 <div className="tx-mini-icon" style={{ background: m.bg }}>{t.icon || m.icon}</div>
                 <div className="tx-mini-info">
                   <span className="tx-mini-name">{t.desc}</span>
@@ -173,11 +238,11 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
                 <div className="tx-mini-amount" style={{ color: t.type === 'revenu' ? 'var(--green)' : 'var(--red)' }}>
                   {t.type === 'revenu' ? '+' : '−'}{fmt(t.amount)}
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

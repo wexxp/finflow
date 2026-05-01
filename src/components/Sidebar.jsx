@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User, Trophy } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
+import { SPRING_GENTLE, SPRING_SNAPPY, EASE_OUT_EXPO } from '../utils/motion'
 import './Sidebar.css'
 
 const NAV = [
@@ -235,9 +237,30 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
       </nav>
 
       {/* ── Mobile "Plus" drawer ── */}
+      <AnimatePresence>
       {showMore && (
-        <div className="mobile-more-overlay" onClick={() => setShowMore(false)}>
-          <div className="mobile-more-sheet" onClick={e => e.stopPropagation()}>
+        <motion.div
+          className="mobile-more-overlay"
+          onClick={() => setShowMore(false)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22 }}
+        >
+          <motion.div
+            className="mobile-more-sheet"
+            onClick={e => e.stopPropagation()}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={SPRING_SNAPPY}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) setShowMore(false)
+            }}
+          >
             <div className="mobile-more-header">
               <button className="mobile-more-user-card" onClick={() => handleTabChange('profile')}>
                 <AvatarChip size={40}/>
@@ -330,9 +353,10 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                 <LogOut size={14}/> Déconnexion
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </>
   )
 }

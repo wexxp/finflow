@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { supabase } from './utils/supabase'
 import { fetchAllUserData, applyRecurringToMonth, fetchProfile } from './utils/db'
 import { monthKey } from './utils/storage'
+import { PageTransition } from './utils/motion'
 import LandingPage from './components/LandingPage'
 import Auth from './components/Auth'
 import Sidebar from './components/Sidebar'
@@ -134,7 +136,13 @@ export default function App() {
         displayName={displayName} avatarUrl={avatarUrl}
         isAdmin={isAdmin} isPremium={isPremium}
       />
-      <main className="app-main">{renderContent()}</main>
+      <main className="app-main">
+        <AnimatePresence mode="wait">
+          <PageTransition viewKey={activeTab}>
+            {renderContent()}
+          </PageTransition>
+        </AnimatePresence>
+      </main>
     </div>
   )
 }
