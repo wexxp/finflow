@@ -39,7 +39,6 @@ export default function LandingPage({ onLogin, onRegister }) {
         <div className="nav-mid">
           <button className="nav-link" onClick={() => scrollToId('features')}>Fonctionnalités</button>
           <button className="nav-link" onClick={() => scrollToId('pricing')}>Tarifs</button>
-          <button className="nav-link" onClick={() => scrollToId('testimonial')}>Avis</button>
         </div>
         <div className="nav-actions">
           <button className="btn-ghost-sm" onClick={onLogin}>Connexion</button>
@@ -165,8 +164,8 @@ export default function LandingPage({ onLogin, onRegister }) {
         </div>
         <div className="stat-divider" />
         <div className="stat">
-          <span className="stat-num">2 min</span>
-          <span className="stat-label">Pour démarrer<br/>et tracker tout</span>
+          <span className="stat-num">0</span>
+          <span className="stat-label">Pub ni tracker.<br/>On ne revend pas vos données.</span>
         </div>
         <div className="stat-divider" />
         <div className="stat">
@@ -231,21 +230,6 @@ export default function LandingPage({ onLogin, onRegister }) {
             <button className="price-btn solid" onClick={onRegister}>Passer Premium</button>
             <span className="price-cancel">Résiliable en 1 click</span>
           </article>
-        </div>
-      </section>
-
-      {/* ════════ TESTIMONIAL ════════ */}
-      <section className="testimonial-section" id="testimonial">
-        <div className="quote-mark" aria-hidden="true">"</div>
-        <blockquote className="testimonial-quote">
-          J'avais arrêté de suivre mes reventes parce qu'Excel me prenait trop de temps. Avec ICEdep, je vois en 5 secondes que je gagne plus sur Vestiaire que sur Vinted. Indispensable.
-        </blockquote>
-        <div className="testimonial-author">
-          <span className="author-avatar">M</span>
-          <div>
-            <div className="author-name">Marc D.</div>
-            <div className="author-role">Revendeur Vinted depuis 2 ans</div>
-          </div>
         </div>
       </section>
 
