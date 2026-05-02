@@ -10,6 +10,39 @@ function validatePassword(pwd) {
   return errors
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+}
+
+// Traduit les messages d'erreur Supabase en français user-friendly
+function translateAuthError(error, mode) {
+  const msg = (error?.message || '').toLowerCase()
+
+  if (msg.includes('already registered') || msg.includes('user already exists')) {
+    return 'Cette adresse email est déjà utilisée. Connectez-vous à la place.'
+  }
+  if (msg.includes('invalid login credentials') || (msg.includes('invalid') && msg.includes('credentials'))) {
+    return 'Email ou mot de passe incorrect.'
+  }
+  if (msg.includes('email not confirmed')) {
+    return 'Email non confirmé — vérifiez votre boîte mail (et les spams).'
+  }
+  if (msg.includes('rate limit') || msg.includes('too many')) {
+    return 'Trop de tentatives — patientez quelques minutes avant de réessayer.'
+  }
+  if (msg.includes('password') && (msg.includes('weak') || msg.includes('short'))) {
+    return 'Mot de passe trop faible — il doit faire au moins 8 caractères avec une majuscule et un chiffre.'
+  }
+  if (msg.includes('email') && msg.includes('invalid')) {
+    return 'Format d\'email invalide.'
+  }
+  if (msg.includes('network') || msg.includes('fetch')) {
+    return 'Erreur réseau — vérifiez votre connexion internet.'
+  }
+  // Fallback : on montre le message brut pour ne plus rien cacher
+  return (mode === 'register' ? 'Création du compte impossible : ' : 'Connexion impossible : ') + (error?.message || 'erreur inconnue.')
+}
+
 export default function Auth({ defaultMode = 'login' }) {
   const [mode, setMode] = useState(defaultMode)
   const [email, setEmail] = useState('')
@@ -25,26 +58,62 @@ export default function Auth({ defaultMode = 'login' }) {
 
   async function handleSubmit() {
     setError(''); setSuccess('')
-    if (mode === 'register' && pwdErrors.length > 0) { setError('Mot de passe invalide — voir les critères ci-dessous'); return }
-    setLoading(true)
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError('Email ou mot de passe incorrect.')
-    } else {
-      const { error } = await supabase.auth.signUp({ email, password })
-      if (error) setError('Erreur lors de la création du compte.')
-      else setSuccess('Compte créé ! Vérifie tes emails pour confirmer ton compte.')
+
+    // ── Validation client avant l'appel Supabase ──
+    const trimmedEmail = email.trim()
+    if (!trimmedEmail) { setError('Veuillez saisir votre email.'); return }
+    if (!isValidEmail(trimmedEmail)) { setError('Format d\'email invalide.'); return }
+    if (!password) { setError('Veuillez saisir votre mot de passe.'); return }
+    if (mode === 'register' && pwdErrors.length > 0) {
+      setError('Mot de passe invalide — voir les critères ci-dessous.')
+      return
     }
-    setLoading(false)
+
+    setLoading(true)
+    try {
+      if (mode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: trimmedEmail,
+          password,
+        })
+        if (error) setError(translateAuthError(error, 'login'))
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: trimmedEmail,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        })
+        if (error) {
+          setError(translateAuthError(error, 'register'))
+        } else if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          // Quirk Supabase : email déjà utilisé = identities vide (pas d'erreur explicite)
+          setError('Cette adresse email est déjà utilisée. Connectez-vous à la place.')
+        } else {
+          setSuccess('Compte créé ! Vérifiez vos emails (et les spams) pour confirmer votre compte.')
+        }
+      }
+    } catch (e) {
+      setError('Erreur réseau — vérifiez votre connexion internet et réessayez.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleForgot() {
-    if (!forgotEmail.trim()) return
+    setError('')
+    const trimmed = forgotEmail.trim()
+    if (!trimmed) { setError('Veuillez saisir votre email.'); return }
+    if (!isValidEmail(trimmed)) { setError('Format d\'email invalide.'); return }
     setLoading(true)
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo: window.location.origin })
-    setLoading(false)
-    if (error) setError('Erreur lors de l\'envoi.')
-    else setForgotSent(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmed, { redirectTo: window.location.origin })
+      if (error) setError(translateAuthError(error, 'login'))
+      else setForgotSent(true)
+    } catch (e) {
+      setError('Erreur réseau — vérifiez votre connexion internet.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (showForgot) {
