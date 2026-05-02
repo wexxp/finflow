@@ -82,6 +82,86 @@
 }
 .kpi-sub { font-size: 12px; color: var(--text3); }
 
+/* ── Bandeau d'alerte fiscale (DAC7) ── */
+.fiscal-banner {
+  width: 100%;
+  background: linear-gradient(135deg, var(--bg1) 0%, rgba(251, 191, 36, 0.06) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  transition: var(--transition);
+}
+.fiscal-banner:hover {
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.fiscal-banner-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fiscal-banner-info { flex: 1; min-width: 0; }
+.fiscal-banner-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.fiscal-banner-sub {
+  font-size: 12px;
+  color: var(--text2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fiscal-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 99px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+.fiscal-banner:hover .fiscal-banner-cta {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: var(--gold);
+}
+.fiscal-banner-arrow {
+  transition: transform var(--transition);
+}
+.fiscal-banner:hover .fiscal-banner-arrow {
+  transform: translateX(2px);
+}
+
+@media (max-width: 480px) {
+  .fiscal-banner-cta span { display: none; }
+  .fiscal-banner-cta { padding: 7px 10px; }
+  .fiscal-banner-sub { white-space: normal; }
+}
+
 /* ── Mini-widget des trophées ── */
 .trophy-widget {
   width: 100%;

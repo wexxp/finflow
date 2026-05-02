@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User, Trophy } from 'lucide-react'
+import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User, Trophy, Receipt } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import { SPRING_GENTLE, SPRING_SNAPPY, EASE_OUT_EXPO } from '../utils/motion'
 import './Sidebar.css'
@@ -116,6 +116,15 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
           >
             <Trophy size={18} style={{ color: isPremium ? 'var(--gold)' : undefined }}/>
             <span>Trophées</span>
+            {!isPremium && <Lock size={12} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'fiscal' ? 'active' : ''} ${!isPremium ? 'locked' : ''}`}
+            onClick={() => setActiveTab('fiscal')}
+          >
+            <Receipt size={18}/>
+            <span>Fiscal</span>
             {!isPremium && <Lock size={12} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
           </button>
 
@@ -283,6 +292,14 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
               >
                 <Trophy size={16} style={{ color: 'var(--gold)' }}/>
                 <span>Trophées</span>
+                {!isPremium && <Lock size={11} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
+              </button>
+              <button
+                className={`mobile-more-btn ${activeTab === 'fiscal' ? 'active' : ''}`}
+                onClick={() => handleTabChange('fiscal')}
+              >
+                <Receipt size={16}/>
+                <span>Fiscal</span>
                 {!isPremium && <Lock size={11} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
               </button>
               <button

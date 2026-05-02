@@ -1,7 +1,8 @@
-import { TrendingUp, TrendingDown, RefreshCw, Activity, ArrowRight, Trophy } from 'lucide-react'
+import { TrendingUp, TrendingDown, RefreshCw, Activity, ArrowRight, Trophy, Receipt, AlertTriangle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { computeStats, fmt, fmtSigned, fmtMonth, CAT_META } from '../utils/storage'
 import { computeAchievements, getAllReventes, summary as achSummary } from '../utils/achievements'
+import { computeFiscalSummary } from '../utils/fiscal'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
 import { AnimatedAmount, AnimatedPercent, SPRING_GENTLE, EASE_OUT_EXPO } from '../utils/motion'
 import './Dashboard.css'
@@ -52,6 +53,11 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
   const achievements = computeAchievements(allRvs)
   const ach = achSummary(achievements)
   const lastUnlocked = [...achievements].filter(a => a.unlocked).slice(-3).reverse()
+
+  // Fiscal — alertes pour l'année courante
+  const currentYear = String(new Date().getFullYear())
+  const fiscalSummary = computeFiscalSummary(allRvs, currentYear)
+  const dac7Alert = fiscalSummary.alerts.find(a => a.id === 'dac7' && a.severity === 'warning')
 
   // Spending by cat for pie
   const depBycat = {}
@@ -105,6 +111,33 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
         <KpiCard label="Bénéf. reventes" rawValue={stats.totalRvBenef}    signed                color="var(--purple)" icon={RefreshCw}    sub={`${rvs.length} article${rvs.length > 1 ? 's' : ''} · ${rvs.filter(r=>r.vente>0).length} vendu${rvs.filter(r=>r.vente>0).length > 1 ? 's' : ''}`} index={2}/>
         <KpiCard label="Taux d'épargne"  rawValue={stats.savingRate}      animatedKind="percent" color="var(--gold)"   icon={Activity}     sub={`Score santé : ${stats.healthScore}/100`} index={3}/>
       </div>
+
+      {isPremium && dac7Alert && (
+        <motion.button
+          className="fiscal-banner"
+          onClick={() => setActiveTab('fiscal')}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4, ease: EASE_OUT_EXPO }}
+          whileHover={{ y: -2, transition: SPRING_GENTLE }}
+          whileTap={{ scale: 0.985 }}
+        >
+          <div className="fiscal-banner-icon">
+            <AlertTriangle size={18}/>
+          </div>
+          <div className="fiscal-banner-info">
+            <div className="fiscal-banner-title">Seuil DAC7 atteint en {currentYear}</div>
+            <div className="fiscal-banner-sub">
+              {fmt(fiscalSummary.totalCA)} de CA · {fiscalSummary.nbVentes} ventes — les plateformes vous transmettent au fisc
+            </div>
+          </div>
+          <div className="fiscal-banner-cta">
+            <Receipt size={14}/>
+            <span>Voir détails</span>
+            <ArrowRight size={14} className="fiscal-banner-arrow"/>
+          </div>
+        </motion.button>
+      )}
 
       {isPremium && allRvs.length > 0 && (
         <motion.button

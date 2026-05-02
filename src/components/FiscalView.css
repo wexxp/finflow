@@ -1,0 +1,299 @@
+.fiscal-view { max-width: 900px; }
+
+/* ── Header avec sélecteur d'année ── */
+.fiscal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ── Year picker (pills avec layoutId magic) ── */
+.fiscal-year-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+}
+.fiscal-year-pill {
+  position: relative;
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  border-radius: 99px;
+  transition: color var(--transition);
+}
+.fiscal-year-pill:hover { color: var(--text2); }
+.fiscal-year-pill.active { color: var(--text); }
+.fiscal-year-pill-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  border-radius: 99px;
+  z-index: 0;
+}
+.fiscal-year-pill-label { position: relative; z-index: 1; }
+
+/* ── KPIs ── */
+.fiscal-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 1.75rem;
+}
+.fiscal-kpi {
+  background: linear-gradient(180deg, var(--bg1) 0%, rgba(255, 255, 255, 0.008) 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color var(--transition);
+}
+.fiscal-kpi:hover { border-color: var(--line2); }
+.fiscal-kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  font-weight: 500;
+}
+.fiscal-kpi-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text);
+}
+.fiscal-kpi-value.green { color: var(--green); }
+.fiscal-kpi-value.red   { color: var(--red); }
+.fiscal-kpi-value.blue  { color: var(--blue); }
+.fiscal-kpi-value.gold  { color: var(--gold); }
+.fiscal-kpi-sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+/* ── Empty state ── */
+.fiscal-empty {
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text2);
+}
+.fiscal-empty-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.fiscal-empty-sub {
+  font-size: 13px;
+  color: var(--text3);
+  max-width: 380px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ── Section "Informations fiscales" ── */
+.fiscal-section { margin-bottom: 1.5rem; }
+.fiscal-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 0.875rem;
+  flex-wrap: wrap;
+}
+.fiscal-section-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--text);
+}
+.fiscal-section-sub {
+  font-size: 12px;
+  color: var(--text3);
+}
+
+/* ── Liste des alertes ── */
+.fiscal-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Carte d'alerte / info ── */
+.fiscal-alert {
+  position: relative;
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.fiscal-alert.sev-info     { border-left: 3px solid var(--blue); }
+.fiscal-alert.sev-ok       { border-left: 3px solid var(--green); }
+.fiscal-alert.sev-warning  { border-left: 3px solid var(--gold); }
+.fiscal-alert.sev-critical { border-left: 3px solid var(--red); }
+.fiscal-alert:hover { border-color: var(--line2); }
+.fiscal-alert.sev-warning:hover  { border-color: rgba(251, 191, 36, 0.3); }
+.fiscal-alert.sev-critical:hover { border-color: rgba(248, 113, 113, 0.35); }
+
+.fiscal-alert-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  color: var(--text);
+}
+.fiscal-alert-head:hover { background: rgba(255, 255, 255, 0.015); }
+
+.fiscal-alert-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--alert-color) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--alert-color) 25%, transparent);
+  color: var(--alert-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fiscal-alert-title-block { flex: 1; min-width: 0; }
+.fiscal-alert-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.fiscal-alert-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--alert-color);
+  font-weight: 500;
+}
+
+.fiscal-alert-chevron {
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+/* ── Body de la carte (collapsible) ── */
+.fiscal-alert-body-inner {
+  padding: 0 1.25rem 1.25rem 1.25rem;
+}
+.fiscal-alert-msg {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text2);
+  margin: 0 0 1rem 0;
+}
+.fiscal-alert-msg:last-child { margin-bottom: 0; }
+
+/* ── Progress bars dans une carte ── */
+.fiscal-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0.875rem 1rem;
+  background: var(--bg2);
+  border-radius: var(--radius);
+}
+.fiscal-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fiscal-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.fiscal-progress-label { color: var(--text2); }
+.fiscal-progress-val {
+  color: var(--text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.fiscal-progress-track {
+  height: 5px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.fiscal-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* ── Disclaimer permanent ── */
+.fiscal-disclaimer {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text3);
+  margin-top: 2rem;
+}
+.fiscal-disclaimer p { margin: 0; }
+.fiscal-disclaimer strong { color: var(--text2); }
+.fiscal-disclaimer a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--accent);
+}
+.fiscal-disclaimer a:hover {
+  border-bottom-style: solid;
+}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media (max-width: 768px) {
+  .fiscal-view { max-width: 100%; }
+  .fiscal-header { flex-direction: column; align-items: stretch; gap: 1rem; }
+  .fiscal-year-picker { align-self: flex-start; }
+  .fiscal-kpis { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .fiscal-kpi { padding: 1rem; }
+  .fiscal-kpi-value { font-size: 24px; }
+  .fiscal-section-title { font-size: 18px; }
+}
+
+@media (max-width: 480px) {
+  .fiscal-kpi-value { font-size: 22px; }
+  .fiscal-alert-head { padding: 0.875rem 1rem; gap: 12px; }
+  .fiscal-alert-icon-wrap { width: 32px; height: 32px; }
+  .fiscal-alert-title { font-size: 14px; }
+  .fiscal-alert-body-inner { padding: 0 1rem 1rem 1rem; }
+  .fiscal-progress-list { padding: 0.75rem; }
+}
