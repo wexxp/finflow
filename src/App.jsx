@@ -131,7 +131,7 @@ export default function App() {
 
   function renderContent() {
     if (activeTab === 'admin' && isAdmin) return <AdminView />
-    if (activeTab === 'subscription') return <SubscriptionView userEmail={session.user.email} isPremium={isPremium} isAdmin={isAdmin}/>
+    if (activeTab === 'subscription') return <SubscriptionView userId={session.user.id} userEmail={session.user.email} isPremium={isPremium} isAdmin={isAdmin} refreshProfile={refreshProfile}/>
     if (activeTab === 'profile') return <ProfileView userId={session.user.id} userEmail={session.user.email} displayName={displayName} avatarUrl={avatarUrl} isPremium={isPremium} isAdmin={isAdmin} refreshProfile={refreshProfile}/>
     if (isLocked) return <LockedView featureName={PREMIUM_TABS[activeTab]} setActiveTab={setActiveTab}/>
     if (View) return <View data={data} monthData={monthData} currentMonth={currentMonth} userId={session.user.id} refreshData={refreshData} navigateMonth={navigateMonth} setActiveTab={setActiveTab} updateData={setData} isPremium={isPremium}/>

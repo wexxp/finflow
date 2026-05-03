@@ -14,10 +14,11 @@ const FEATURES = [
   { icon: Check,      text: 'Catégories et plateformes personnalisables' },
 ]
 
-export default function SubscriptionView({ userEmail, isPremium, isAdmin }) {
+export default function SubscriptionView({ userId, userEmail, isPremium, isAdmin, refreshProfile }) {
   const buttonRef = useRef(null)
   const [paypalReady, setPaypalReady] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
 
   // Vue dédiée pour les utilisateurs déjà Premium / Admin (pas de paywall)
   const alreadyActive = isPremium || isAdmin
@@ -43,12 +44,31 @@ export default function SubscriptionView({ userEmail, isPremium, isAdmin }) {
 
     window.paypal.Buttons({
       style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'subscribe' },
-      createSubscription: (data, actions) => actions.subscription.create({ plan_id: PLAN_ID }),
-      onApprove: (data) => {
+      createSubscription: (_data, actions) =>
+        actions.subscription.create({
+          plan_id: PLAN_ID,
+          // ⬇️ Indispensable : permet au webhook PayPal d'identifier l'utilisateur ICEdep
+          custom_id: userId,
+          subscriber: {
+            email_address: userEmail,
+          },
+        }),
+      onApprove: () => {
         setSubscribed(true)
-      }
+        // Tente de rafraîchir le profil 8s plus tard, le temps que le webhook
+        // PayPal active Premium côté Supabase
+        setTimeout(() => { refreshProfile && refreshProfile() }, 8000)
+        setTimeout(() => { refreshProfile && refreshProfile() }, 20000)
+      },
+      onCancel: () => {
+        setPaymentError('Paiement annulé. Vous pouvez réessayer quand vous voulez.')
+      },
+      onError: (err) => {
+        console.error('PayPal error:', err)
+        setPaymentError('Une erreur est survenue avec PayPal. Réessayez ou contactez-nous si le problème persiste.')
+      },
     }).render(buttonRef.current)
-  }, [paypalReady, alreadyActive])
+  }, [paypalReady, alreadyActive, userId, userEmail, refreshProfile])
 
   if (subscribed) {
     return (
@@ -56,7 +76,10 @@ export default function SubscriptionView({ userEmail, isPremium, isAdmin }) {
         <div className="sub-success">
           <div className="sub-success-icon">🎉</div>
           <h2>Merci pour ton abonnement !</h2>
-          <p>Tu as maintenant accès à toutes les fonctionnalités d'ICEdep Premium.</p>
+          <p>Le paiement est validé. L'activation Premium se fait automatiquement dans les prochaines secondes.</p>
+          <p style={{ marginTop: 12, fontSize: 13, color: 'var(--text3)' }}>
+            Si Premium n'apparaît pas dans 1 minute, recharge la page (Ctrl+R). Tu peux aussi nous contacter avec ton email PayPal pour qu'on l'active manuellement.
+          </p>
         </div>
       </div>
     )
@@ -140,6 +163,20 @@ export default function SubscriptionView({ userEmail, isPremium, isAdmin }) {
           {!paypalReady && <div className="sub-loading">Chargement du paiement…</div>}
           <div ref={buttonRef}/>
         </div>
+
+        {paymentError && (
+          <div style={{
+            margin: '10px 0',
+            padding: '10px 14px',
+            background: 'var(--red-bg)',
+            color: 'var(--red)',
+            borderRadius: 'var(--radius)',
+            fontSize: 13,
+            border: '1px solid rgba(248,113,113,0.3)',
+          }}>
+            {paymentError}
+          </div>
+        )}
 
         <p className="sub-secure">🔒 Paiement sécurisé via PayPal</p>
       </div>
