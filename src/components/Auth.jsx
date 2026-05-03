@@ -14,6 +14,33 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 }
 
+/**
+ * Détection robuste du quirk Supabase "email déjà utilisé".
+ * Supabase ne renvoie PAS d'erreur dans ce cas (anti-énumération) mais
+ * laisse plusieurs indices :
+ *   - identities est vide (cas standard, confirmé par la doc)
+ *   - identities est null/undefined (variantes selon version Supabase)
+ *   - confirmation_sent_at est null (aucun email n'a été émis)
+ *   - session est null ET email_confirmed_at est null (compte non créé)
+ * On combine plusieurs signaux pour être tolérant.
+ */
+function isExistingUserResponse(data) {
+  const user = data?.user
+  if (!user) return false
+
+  // Signal principal : tableau identities vide ou absent
+  const identities = user.identities
+  const noIdentities =
+    identities == null ||
+    (Array.isArray(identities) && identities.length === 0)
+
+  // Signal secondaire : aucun email de confirmation envoyé
+  // (un nouveau user a normalement un confirmation_sent_at non-null)
+  const noConfirmationEmail = !user.confirmation_sent_at && !user.email_confirmed_at
+
+  return noIdentities || noConfirmationEmail
+}
+
 // Traduit les messages d'erreur Supabase en français user-friendly
 function translateAuthError(error, mode) {
   const msg = (error?.message || '').toLowerCase()
@@ -85,9 +112,10 @@ export default function Auth({ defaultMode = 'login' }) {
         })
         if (error) {
           setError(translateAuthError(error, 'register'))
-        } else if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-          // Quirk Supabase : email déjà utilisé = identities vide (pas d'erreur explicite)
-          setError('Cette adresse email est déjà utilisée. Connectez-vous à la place.')
+        } else if (isExistingUserResponse(data)) {
+          // Quirk Supabase anti-énumération : aucun email n'a été envoyé,
+          // l'utilisateur existe déjà. On le signale clairement.
+          setError('Un compte existe déjà avec cet email. Aucun email de confirmation n\'a été envoyé. Connectez-vous ou récupérez votre mot de passe.')
         } else {
           setSuccess('Compte créé ! Vérifiez vos emails (et les spams) pour confirmer votre compte.')
         }
@@ -165,6 +193,46 @@ export default function Auth({ defaultMode = 'login' }) {
           </div>
         </div>
         {error && <p className="auth-error">{error}</p>}
+        {/* Raccourci visible pour basculer en connexion si email déjà utilisé */}
+        {error && error.toLowerCase().includes('compte existe') && mode === 'register' && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: '0.75rem' }}>
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(''); setSuccess('') }}
+              style={{
+                flex: 1,
+                height: 38,
+                background: 'var(--accent)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 'var(--radius)',
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              Se connecter →
+            </button>
+            <button
+              type="button"
+              onClick={() => { setForgotEmail(email); setShowForgot(true); setError('') }}
+              style={{
+                flex: 1,
+                height: 38,
+                background: 'transparent',
+                color: 'var(--text2)',
+                border: '1px solid var(--line2)',
+                borderRadius: 'var(--radius)',
+                fontSize: 13,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              Mot de passe oublié
+            </button>
+          </div>
+        )}
         {success && <p className="auth-success">{success}</p>}
         <button className="auth-btn" onClick={handleSubmit} disabled={loading}>
           {loading ? 'Chargement…' : mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
