@@ -4,6 +4,7 @@ import { Trophy, Lock as LockIcon, Check } from 'lucide-react'
 import { fmt } from '../utils/storage'
 import { ACHIEVEMENTS, CATEGORIES, computeAchievements, getAllReventes, summary, TIER_COLORS } from '../utils/achievements'
 import { AnimatedInt, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
+import { useT } from '../utils/i18n.jsx'
 import './AchievementsView.css'
 
 function fmtProgress(a) {
@@ -71,6 +72,7 @@ function AchievementCard({ a }) {
 }
 
 export default function AchievementsView({ data }) {
+  const t = useT()
   const allReventes = useMemo(() => getAllReventes(data), [data])
   const achievements = useMemo(() => computeAchievements(allReventes), [allReventes])
   const sum = useMemo(() => summary(achievements), [achievements])
@@ -97,9 +99,9 @@ export default function AchievementsView({ data }) {
         <div>
           <h1 className="page-title">
             <Trophy size={26} style={{ verticalAlign: '-3px', marginRight: 8, color: 'var(--gold)' }}/>
-            Trophées
+            {t('achievements.title')}
           </h1>
-          <p className="page-sub">Tes accomplissements de revendeur</p>
+          <p className="page-sub">{t('achievements.subtitle')}</p>
         </div>
         <div className="ach-summary">
           <div className="ach-summary-num">
@@ -107,7 +109,7 @@ export default function AchievementsView({ data }) {
             <span className="ach-summary-sep">/</span>
             <span className="ach-summary-total">{sum.total}</span>
           </div>
-          <div className="ach-summary-label">débloqués</div>
+          <div className="ach-summary-label">{t('achievements.unlocked')}</div>
         </div>
       </motion.div>
 
@@ -125,14 +127,14 @@ export default function AchievementsView({ data }) {
             transition={{ duration: 1.3, delay: 0.3, ease: EASE_OUT_EXPO }}
           />
         </div>
-        <span className="ach-overall-label">{sum.pct.toFixed(0)} % de progression</span>
+        <span className="ach-overall-label">{sum.pct.toFixed(0)} {t('achievements.progress')}</span>
       </motion.div>
 
       {allReventes.length === 0 && (
         <div className="ach-empty fade-up stagger-2">
           <Trophy size={40} style={{ color: 'var(--text3)', marginBottom: 12 }}/>
-          <p>Aucune revente pour l'instant.</p>
-          <p style={{ fontSize: 13, marginTop: 4 }}>Ajoute ta première dans l'onglet Reventes pour débloquer tes premiers trophées !</p>
+          <p>{t('achievements.empty_title')}</p>
+          <p style={{ fontSize: 13, marginTop: 4 }}>{t('achievements.empty_sub')}</p>
         </div>
       )}
 

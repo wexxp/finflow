@@ -5,6 +5,7 @@ import { fmt, fmtMonth } from '../utils/storage'
 import { addRevente, deleteRevente } from '../utils/db'
 import { supabase } from '../utils/supabase'
 import { AnimatedAmount, AnimatedPercent, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
+import { useT } from '../utils/i18n.jsx'
 import './ReventesView.css'
 
 const DEFAULT_CATS = {
@@ -21,6 +22,7 @@ const DEFAULT_PLATFORMS = ['Leboncoin','Vinted','Vestiaire Collectif','Prego','S
 const CAT_COLORS = { électronique:'#60a5fa', mobilier:'#fbbf24', vêtements:'#f472b6', matériel:'#a78bfa', livres:'#4ade80', jeux:'#f87171', autre:'#9997a0' }
 
 export default function ReventesView({ monthData, currentMonth, userId, refreshData }) {
+  const t = useT()
   const [name,setName]=useState('')
   const [cat,setCat]=useState('électronique')
   const [subCat,setSubCat]=useState('')
@@ -88,7 +90,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
   return (
     <div className="reventes-view">
       <div className="page-header fade-up">
-        <div><h1 className="page-title">{fmtMonth(currentMonth)}</h1><p className="page-sub">Suivi des reventes</p></div>
+        <div><h1 className="page-title">{fmtMonth(currentMonth)}</h1><p className="page-sub">{t('reventes.subtitle')}</p></div>
         <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
           <motion.div
             className="rv-summary"
@@ -96,16 +98,16 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
           >
-            <div className="rv-sum-item"><span className="rv-sum-label">Revendu</span><span className="rv-sum-val blue"><AnimatedAmount value={totalVente}/></span></div>
+            <div className="rv-sum-item"><span className="rv-sum-label">{t('reventes.sum_sold')}</span><span className="rv-sum-val blue"><AnimatedAmount value={totalVente}/></span></div>
             <div className="rv-sum-sep"/>
-            <div className="rv-sum-item"><span className="rv-sum-label">Bénéfice</span><span className={`rv-sum-val ${totalBenef>=0?'green':'red'}`}><AnimatedAmount value={totalBenef} signed/></span></div>
+            <div className="rv-sum-item"><span className="rv-sum-label">{t('reventes.sum_profit')}</span><span className={`rv-sum-val ${totalBenef>=0?'green':'red'}`}><AnimatedAmount value={totalBenef} signed/></span></div>
             <div className="rv-sum-sep"/>
-            <div className="rv-sum-item"><span className="rv-sum-label">Marge moy.</span><span className="rv-sum-val purple"><AnimatedPercent value={avgMarge}/></span></div>
+            <div className="rv-sum-item"><span className="rv-sum-label">{t('reventes.sum_margin')}</span><span className="rv-sum-val purple"><AnimatedPercent value={avgMarge}/></span></div>
             <div className="rv-sum-sep"/>
-            <div className="rv-sum-item"><span className="rv-sum-label">En attente</span><span className="rv-sum-val" style={{color:'var(--gold)'}}>{enAttente.length} article{enAttente.length>1?'s':''}</span></div>
+            <div className="rv-sum-item"><span className="rv-sum-label">{t('reventes.sum_pending')}</span><span className="rv-sum-val" style={{color:'var(--gold)'}}>{enAttente.length} {enAttente.length>1?t('common.articles'):t('common.article')}</span></div>
           </motion.div>
           <button onClick={()=>setShowCustom(!showCustom)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 12px',border:'1px solid var(--line2)',borderRadius:'var(--radius)',background:showCustom?'var(--accent-bg)':'transparent',color:showCustom?'var(--accent)':'var(--text2)',fontSize:13,cursor:'pointer'}}>
-            <Settings size={14}/> Personnaliser
+            <Settings size={14}/> {t('reventes.customize')}
           </button>
         </div>
       </div>
@@ -152,13 +154,13 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
 
       <div className="add-box fade-up stagger-1">
         <div className="add-grid-3">
-          <div className="field"><label>Article</label><input placeholder="Ex: Nike Air Max…" value={name} onChange={e=>setName(e.target.value)}/></div>
-          <div className="field"><label>Catégorie</label>
+          <div className="field"><label>{t('reventes.field_article')}</label><input placeholder="Ex: Nike Air Max…" value={name} onChange={e=>setName(e.target.value)}/></div>
+          <div className="field"><label>{t('reventes.field_cat')}</label>
             <select value={cat} onChange={e=>{setCat(e.target.value);setSubCat('')}}>
               {Object.entries(DEFAULT_CATS).map(([k,v])=><option key={k} value={k}>{v.icon} {k}</option>)}
             </select>
           </div>
-          <div className="field"><label>Plateforme</label>
+          <div className="field"><label>{t('reventes.field_platform')}</label>
             <select value={plat} onChange={e=>setPlat(e.target.value)}>
               {allPlatforms.map(p=><option key={p}>{p}</option>)}
             </select>
@@ -167,29 +169,29 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
         {currentSubs.length > 0 && (
           <div style={{marginBottom:10}}>
             <div className="field">
-              <label>Sous-catégorie <span style={{color:'var(--text3)',fontWeight:400}}>— optionnel</span></label>
+              <label>{t('reventes.field_subcat')} <span style={{color:'var(--text3)',fontWeight:400}}>— {t('reventes.field_subcat_optional')}</span></label>
               <select value={subCat} onChange={e=>setSubCat(e.target.value)} style={{width:220}}>
-                <option value="">— Aucune —</option>
+                <option value="">{t('reventes.no_subcat')}</option>
                 {currentSubs.map(s=><option key={s}>{s}</option>)}
               </select>
             </div>
           </div>
         )}
         <div className="add-grid-4">
-          <div className="field"><label>Prix d'achat (€)</label><input type="number" placeholder="0" value={achat} onChange={e=>setAchat(e.target.value)} min="0" step="0.01"/></div>
-          <div className="field"><label>Frais annexes (€)</label><input type="number" placeholder="0" value={frais} onChange={e=>setFrais(e.target.value)} min="0" step="0.01"/></div>
-          <div className="field"><label>Prix de vente (€) <span style={{color:'var(--text3)',fontWeight:400}}>— optionnel</span></label><input type="number" placeholder="Laisser vide si pas encore vendu" value={vente} onChange={e=>setVente(e.target.value)} min="0" step="0.01"/></div>
-          <div className="field"><label>&nbsp;</label><button className="add-btn-rv" onClick={handleAdd} disabled={saving}><Plus size={16}/> Ajouter</button></div>
+          <div className="field"><label>{t('reventes.field_purchase')}</label><input type="number" placeholder="0" value={achat} onChange={e=>setAchat(e.target.value)} min="0" step="0.01"/></div>
+          <div className="field"><label>{t('reventes.field_fees')}</label><input type="number" placeholder="0" value={frais} onChange={e=>setFrais(e.target.value)} min="0" step="0.01"/></div>
+          <div className="field"><label>{t('reventes.field_sale')} <span style={{color:'var(--text3)',fontWeight:400}}>— {t('reventes.field_subcat_optional')}</span></label><input type="number" placeholder={t('reventes.field_sale_optional')} value={vente} onChange={e=>setVente(e.target.value)} min="0" step="0.01"/></div>
+          <div className="field"><label>&nbsp;</label><button className="add-btn-rv" onClick={handleAdd} disabled={saving}><Plus size={16}/> {t('reventes.add')}</button></div>
         </div>
         {errMsg && <div style={{marginTop:10,padding:'8px 12px',background:'var(--red-bg)',color:'var(--red)',borderRadius:'var(--radius)',fontSize:13}}>{errMsg}</div>}
         {showPreview && (
           <div className="rv-preview fade-in">
-            <div className="preview-row"><span>Coût total</span><span>{fmt(a+f)}</span></div>
-            <div className="preview-row"><span>Prix de vente</span><span>{fmt(v)}</span></div>
+            <div className="preview-row"><span>{t('reventes.preview_cost')}</span><span>{fmt(a+f)}</span></div>
+            <div className="preview-row"><span>{t('reventes.preview_sale')}</span><span>{fmt(v)}</span></div>
             <div className="preview-divider"/>
-            <div className="preview-row bold"><span>Bénéfice</span><span style={{color:previewBenef>=0?'var(--green)':'var(--red)'}}>{previewBenef>=0?'+':'−'}{fmt(Math.abs(previewBenef))}</span></div>
-            {a>0&&<div className="preview-row"><span>Marge</span><span className={`marge-badge ${previewMarge>=20?'good':previewMarge>=0?'ok':'bad'}`}>{previewMarge.toFixed(1)} %</span></div>}
-            {a===0&&<div className="preview-row"><span style={{color:'var(--text3)',fontSize:12}}>Marge non calculée (article gratuit)</span></div>}
+            <div className="preview-row bold"><span>{t('reventes.preview_profit')}</span><span style={{color:previewBenef>=0?'var(--green)':'var(--red)'}}>{previewBenef>=0?'+':'−'}{fmt(Math.abs(previewBenef))}</span></div>
+            {a>0&&<div className="preview-row"><span>{t('reventes.preview_margin')}</span><span className={`marge-badge ${previewMarge>=20?'good':previewMarge>=0?'ok':'bad'}`}>{previewMarge.toFixed(1)} %</span></div>}
+            {a===0&&<div className="preview-row"><span style={{color:'var(--text3)',fontSize:12}}>{t('reventes.preview_no_margin')}</span></div>}
           </div>
         )}
       </div>
@@ -197,7 +199,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
       <div style={{display:'flex',gap:6,marginBottom:'1rem'}}>
         {['tout','vendu','en attente'].map(f=>(
           <button key={f} onClick={()=>setFilterStatus(f)} style={{padding:'5px 14px',borderRadius:99,fontSize:12,fontWeight:500,border:'1px solid var(--line2)',background:filterStatus===f?'var(--accent-bg)':'transparent',color:filterStatus===f?'var(--accent)':'var(--text2)',cursor:'pointer'}}>
-            {f==='tout'?'Tout':f==='vendu'?`Vendus (${vendu.length})`:`En attente (${enAttente.length})`}
+            {f==='tout' ? t('reventes.filter_all') : f==='vendu' ? `${t('reventes.filter_sold')} (${vendu.length})` : `${t('reventes.filter_pending')} (${enAttente.length})`}
           </button>
         ))}
       </div>
@@ -208,7 +210,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
         initial="hidden"
         animate="show"
       >
-        {filtered.length===0&&<p className="empty-state">Aucun article ici !</p>}
+        {filtered.length===0&&<p className="empty-state">{t('reventes.empty')}</p>}
         <AnimatePresence>
         {[...filtered].reverse().map(r=>{
           const estVendu=r.vente>0
@@ -232,8 +234,8 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
                 <div>
                   <div className="rv-card-name" style={{display:'flex',alignItems:'center',gap:7,flexWrap:'wrap'}}>
                     {r.name}
-                    {!estVendu&&<span style={{fontSize:11,padding:'2px 7px',borderRadius:99,background:'var(--gold-bg)',color:'var(--gold)',display:'inline-flex',alignItems:'center',gap:4}}><Clock size={10}/> En attente</span>}
-                    {estVendu&&<span style={{fontSize:11,padding:'2px 7px',borderRadius:99,background:'var(--green-bg)',color:'var(--green)',display:'inline-flex',alignItems:'center',gap:4}}><CheckCircle size={10}/> Vendu</span>}
+                    {!estVendu&&<span style={{fontSize:11,padding:'2px 7px',borderRadius:99,background:'var(--gold-bg)',color:'var(--gold)',display:'inline-flex',alignItems:'center',gap:4}}><Clock size={10}/> {t('reventes.status_pending')}</span>}
+                    {estVendu&&<span style={{fontSize:11,padding:'2px 7px',borderRadius:99,background:'var(--green-bg)',color:'var(--green)',display:'inline-flex',alignItems:'center',gap:4}}><CheckCircle size={10}/> {t('reventes.status_sold')}</span>}
                   </div>
                   <div className="rv-card-meta">
                     <span className="rv-cat-badge" style={{background:bgcol+'22',color:bgcol}}>{r.cat}</span>
@@ -245,23 +247,23 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
               </div>
               {editingId===r.id?(
                 <div style={{flex:1,display:'flex',gap:8,alignItems:'flex-end'}}>
-                  <div style={{flex:1}}><label style={{fontSize:11,color:'var(--text3)',display:'block',marginBottom:4}}>Prix de vente (€)</label><input type="number" placeholder="0" value={editVente} onChange={e=>setEditVente(e.target.value)} style={{height:36}} autoFocus/></div>
-                  <div style={{flex:1}}><label style={{fontSize:11,color:'var(--text3)',display:'block',marginBottom:4}}>Frais (€)</label><input type="number" value={editFrais} onChange={e=>setEditFrais(e.target.value)} style={{height:36}}/></div>
-                  <button onClick={()=>handleConfirmSell(r)} style={{height:36,padding:'0 14px',background:'var(--green)',color:'#111',border:'none',borderRadius:'var(--radius)',fontSize:13,fontWeight:500,cursor:'pointer'}}>✓ Confirmer</button>
+                  <div style={{flex:1}}><label style={{fontSize:11,color:'var(--text3)',display:'block',marginBottom:4}}>{t('reventes.field_sale')}</label><input type="number" placeholder="0" value={editVente} onChange={e=>setEditVente(e.target.value)} style={{height:36}} autoFocus/></div>
+                  <div style={{flex:1}}><label style={{fontSize:11,color:'var(--text3)',display:'block',marginBottom:4}}>{t('reventes.col_fees')} (€)</label><input type="number" value={editFrais} onChange={e=>setEditFrais(e.target.value)} style={{height:36}}/></div>
+                  <button onClick={()=>handleConfirmSell(r)} style={{height:36,padding:'0 14px',background:'var(--green)',color:'#111',border:'none',borderRadius:'var(--radius)',fontSize:13,fontWeight:500,cursor:'pointer'}}>{t('reventes.confirm_sold')}</button>
                   <button onClick={()=>setEditingId(null)} style={{height:36,width:36,background:'transparent',border:'1px solid var(--line2)',borderRadius:'var(--radius)',color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={14}/></button>
                 </div>
               ):(
                 <div className="rv-card-nums">
-                  <div className="rv-num"><span className="rv-num-label">Acheté</span><span className="rv-num-val">{r.achat===0?'Gratuit':fmt(r.achat)}</span></div>
-                  <div className="rv-num"><span className="rv-num-label">Frais</span><span className="rv-num-val muted">{fmt(r.frais)}</span></div>
-                  <div className="rv-num"><span className="rv-num-label">Vendu</span><span className="rv-num-val blue">{estVendu?fmt(r.vente):'—'}</span></div>
-                  <div className="rv-num"><span className="rv-num-label">Bénéf · Marge</span>
-                    {estVendu?<span className="rv-num-val" style={{color:col}}>{benef>=0?'+':'−'}{fmt(Math.abs(benef))}{marge!==null?` · ${marge.toFixed(1)}%`:' · —'}</span>:<span className="rv-num-val" style={{color:'var(--text3)'}}>En attente</span>}
+                  <div className="rv-num"><span className="rv-num-label">{t('reventes.col_purchased')}</span><span className="rv-num-val">{r.achat===0?t('reventes.free'):fmt(r.achat)}</span></div>
+                  <div className="rv-num"><span className="rv-num-label">{t('reventes.col_fees')}</span><span className="rv-num-val muted">{fmt(r.frais)}</span></div>
+                  <div className="rv-num"><span className="rv-num-label">{t('reventes.col_sold')}</span><span className="rv-num-val blue">{estVendu?fmt(r.vente):'—'}</span></div>
+                  <div className="rv-num"><span className="rv-num-label">{t('reventes.col_profit_margin')}</span>
+                    {estVendu?<span className="rv-num-val" style={{color:col}}>{benef>=0?'+':'−'}{fmt(Math.abs(benef))}{marge!==null?` · ${marge.toFixed(1)}%`:' · —'}</span>:<span className="rv-num-val" style={{color:'var(--text3)'}}>{t('reventes.status_pending')}</span>}
                   </div>
                 </div>
               )}
               <div style={{display:'flex',flexDirection:'column',gap:5,flexShrink:0}}>
-                {!estVendu&&editingId!==r.id&&<button onClick={()=>{setEditingId(r.id);setEditVente('');setEditFrais(String(r.frais||0))}} style={{height:32,padding:'0 10px',background:'var(--green-bg)',color:'var(--green)',border:'1px solid var(--green)',borderRadius:'var(--radius)',fontSize:12,fontWeight:500,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Edit3 size={11}/> Vendu !</button>}
+                {!estVendu&&editingId!==r.id&&<button onClick={()=>{setEditingId(r.id);setEditVente('');setEditFrais(String(r.frais||0))}} style={{height:32,padding:'0 10px',background:'var(--green-bg)',color:'var(--green)',border:'1px solid var(--green)',borderRadius:'var(--radius)',fontSize:12,fontWeight:500,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}><Edit3 size={11}/> {t('reventes.mark_sold')}</button>}
                 <button className="rv-del" onClick={()=>handleDelete(r.id)}><Trash2 size={14}/></button>
               </div>
             </motion.div>

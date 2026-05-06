@@ -1,8 +1,10 @@
 import { computeStats, fmt, fmtMonth } from '../utils/storage'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LineChart, Line, CartesianGrid } from 'recharts'
+import { useT } from '../utils/i18n.jsx'
 import './AnnualView.css'
 
 export default function AnnualView({ data, setActiveTab }) {
+  const t = useT()
   const allKeys = Object.keys(data.months).sort()
   const chartData = allKeys.map(key => {
     const s = computeStats(data.months[key])
@@ -29,79 +31,79 @@ export default function AnnualView({ data, setActiveTab }) {
     <div className="annual-view">
       <div className="page-header fade-up">
         <div>
-          <h1 className="page-title">Vue annuelle</h1>
-          <p className="page-sub">{chartData.length} mois enregistrés</p>
+          <h1 className="page-title">{t('annual.title')}</h1>
+          <p className="page-sub">{t('annual.subtitle')}</p>
         </div>
       </div>
 
       <div className="annual-kpis fade-up stagger-1">
         <div className="ann-kpi">
-          <span className="ann-kpi-label">Total revenus</span>
+          <span className="ann-kpi-label">{t('annual.kpi_revenue')}</span>
           <span className="ann-kpi-val green">+{fmt(totalRev)}</span>
         </div>
         <div className="ann-kpi">
-          <span className="ann-kpi-label">Total dépenses</span>
+          <span className="ann-kpi-label">{t('annual.kpi_expenses')}</span>
           <span className="ann-kpi-val red">−{fmt(totalDep)}</span>
         </div>
         <div className="ann-kpi">
-          <span className="ann-kpi-label">Solde cumulé</span>
+          <span className="ann-kpi-label">{t('annual.kpi_balance')}</span>
           <span className={`ann-kpi-val ${totalBal >= 0 ? 'green' : 'red'}`}>{totalBal >= 0 ? '+' : '−'}{fmt(Math.abs(totalBal))}</span>
         </div>
         {bestMonth && (
           <div className="ann-kpi">
-            <span className="ann-kpi-label">Meilleur mois</span>
+            <span className="ann-kpi-label">{t('annual.kpi_resale')}</span>
             <span className="ann-kpi-val gold">{bestMonth.label}</span>
           </div>
         )}
       </div>
 
       <div className="ann-chart-card fade-up stagger-2">
-        <div className="card-title">Revenus vs Dépenses</div>
+        <div className="card-title">{t('annual.evolution')}</div>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={chartData} barCategoryGap="30%" barGap={4} margin={{ top: 10, right: 0, left: -10, bottom: 0 }}>
             <XAxis dataKey="label" tick={{ fill: 'var(--text3)', fontSize: 12 }} axisLine={false} tickLine={false}/>
             <YAxis tick={{ fill: 'var(--text3)', fontSize: 12 }} axisLine={false} tickLine={false}/>
             <Tooltip contentStyle={tooltipStyle} formatter={(v, n) => [fmt(v), n]}/>
             <Legend wrapperStyle={{ fontSize: 12, color: 'var(--text2)', paddingTop: 8 }}/>
-            <Bar dataKey="revenus" name="Revenus" fill="#4ade80" radius={[4,4,0,0]} fillOpacity={0.85}/>
-            <Bar dataKey="depenses" name="Dépenses" fill="#f87171" radius={[4,4,0,0]} fillOpacity={0.85}/>
+            <Bar dataKey="revenus" name={t('annual.col_revenue')} fill="#4ade80" radius={[4,4,0,0]} fillOpacity={0.85}/>
+            <Bar dataKey="depenses" name={t('annual.col_expenses')} fill="#f87171" radius={[4,4,0,0]} fillOpacity={0.85}/>
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       <div className="ann-row fade-up stagger-3">
         <div className="ann-chart-card">
-          <div className="card-title">Évolution du solde</div>
+          <div className="card-title">{t('annual.col_balance')}</div>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={chartData} margin={{ top: 10, right: 0, left: -10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" vertical={false}/>
               <XAxis dataKey="label" tick={{ fill: 'var(--text3)', fontSize: 12 }} axisLine={false} tickLine={false}/>
               <YAxis tick={{ fill: 'var(--text3)', fontSize: 12 }} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={tooltipStyle} formatter={(v) => [fmt(v), 'Solde']}/>
+              <Tooltip contentStyle={tooltipStyle} formatter={(v) => [fmt(v), t('annual.col_balance')]}/>
               <Line type="monotone" dataKey="balance" stroke="var(--accent)" strokeWidth={2.5} dot={{ fill: 'var(--accent)', r: 4 }}/>
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         <div className="ann-chart-card">
-          <div className="card-title">Score de santé financière</div>
+          <div className="card-title">{t('annual.col_health')}</div>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData} margin={{ top: 10, right: 0, left: -10, bottom: 0 }}>
               <XAxis dataKey="label" tick={{ fill: 'var(--text3)', fontSize: 12 }} axisLine={false} tickLine={false}/>
               <YAxis domain={[0, 100]} tick={{ fill: 'var(--text3)', fontSize: 12 }} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v + '/100', 'Santé']}/>
-              <Bar dataKey="sante" name="Score santé" fill="var(--gold)" radius={[4,4,0,0]} fillOpacity={0.85}/>
+              <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v + '/100', t('annual.col_health')]}/>
+              <Bar dataKey="sante" name={t('annual.col_health')} fill="var(--gold)" radius={[4,4,0,0]} fillOpacity={0.85}/>
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <div className="ann-table fade-up stagger-4">
-        <div className="card-title" style={{ marginBottom: '1rem' }}>Détail par mois</div>
+        <div className="card-title" style={{ marginBottom: '1rem' }}>{t('annual.detail')}</div>
         <table className="month-table">
           <thead>
             <tr>
-              <th>Mois</th><th>Revenus</th><th>Dépenses</th><th>Reventes</th><th>Solde</th><th>Santé</th>
+              <th>{t('annual.col_month')}</th><th>{t('annual.col_revenue')}</th><th>{t('annual.col_expenses')}</th><th>{t('annual.kpi_resale')}</th><th>{t('annual.col_balance')}</th><th>{t('annual.col_health')}</th>
             </tr>
           </thead>
           <tbody>

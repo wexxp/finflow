@@ -5,6 +5,7 @@ import { computeAchievements, getAllReventes, summary as achSummary } from '../u
 import { computeFiscalSummary } from '../utils/fiscal'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
 import { AnimatedAmount, AnimatedPercent, SPRING_GENTLE, EASE_OUT_EXPO } from '../utils/motion'
+import { useT } from '../utils/i18n.jsx'
 import './Dashboard.css'
 
 function KpiCard({ label, rawValue, displayValue, color, icon: Icon, sub, index, animatedKind = 'amount', signed = false, suffix = '€' }) {
@@ -44,6 +45,7 @@ function KpiCard({ label, rawValue, displayValue, color, icon: Icon, sub, index,
 }
 
 export default function Dashboard({ data, monthData, currentMonth, setActiveTab, isPremium }) {
+  const t = useT()
   const stats = computeStats(monthData)
   const txs = monthData?.transactions || []
   const rvs = monthData?.reventes || []
@@ -97,19 +99,57 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
       >
         <div>
           <h1 className="page-title">{fmtMonth(currentMonth)}</h1>
-          <p className="page-sub">Tableau de bord — vue d'ensemble</p>
+          <p className="page-sub">{t('dashboard.subtitle')}</p>
         </div>
         <div className="prediction-badge">
           <Activity size={14} />
-          <span>Prévision fin de mois : <strong style={{ color: predictedBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>{fmtSigned(predictedBalance)}</strong></span>
+          <span>{t('dashboard.prediction')} : <strong style={{ color: predictedBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>{fmtSigned(predictedBalance)}</strong></span>
         </div>
       </motion.div>
 
       <div className="kpi-grid">
-        <KpiCard label="Revenus"        rawValue={stats.effectiveRev}    color="var(--green)"  icon={TrendingUp}   sub={stats.totalRvVente > 0 ? `dont ${fmt(stats.totalRvVente)} reventes` : `${txs.filter(t=>t.type==='revenu').length} entrées`} index={0}/>
-        <KpiCard label="Dépenses"       rawValue={stats.effectiveDep}    color="var(--red)"    icon={TrendingDown} sub={stats.totalRvAchat > 0 ? `dont ${fmt(stats.totalRvAchat)} achats reventes` : `${txs.filter(t=>t.type==='depense').length} sorties`} index={1}/>
-        <KpiCard label="Bénéf. reventes" rawValue={stats.totalRvBenef}    signed                color="var(--purple)" icon={RefreshCw}    sub={`${rvs.length} article${rvs.length > 1 ? 's' : ''} · ${rvs.filter(r=>r.vente>0).length} vendu${rvs.filter(r=>r.vente>0).length > 1 ? 's' : ''}`} index={2}/>
-        <KpiCard label="Taux d'épargne"  rawValue={stats.savingRate}      animatedKind="percent" color="var(--gold)"   icon={Activity}     sub={`Score santé : ${stats.healthScore}/100`} index={3}/>
+        <KpiCard
+          label={t('dashboard.kpi_revenue')}
+          rawValue={stats.effectiveRev}
+          color="var(--green)"
+          icon={TrendingUp}
+          sub={stats.totalRvVente > 0
+            ? t('dashboard.of_resales').replace('{amount}', fmt(stats.totalRvVente))
+            : `${txs.filter(tx=>tx.type==='revenu').length} ${t('common.entries')}`}
+          index={0}
+        />
+        <KpiCard
+          label={t('dashboard.kpi_expenses')}
+          rawValue={stats.effectiveDep}
+          color="var(--red)"
+          icon={TrendingDown}
+          sub={stats.totalRvAchat > 0
+            ? t('dashboard.of_purchases_resales').replace('{amount}', fmt(stats.totalRvAchat))
+            : `${txs.filter(tx=>tx.type==='depense').length} ${t('common.exits')}`}
+          index={1}
+        />
+        <KpiCard
+          label={t('dashboard.kpi_resale_profit')}
+          rawValue={stats.totalRvBenef}
+          signed
+          color="var(--purple)"
+          icon={RefreshCw}
+          sub={t('dashboard.articles_sold_count')
+            .replace('{total}', String(rvs.length))
+            .replace('{plural_t}', rvs.length > 1 ? 's' : '')
+            .replace('{sold}', String(rvs.filter(r=>r.vente>0).length))
+            .replace('{plural_s}', rvs.filter(r=>r.vente>0).length > 1 ? 's' : '')}
+          index={2}
+        />
+        <KpiCard
+          label={t('dashboard.kpi_saving_rate')}
+          rawValue={stats.savingRate}
+          animatedKind="percent"
+          color="var(--gold)"
+          icon={Activity}
+          sub={`${t('dashboard.health_score')} : ${stats.healthScore}/100`}
+          index={3}
+        />
       </div>
 
       {isPremium && dac7Alert && (
@@ -184,8 +224,8 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
           whileHover={{ y: -2, transition: SPRING_GENTLE }}
         >
           <div className="card-header">
-            <span className="card-title">Évolution du solde</span>
-            <button className="card-link" onClick={() => setActiveTab('annual')}>Vue annuelle <ArrowRight size={13}/></button>
+            <span className="card-title">{t('dashboard.evolution')}</span>
+            <button className="card-link" onClick={() => setActiveTab('annual')}>{t('dashboard.see_annual')} <ArrowRight size={13}/></button>
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={areaData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
@@ -214,7 +254,7 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
           whileHover={{ y: -2, transition: SPRING_GENTLE }}
         >
           <div className="card-header">
-            <span className="card-title">Dépenses</span>
+            <span className="card-title">{t('dashboard.expenses')}</span>
           </div>
           {pieData.length > 0 ? (
             <>
@@ -236,7 +276,7 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
                 ))}
               </div>
             </>
-          ) : <p style={{ color: 'var(--text3)', fontSize: 13, padding: '1rem 0' }}>Aucune dépense ce mois</p>}
+          ) : <p style={{ color: 'var(--text3)', fontSize: 13, padding: '1rem 0' }}>{t('dashboard.no_expense')}</p>}
         </motion.div>
       </div>
 
@@ -247,11 +287,11 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
         transition={{ duration: 0.55, delay: 0.75, ease: EASE_OUT_EXPO }}
       >
         <div className="card-header">
-          <span className="card-title">Transactions récentes</span>
-          <button className="card-link" onClick={() => setActiveTab('budget')}>Voir tout <ArrowRight size={13}/></button>
+          <span className="card-title">{t('dashboard.recent_tx')}</span>
+          <button className="card-link" onClick={() => setActiveTab('budget')}>{t('dashboard.see_all')} <ArrowRight size={13}/></button>
         </div>
         <div className="tx-mini-list">
-          {recent.length === 0 && <p style={{ color: 'var(--text3)', fontSize: 13, padding: '0.5rem 0' }}>Aucune transaction</p>}
+          {recent.length === 0 && <p style={{ color: 'var(--text3)', fontSize: 13, padding: '0.5rem 0' }}>{t('dashboard.no_tx')}</p>}
           {recent.map((t, i) => {
             const m = CAT_META[t.cat] || CAT_META.autre
             return (

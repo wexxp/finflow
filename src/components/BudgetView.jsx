@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Plus, Repeat, Trash2, ArrowUp, ArrowDown, Target } from 'lucide-react'
 import { CAT_META, DEP_CATS, REV_CATS, fmt, fmtMonth } from '../utils/storage'
 import { addTransaction, deleteTransaction, addRecurring, deleteRecurring } from '../utils/db'
+import { useT } from '../utils/i18n.jsx'
 import './BudgetView.css'
 
 const ALL_ICONS = { alimentation:'🛒',transport:'🚗',loisirs:'🎬',santé:'💊',logement:'🏠',vêtements:'👕',salaire:'💼',freelance:'💻',remboursement:'↩️',cadeau:'🎁',revente:'🔄',autre:'📦' }
 
 export default function BudgetView({ data, monthData, currentMonth, userId, refreshData, setActiveTab }) {
+  const t = useT()
   const [txType, setTxType] = useState('depense')
   const [desc, setDesc] = useState('')
   const [amount, setAmount] = useState('')
@@ -56,7 +58,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
       <div className="page-header fade-up">
         <div>
           <h1 className="page-title">{fmtMonth(currentMonth)}</h1>
-          <p className="page-sub">Gestion du budget</p>
+          <p className="page-sub">{t('sidebar.budget')}</p>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <div className="budget-totals">
@@ -68,7 +70,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
             onClick={() => setActiveTab('goals')}
             style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',border:'1px solid var(--line2)',borderRadius:'var(--radius)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}
           >
-            <Target size={14}/> Mes objectifs
+            <Target size={14}/> {t('goals.title')}
           </button>
         </div>
       </div>
@@ -95,18 +97,18 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
 
       <div className="add-box fade-up stagger-1">
         <div className="type-switch">
-          <button className={`ts-btn ${txType==='depense'?'active-dep':''}`} onClick={()=>{setTxType('depense');setCat('alimentation')}}><ArrowDown size={15}/> Dépense</button>
-          <button className={`ts-btn ${txType==='revenu'?'active-rev':''}`} onClick={()=>{setTxType('revenu');setCat('salaire')}}><ArrowUp size={15}/> Revenu</button>
+          <button className={`ts-btn ${txType==='depense'?'active-dep':''}`} onClick={()=>{setTxType('depense');setCat('alimentation')}}><ArrowDown size={15}/> {t('budget.add_expense')}</button>
+          <button className={`ts-btn ${txType==='revenu'?'active-rev':''}`} onClick={()=>{setTxType('revenu');setCat('salaire')}}><ArrowUp size={15}/> {t('budget.add_revenue')}</button>
         </div>
         <div className="add-fields">
-          <input placeholder="Description…" value={desc} onChange={e=>setDesc(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAdd()}/>
-          <input type="number" placeholder="Montant €" value={amount} onChange={e=>setAmount(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAdd()} style={{width:140}}/>
+          <input placeholder={t('budget.desc_placeholder') + '…'} value={desc} onChange={e=>setDesc(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAdd()}/>
+          <input type="number" placeholder={t('budget.amount_placeholder') + ' €'} value={amount} onChange={e=>setAmount(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAdd()} style={{width:140}}/>
           <select value={cat} onChange={e=>setCat(e.target.value)} style={{width:180}}>
             {cats.map(c=><option key={c} value={c}>{ALL_ICONS[c]} {c}</option>)}
           </select>
           <label className="recurring-toggle">
             <input type="checkbox" checked={isRecurring} onChange={e=>setIsRecurring(e.target.checked)}/>
-            <Repeat size={14}/><span>Récurrent</span>
+            <Repeat size={14}/><span>{t('budget.recurring')}</span>
           </label>
           <button className={`add-btn ${txType==='depense'?'dep':'rev'}`} onClick={handleAdd} disabled={saving}><Plus size={16}/></button>
         </div>
@@ -114,7 +116,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
 
       {data.recurring.length > 0 && (
         <div className="recurring-box fade-up stagger-2">
-          <div className="box-title"><Repeat size={14}/> Récurrents automatiques</div>
+          <div className="box-title"><Repeat size={14}/> {t('budget.recurring_items')}</div>
           <div className="recurring-list">
             {data.recurring.map(r=>(
               <div key={r.id} className="rec-item">
@@ -134,12 +136,12 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
           <div className="tx-filters">
             {['tout','revenu','depense'].map(f=>(
               <button key={f} className={`filter-pill ${filter===f?'active':''}`} onClick={()=>setFilter(f)}>
-                {f==='tout'?'Tout':f==='revenu'?'Revenus':'Dépenses'}
+                {f==='tout' ? t('budget.filter_all') : f==='revenu' ? t('budget.filter_revenues') : t('budget.filter_expenses')}
               </button>
             ))}
           </div>
           <div className="tx-list">
-            {filtered.length===0 && <p className="empty-state">Aucune transaction</p>}
+            {filtered.length===0 && <p className="empty-state">{t('budget.empty')}</p>}
             {[...filtered].reverse().map(t=>{
               const m=CAT_META[t.cat]||CAT_META.autre
               const d=new Date(t.date+'T00:00:00')
@@ -158,7 +160,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
           </div>
         </div>
         <div className="cat-panel">
-          <div className="box-title">Par catégorie</div>
+          <div className="box-title">{t('budget.spending_by_cat')}</div>
           {Object.entries(depBycat).sort((a,b)=>b[1]-a[1]).map(([cat,val])=>{
             const m=CAT_META[cat]||CAT_META.autre
             return(
@@ -169,7 +171,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
               </div>
             )
           })}
-          {Object.keys(depBycat).length===0 && <p className="empty-state">Aucune dépense</p>}
+          {Object.keys(depBycat).length===0 && <p className="empty-state">{t('dashboard.no_expense')}</p>}
         </div>
       </div>
     </div>

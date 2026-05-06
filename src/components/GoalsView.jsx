@@ -4,12 +4,14 @@ import { Plus, Trash2, Target } from 'lucide-react'
 import { fmt } from '../utils/storage'
 import { addGoal, updateGoal, deleteGoal, addTransaction } from '../utils/db'
 import { AnimatedAmount, AnimatedPercent, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
+import { useT } from '../utils/i18n.jsx'
 import './GoalsView.css'
 
 const GOAL_COLORS=['#7c6aff','#4ade80','#60a5fa','#fbbf24','#f472b6','#f87171','#a78bfa']
 const GOAL_ICONS=['✈️','🏠','💻','🚗','🎓','💍','🏋️','🎮','📱','🌴']
 
 export default function GoalsView({ data, userId, refreshData, currentMonth }) {
+  const t = useT()
   const [label,setLabel]=useState('')
   const [target,setTarget]=useState('')
   const [icon,setIcon]=useState(GOAL_ICONS[0])
@@ -56,12 +58,12 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
   return(
     <div className="goals-view">
       <div className="page-header fade-up">
-        <div><h1 className="page-title">Objectifs</h1><p className="page-sub">Suis ta progression vers tes projets</p></div>
+        <div><h1 className="page-title">{t('goals.title')}</h1><p className="page-sub">{t('goals.subtitle')}</p></div>
         {goals.length>0&&(
           <div className="goals-summary">
-            <div className="gs-item"><span className="gs-label">Épargné</span><span className="gs-val green">{fmt(totalSaved)}</span></div>
+            <div className="gs-item"><span className="gs-label">{t('goals.saved')}</span><span className="gs-val green">{fmt(totalSaved)}</span></div>
             <div className="gs-sep"/>
-            <div className="gs-item"><span className="gs-label">Objectif total</span><span className="gs-val">{fmt(totalTarget)}</span></div>
+            <div className="gs-item"><span className="gs-label">{t('goals.target_total')}</span><span className="gs-val">{fmt(totalTarget)}</span></div>
           </div>
         )}
       </div>
@@ -69,7 +71,7 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
       {errMsg && <div style={{marginBottom:'1rem',padding:'10px 14px',background:'var(--red-bg)',color:'var(--red)',borderRadius:'var(--radius)',fontSize:13}}>{errMsg}</div>}
 
       <div className="add-box fade-up stagger-1">
-        <div className="add-box-title"><Plus size={14}/> Nouvel objectif</div>
+        <div className="add-box-title"><Plus size={14}/> {t('goals.new_goal')}</div>
         <div className="goal-icon-row">
           {GOAL_ICONS.map(ic=>(
             <button key={ic} className={`goal-icon-btn ${icon===ic?'active':''}`} onClick={()=>setIcon(ic)}
@@ -84,9 +86,9 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
           ))}
         </div>
         <div className="add-goal-fields">
-          <input placeholder="Nom de l'objectif (ex: Vacances Japon…)" value={label} onChange={e=>setLabel(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAddGoal()}/>
-          <input type="number" placeholder="Montant cible (€)" value={target} onChange={e=>setTarget(e.target.value)} style={{width:200}} onKeyDown={e=>e.key==='Enter'&&handleAddGoal()}/>
-          <button className="btn-create" onClick={handleAddGoal} style={{background:color}}>Créer</button>
+          <input placeholder={t('goals.name_placeholder')} value={label} onChange={e=>setLabel(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAddGoal()}/>
+          <input type="number" placeholder={t('goals.target_placeholder')} value={target} onChange={e=>setTarget(e.target.value)} style={{width:200}} onKeyDown={e=>e.key==='Enter'&&handleAddGoal()}/>
+          <button className="btn-create" onClick={handleAddGoal} style={{background:color}}>{t('goals.create')}</button>
         </div>
       </div>
 
@@ -99,8 +101,8 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
         {goals.length===0&&(
           <div className="empty-goals">
             <Target size={40} style={{color:'var(--text3)',marginBottom:12}}/>
-            <p>Aucun objectif pour l'instant</p>
-            <p style={{fontSize:13,marginTop:4}}>Crée ton premier objectif d'épargne ci-dessus</p>
+            <p>{t('goals.empty')}</p>
+            <p style={{fontSize:13,marginTop:4}}>{t('goals.empty_sub')}</p>
           </div>
         )}
         {goals.map(g=>{
@@ -124,7 +126,7 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
                   <div className="goal-label">{g.label}</div>
                   <div className="goal-amounts">
                     <span style={{color:g.color}}><AnimatedAmount value={g.saved} duration={1.1}/></span>
-                    <span className="goal-sep">sur</span>
+                    <span className="goal-sep">{t('goals.of')}</span>
                     <span>{fmt(g.target)}</span>
                   </div>
                 </div>
@@ -142,19 +144,19 @@ export default function GoalsView({ data, userId, refreshData, currentMonth }) {
                 </div>
                 <div className="goal-pct-row">
                   <span className="goal-pct" style={{color:g.color}}><AnimatedPercent value={pct} decimals={0}/></span>
-                  {!done&&<span className="goal-remaining">encore {fmt(g.target-g.saved)}</span>}
+                  {!done&&<span className="goal-remaining">{t('goals.remaining').replace('{amount}', fmt(g.target-g.saved))}</span>}
                   {done&&<motion.span
                     className="goal-done-badge"
                     style={{background:g.color+'22',color:g.color}}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ ...SPRING_GENTLE, delay: 0.3 }}
-                  >Objectif atteint !</motion.span>}
+                  >{t('goals.completed')}</motion.span>}
                 </div>
               </div>
               {!done&&(
                 <div className="goal-add-row">
-                  <input type="number" placeholder="Ajouter (€)" min="0" step="0.01"
+                  <input type="number" placeholder={t('goals.add_amount')} min="0" step="0.01"
                     value={addAmounts[g.id]||''}
                     onChange={e=>setAddAmounts(prev=>({...prev,[g.id]:e.target.value}))}
                     onKeyDown={e=>e.key==='Enter'&&handleAddToGoal(g)}
