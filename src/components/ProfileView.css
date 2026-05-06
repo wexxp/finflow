@@ -152,6 +152,58 @@
 .profile-msg.ok  { background: var(--green-bg); color: var(--green); }
 .profile-msg.err { background: var(--red-bg);   color: var(--red);   }
 
+/* ── Préférences : titre de section ── */
+.profile-prefs-divider {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+/* ── Toggle segmenté (theme & lang) ── */
+.profile-segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  width: 100%;
+}
+.profile-seg {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  border-radius: 9px;
+  transition: all var(--transition);
+}
+.profile-seg:hover { color: var(--text2); }
+.profile-seg.active {
+  background: var(--bg1);
+  color: var(--text);
+  box-shadow:
+    0 1px 0 var(--line2),
+    0 4px 12px -4px rgba(0, 0, 0, 0.25);
+}
+.profile-seg.active svg {
+  color: var(--accent);
+}
+
 @media (max-width: 768px) {
   .profile-view { max-width: 100%; }
   .profile-card { padding: 1.25rem; }

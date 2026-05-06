@@ -3,17 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User, Trophy, Receipt } from 'lucide-react'
 import { fmtMonth, computeStats, fmt } from '../utils/storage'
 import { SPRING_GENTLE, SPRING_SNAPPY, EASE_OUT_EXPO } from '../utils/motion'
+import { useT } from '../utils/i18n.jsx'
 import './Sidebar.css'
 
 const NAV = [
-  { id: 'dashboard', label: 'Tableau de bord', shortLabel: 'Accueil', icon: LayoutDashboard, premium: false },
-  { id: 'budget',    label: 'Budget',           shortLabel: 'Budget',  icon: Wallet,          premium: false },
-  { id: 'reventes',  label: 'Reventes',         shortLabel: 'Reventes',icon: RefreshCw,       premium: true  },
-  { id: 'annual',    label: 'Vue annuelle',     shortLabel: 'Annuel',  icon: BarChart2,       premium: true  },
-  { id: 'goals',     label: 'Objectifs',        shortLabel: 'Objectifs',icon: Target,         premium: true  },
+  { id: 'dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard, premium: false },
+  { id: 'budget',    labelKey: 'sidebar.budget',    icon: Wallet,          premium: false },
+  { id: 'reventes',  labelKey: 'sidebar.reventes',  icon: RefreshCw,       premium: true  },
+  { id: 'annual',    labelKey: 'sidebar.annual',    icon: BarChart2,       premium: true  },
+  { id: 'goals',     labelKey: 'sidebar.goals',     icon: Target,          premium: true  },
 ]
 
 export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, displayName, avatarUrl, isAdmin, isPremium }) {
+  const t = useT()
   const [showMore, setShowMore] = useState(false)
   const stats = computeStats(data.months[currentMonth])
 
@@ -71,7 +73,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
         </div>
 
         <div className="sidebar-balance">
-          <div className="sb-label">Solde du mois</div>
+          <div className="sb-label">{t('sidebar.balance')}</div>
           <div className={`sb-val ${stats.balance >= 0 ? 'positive' : 'negative'}`}>
             {stats.balance >= 0 ? '+' : '−'}{fmt(Math.abs(stats.balance))}
           </div>
@@ -79,7 +81,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             <div className="health-bar-track">
               <div className="health-bar-fill" style={{ width: `${stats.healthScore}%` }}/>
             </div>
-            <span className="health-label">Santé {stats.healthScore}/100</span>
+            <span className="health-label">{t('sidebar.health')} {stats.healthScore}/100</span>
           </div>
         </div>
 
@@ -94,7 +96,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                 onClick={() => setActiveTab(item.id)}
               >
                 <Icon size={18}/>
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
                 {locked && <Lock size={12} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
               </button>
             )
@@ -106,7 +108,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             style={{ marginTop: 4 }}
           >
             <Zap size={18} style={{ color: 'var(--gold)' }}/>
-            <span style={{ color: 'var(--gold)' }}>{isPremium ? '⭐ Premium actif' : 'Passer Premium'}</span>
+            <span style={{ color: 'var(--gold)' }}>{isPremium ? t('sidebar.premium_active') : t('sidebar.go_premium')}</span>
           </button>
 
           <button
@@ -115,7 +117,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             style={{ marginTop: 4 }}
           >
             <Trophy size={18} style={{ color: isPremium ? 'var(--gold)' : undefined }}/>
-            <span>Trophées</span>
+            <span>{t('sidebar.trophies')}</span>
             {!isPremium && <Lock size={12} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
           </button>
 
@@ -124,7 +126,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             onClick={() => setActiveTab('fiscal')}
           >
             <Receipt size={18}/>
-            <span>Fiscal</span>
+            <span>{t('sidebar.fiscal')}</span>
             {!isPremium && <Lock size={12} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
           </button>
 
@@ -134,7 +136,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             style={{ marginTop: 4 }}
           >
             <User size={18}/>
-            <span>Mon profil</span>
+            <span>{t('sidebar.profile')}</span>
           </button>
 
           {isAdmin && (
@@ -144,15 +146,15 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
               style={{ marginTop: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}
             >
               <Shield size={18} style={{ color: 'var(--accent)' }}/>
-              <span style={{ color: 'var(--accent)' }}>Administration</span>
+              <span style={{ color: 'var(--accent)' }}>{t('sidebar.admin')}</span>
             </button>
           )}
         </nav>
 
         <div className="sidebar-months">
           <div className="sm-header">
-            <span className="sm-title">Sessions</span>
-            <span className="sm-count">{monthsOfYear.length} mois</span>
+            <span className="sm-title">{t('sidebar.sessions')}</span>
+            <span className="sm-count">{monthsOfYear.length}</span>
           </div>
           {years.length > 1 && (
             <div className="sm-years">
@@ -196,7 +198,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             </div>
           </button>
           <button className="signout-btn" onClick={onSignOut}>
-            <LogOut size={12} style={{ marginRight: 5 }}/> Déconnexion
+            <LogOut size={12} style={{ marginRight: 5 }}/> {t('sidebar.signout')}
           </button>
         </div>
       </aside>
@@ -232,7 +234,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                 <Icon size={21}/>
                 {locked && <span className="mobile-lock-dot"/>}
               </div>
-              <span>{item.shortLabel}</span>
+              <span>{t(item.labelKey)}</span>
             </button>
           )
         })}
@@ -241,7 +243,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
           onClick={() => setShowMore(v => !v)}
         >
           <div className="mobile-nav-icon"><MoreHorizontal size={21}/></div>
-          <span>Plus</span>
+          <span>{t('sidebar.more')}</span>
         </button>
       </nav>
 
@@ -291,7 +293,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                 onClick={() => handleTabChange('achievements')}
               >
                 <Trophy size={16} style={{ color: 'var(--gold)' }}/>
-                <span>Trophées</span>
+                <span>{t('sidebar.trophies')}</span>
                 {!isPremium && <Lock size={11} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
               </button>
               <button
@@ -299,7 +301,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                 onClick={() => handleTabChange('fiscal')}
               >
                 <Receipt size={16}/>
-                <span>Fiscal</span>
+                <span>{t('sidebar.fiscal')}</span>
                 {!isPremium && <Lock size={11} style={{ marginLeft: 'auto', color: 'var(--text3)' }}/>}
               </button>
               <button
@@ -307,14 +309,14 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                 onClick={() => handleTabChange('profile')}
               >
                 <User size={16}/>
-                <span>Mon profil</span>
+                <span>{t('sidebar.profile')}</span>
               </button>
               <button
                 className={`mobile-more-btn ${activeTab === 'subscription' ? 'active' : ''}`}
                 onClick={() => handleTabChange('subscription')}
               >
                 <Zap size={16} style={{ color: 'var(--gold)' }}/>
-                <span>{isPremium ? '⭐ Premium actif' : 'Passer Premium'}</span>
+                <span>{isPremium ? t('sidebar.premium_active') : t('sidebar.go_premium')}</span>
               </button>
               {isAdmin && (
                 <button
@@ -322,14 +324,14 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                   onClick={() => handleTabChange('admin')}
                 >
                   <Shield size={16} style={{ color: 'var(--accent)' }}/>
-                  <span>Administration</span>
+                  <span>{t('sidebar.admin')}</span>
                 </button>
               )}
             </div>
 
             <div className="mobile-sessions-section">
               <div className="sm-header">
-                <span className="sm-title">Sessions</span>
+                <span className="sm-title">{t('sidebar.sessions')}</span>
                 <span className="sm-count">{monthsOfYear.length} mois</span>
               </div>
               {years.length > 1 && (
@@ -367,7 +369,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
 
             <div className="mobile-more-footer">
               <button className="mobile-signout-btn" onClick={onSignOut}>
-                <LogOut size={14}/> Déconnexion
+                <LogOut size={14}/> {t('sidebar.signout')}
               </button>
             </div>
           </motion.div>

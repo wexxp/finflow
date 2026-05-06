@@ -1,12 +1,16 @@
 import { useState, useRef } from 'react'
-import { Camera, Save, X, Shield, Zap } from 'lucide-react'
+import { Camera, Save, X, Shield, Zap, Sun, Moon, Languages } from 'lucide-react'
 import { updateProfile } from '../utils/db'
+import { useTheme } from '../utils/theme.jsx'
+import { useI18n } from '../utils/i18n.jsx'
 import './ProfileView.css'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 Mo
 const AVATAR_SIZE = 256
 
 export default function ProfileView({ userId, userEmail, displayName, avatarUrl, isPremium, isAdmin, refreshProfile }) {
+  const { theme, setTheme } = useTheme()
+  const { lang, setLang, t } = useI18n()
   const [name, setName] = useState(displayName || '')
   const [avatar, setAvatar] = useState(avatarUrl || '')
   const [saving, setSaving] = useState(false)
@@ -17,7 +21,7 @@ export default function ProfileView({ userId, userEmail, displayName, avatarUrl,
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > MAX_FILE_SIZE) {
-      setMsg('❌ Photo trop lourde (max 5 Mo)')
+      setMsg(t('profile.photo_too_large'))
       return
     }
     setMsg('')
@@ -52,7 +56,7 @@ export default function ProfileView({ userId, userEmail, displayName, avatarUrl,
     if (error) {
       setMsg(`❌ ${error.message}`)
     } else {
-      setMsg('✓ Profil enregistré')
+      setMsg(t('profile.saved'))
       if (refreshProfile) await refreshProfile()
     }
     setSaving(false)
@@ -68,8 +72,8 @@ export default function ProfileView({ userId, userEmail, displayName, avatarUrl,
     <div className="profile-view">
       <div className="page-header fade-up">
         <div>
-          <h1 className="page-title">Mon profil</h1>
-          <p className="page-sub">Personnalise ton nom et ton avatar</p>
+          <h1 className="page-title">{t('profile.title')}</h1>
+          <p className="page-sub">{t('profile.subtitle')}</p>
         </div>
       </div>
 
@@ -84,11 +88,11 @@ export default function ProfileView({ userId, userEmail, displayName, avatarUrl,
           </div>
           <div className="profile-avatar-actions">
             <button className="profile-btn-secondary" onClick={() => fileRef.current?.click()}>
-              <Camera size={14}/> {avatar ? 'Changer' : 'Ajouter une photo'}
+              <Camera size={14}/> {avatar ? t('profile.photo_change') : t('profile.photo_add')}
             </button>
             {avatar && (
               <button className="profile-btn-ghost" onClick={removeAvatar}>
-                <X size={14}/> Retirer
+                <X size={14}/> {t('profile.photo_remove')}
               </button>
             )}
             <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }}/>
@@ -97,10 +101,10 @@ export default function ProfileView({ userId, userEmail, displayName, avatarUrl,
 
         <div className="profile-fields">
           <div className="profile-field">
-            <label>Nom d'affichage</label>
+            <label>{t('profile.name_label')}</label>
             <input
               type="text"
-              placeholder="Comment veux-tu être appelé ?"
+              placeholder={t('profile.name_placeholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               maxLength={40}
@@ -108,32 +112,75 @@ export default function ProfileView({ userId, userEmail, displayName, avatarUrl,
           </div>
 
           <div className="profile-field">
-            <label>Email</label>
+            <label>{t('profile.email_label')}</label>
             <input type="text" value={userEmail || ''} disabled/>
           </div>
 
           <div className="profile-field">
-            <label>Statut</label>
+            <label>{t('profile.status_label')}</label>
             <div className="profile-badges">
               {isAdmin && (
                 <span className="profile-badge admin">
-                  <Shield size={12}/> Administrateur
+                  <Shield size={12}/> {t('profile.status_admin')}
                 </span>
               )}
               {isPremium && (
                 <span className="profile-badge premium">
-                  <Zap size={12}/> Premium
+                  <Zap size={12}/> {t('profile.status_premium')}
                 </span>
               )}
               {!isPremium && !isAdmin && (
-                <span className="profile-badge free">Compte gratuit</span>
+                <span className="profile-badge free">{t('profile.status_free')}</span>
               )}
+            </div>
+          </div>
+
+          {/* ── PRÉFÉRENCES ───────────────────────────────── */}
+          <div className="profile-prefs-divider">{t('profile.preferences')}</div>
+
+          <div className="profile-field">
+            <label>{t('profile.theme_label')}</label>
+            <div className="profile-segmented">
+              <button
+                type="button"
+                className={`profile-seg ${theme === 'dark' ? 'active' : ''}`}
+                onClick={() => setTheme('dark')}
+              >
+                <Moon size={14}/> {t('profile.theme_dark')}
+              </button>
+              <button
+                type="button"
+                className={`profile-seg ${theme === 'light' ? 'active' : ''}`}
+                onClick={() => setTheme('light')}
+              >
+                <Sun size={14}/> {t('profile.theme_light')}
+              </button>
+            </div>
+          </div>
+
+          <div className="profile-field">
+            <label><Languages size={12} style={{ verticalAlign: '-1px', marginRight: 4 }}/> {t('profile.lang_label')}</label>
+            <div className="profile-segmented">
+              <button
+                type="button"
+                className={`profile-seg ${lang === 'fr' ? 'active' : ''}`}
+                onClick={() => setLang('fr')}
+              >
+                🇫🇷 {t('profile.lang_fr')}
+              </button>
+              <button
+                type="button"
+                className={`profile-seg ${lang === 'en' ? 'active' : ''}`}
+                onClick={() => setLang('en')}
+              >
+                🇬🇧 {t('profile.lang_en')}
+              </button>
             </div>
           </div>
         </div>
 
         <button className="profile-save-btn" onClick={handleSave} disabled={saving}>
-          <Save size={14}/> {saving ? 'Enregistrement…' : 'Enregistrer'}
+          <Save size={14}/> {saving ? t('profile.saving') : t('profile.save')}
         </button>
 
         {msg && (

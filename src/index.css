@@ -3,6 +3,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* ── Thème dark (par défaut) ── */
   --bg:#0c0c0e;--bg1:#131316;--bg2:#1a1a1f;--bg3:#222228;
   --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.12);
   --text:#f0ede8;--text2:#9997a0;--text3:#5a5860;
@@ -17,6 +18,32 @@
   --font-body:'DM Sans',sans-serif;
   --transition:0.18s cubic-bezier(0.4,0,0.2,1);
 }
+
+/* ════════════════════════════════════════════════════
+   Thème clair — appliqué via [data-theme="light"]
+   sur l'élément <html>
+   ════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:#f6f4f0;
+  --bg1:#ffffff;
+  --bg2:#efece6;
+  --bg3:#e2dfd6;
+  --line:rgba(15,15,20,0.08);
+  --line2:rgba(15,15,20,0.14);
+  --text:#1a1a1d;
+  --text2:#52525b;
+  --text3:#86868c;
+  --green:#15803d;     --green-bg:rgba(21,128,61,0.08);
+  --red:#dc2626;       --red-bg:rgba(220,38,38,0.08);
+  --blue:#2563eb;      --blue-bg:rgba(37,99,235,0.08);
+  --gold:#b45309;      --gold-bg:rgba(180,83,9,0.1);
+  --purple:#7c3aed;    --purple-bg:rgba(124,58,237,0.1);
+  --accent:#5b3df0;    --accent-bg:rgba(91,61,240,0.1);
+}
+
+/* Transition douce lors du basculement de thème */
+html { transition: background-color 0.3s ease; }
+body { transition: background-color 0.3s ease, color 0.3s ease; }
 
 html { font-size:16px; }
 body { font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased; }
