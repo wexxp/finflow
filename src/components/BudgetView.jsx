@@ -1,9 +1,107 @@
 import { useState } from 'react'
-import { Plus, Repeat, Trash2, ArrowUp, ArrowDown, Target } from 'lucide-react'
+import { Plus, Repeat, Trash2, ArrowUp, ArrowDown, Target, Edit3, Check, X } from 'lucide-react'
 import { CAT_META, DEP_CATS, REV_CATS, fmt, fmtMonth } from '../utils/storage'
-import { addTransaction, deleteTransaction, addRecurring, deleteRecurring } from '../utils/db'
+import { addTransaction, deleteTransaction, addRecurring, deleteRecurring, updateRecurring } from '../utils/db'
 import { useT } from '../utils/i18n.jsx'
 import './BudgetView.css'
+
+// ════════════════════════════════════════════════════════════
+// RecurringRow : ligne d'élément récurrent avec édition inline
+// et confirmation de suppression (anti-misclick)
+// ════════════════════════════════════════════════════════════
+function RecurringRow({ item, onUpdate, onDelete, t }) {
+  const [mode, setMode] = useState('view')   // 'view' | 'edit' | 'confirm-delete'
+  const [editDesc, setEditDesc]     = useState(item.desc || item.label || '')
+  const [editAmount, setEditAmount] = useState(String(item.amount))
+  const [busy, setBusy] = useState(false)
+
+  function startEdit() {
+    setEditDesc(item.desc || item.label || '')
+    setEditAmount(String(item.amount))
+    setMode('edit')
+  }
+
+  async function save() {
+    const amt = +editAmount
+    if (!editDesc.trim() || isNaN(amt) || amt <= 0) return
+    setBusy(true)
+    await onUpdate(item.id, { label: editDesc.trim(), amount: amt })
+    setBusy(false)
+    setMode('view')
+  }
+
+  async function confirmDelete() {
+    setBusy(true)
+    await onDelete(item.id)
+    // pas de setMode après — la ligne disparaît
+  }
+
+  // ── Mode édition ──────────────────────────────────────
+  if (mode === 'edit') {
+    return (
+      <div className="rec-item editing">
+        <span className="rec-icon">{item.icon}</span>
+        <input
+          className="rec-edit-input rec-edit-desc"
+          value={editDesc}
+          onChange={e => setEditDesc(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setMode('view') }}
+          autoFocus
+        />
+        <span className="rec-cat">{item.cat}</span>
+        <input
+          type="number"
+          step="0.01"
+          className={`rec-edit-input rec-edit-amount ${item.type === 'revenu' ? 'pos' : 'neg'}`}
+          value={editAmount}
+          onChange={e => setEditAmount(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setMode('view') }}
+        />
+        <button className="rec-action ok" onClick={save} disabled={busy} title={t('common.save')}>
+          <Check size={14}/>
+        </button>
+        <button className="rec-action cancel" onClick={() => setMode('view')} disabled={busy} title={t('common.cancel')}>
+          <X size={14}/>
+        </button>
+      </div>
+    )
+  }
+
+  // ── Mode confirmation suppression ─────────────────────
+  if (mode === 'confirm-delete') {
+    return (
+      <div className="rec-item confirm-del">
+        <span className="rec-confirm-text">
+          {t('budget.confirm_delete_recurring')}
+        </span>
+        <button className="rec-action confirm-delete" onClick={confirmDelete} disabled={busy}>
+          <Trash2 size={13}/> {t('common.delete')}
+        </button>
+        <button className="rec-action cancel" onClick={() => setMode('view')} disabled={busy}>
+          {t('common.cancel')}
+        </button>
+      </div>
+    )
+  }
+
+  // ── Mode lecture (par défaut) ─────────────────────────
+  return (
+    <div className="rec-item">
+      <span className="rec-icon">{item.icon}</span>
+      <span className="rec-desc">{item.desc || item.label}</span>
+      <span className="rec-cat">{item.cat}</span>
+      <span className={`rec-amount ${item.type === 'revenu' ? 'pos' : 'neg'}`}>
+        {item.type === 'revenu' ? '+' : '−'}{fmt(item.amount)}
+      </span>
+      <button className="rec-action edit" onClick={startEdit} title={t('common.edit')}>
+        <Edit3 size={13}/>
+      </button>
+      <button className="rec-action delete" onClick={() => setMode('confirm-delete')} title={t('common.delete')}>
+        <Trash2 size={13}/>
+      </button>
+    </div>
+  )
+}
 
 const ALL_ICONS = { alimentation:'🛒',transport:'🚗',loisirs:'🎬',santé:'💊',logement:'🏠',vêtements:'👕',salaire:'💼',freelance:'💻',remboursement:'↩️',cadeau:'🎁',revente:'🔄',autre:'📦' }
 
@@ -27,7 +125,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
     setSaving(true)
     const icon = ALL_ICONS[cat] || '📦'
     const today = new Date().toISOString().split('T')[0]
-    const tx = { type: txType, desc: desc.trim(), amount: +amount, cat, icon, date: today }
+    const tx = { type: txType, desc: desc.trim(), amount: +amount, cat, icon, date: today, recurring: isRecurring }
     await addTransaction(userId, tx, currentMonth)
     if (isRecurring) await addRecurring(userId, tx)
     await refreshData()
@@ -42,6 +140,11 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
 
   async function handleDeleteRecurring(id) {
     await deleteRecurring(id)
+    await refreshData()
+  }
+
+  async function handleUpdateRecurring(id, fields) {
+    await updateRecurring(id, fields)
     await refreshData()
   }
 
@@ -118,14 +221,14 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
         <div className="recurring-box fade-up stagger-2">
           <div className="box-title"><Repeat size={14}/> {t('budget.recurring_items')}</div>
           <div className="recurring-list">
-            {data.recurring.map(r=>(
-              <div key={r.id} className="rec-item">
-                <span className="rec-icon">{r.icon}</span>
-                <span className="rec-desc">{r.desc || r.label}</span>
-                <span className="rec-cat">{r.cat}</span>
-                <span className={`rec-amount ${r.type==='revenu'?'pos':'neg'}`}>{r.type==='revenu'?'+':'−'}{fmt(r.amount)}</span>
-                <button className="rec-del" onClick={()=>handleDeleteRecurring(r.id)}><Trash2 size={13}/></button>
-              </div>
+            {data.recurring.map(r => (
+              <RecurringRow
+                key={r.id}
+                item={r}
+                onUpdate={handleUpdateRecurring}
+                onDelete={handleDeleteRecurring}
+                t={t}
+              />
             ))}
           </div>
         </div>

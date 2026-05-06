@@ -107,6 +107,15 @@ export async function deleteRecurring(id) {
   return supabase.from('recurring_items').delete().eq('id', id)
 }
 
+export async function updateRecurring(id, fields) {
+  const updates = {}
+  if (fields.label !== undefined)  updates.label  = fields.label
+  if (fields.amount !== undefined) updates.amount = fields.amount
+  if (fields.cat !== undefined)    updates.cat    = fields.cat
+  if (fields.icon !== undefined)   updates.icon   = fields.icon
+  return supabase.from('recurring_items').update(updates).eq('id', id)
+}
+
 export async function addGoal(userId, goal) {
   const { data, error } = await supabase.from('goals').insert({
     user_id: userId,
