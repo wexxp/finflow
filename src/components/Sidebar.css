@@ -31,6 +31,7 @@
   align-items: center;
   gap: 6px;
   padding: 1.25rem 1.25rem 0.75rem;
+  position: relative;     /* pour positionner le popover */
 }
 .month-arrow {
   width: 28px;
@@ -55,8 +56,138 @@
   font-weight: 500;
   color: var(--text);
   justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 6px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: var(--transition);
 }
-.month-cal-icon { color: var(--text3); flex-shrink: 0; }
+.month-current:hover {
+  background: var(--bg2);
+  border-color: var(--line);
+}
+.month-current[aria-expanded="true"] {
+  background: var(--bg3);
+  border-color: var(--line2);
+}
+.month-cal-icon { color: var(--text3); flex-shrink: 0; transition: color var(--transition); }
+.month-current:hover .month-cal-icon { color: var(--accent); }
+
+/* ════════════════════════════════════════════════════════════
+   MonthPicker — popover pour choisir mois/année
+   ════════════════════════════════════════════════════════════ */
+.month-picker {
+  position: absolute;
+  top: calc(100% - 0.25rem);
+  left: 1rem;
+  right: 1rem;
+  z-index: 50;
+  background: var(--bg1);
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow:
+    0 16px 40px -12px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  transform-origin: top center;
+}
+
+.mp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mp-year-arrow {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--bg2);
+  color: var(--text2);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.mp-year-arrow:hover { background: var(--bg3); color: var(--text); }
+.mp-year-label {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.mp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.mp-month {
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: capitalize;
+}
+.mp-month:hover {
+  background: var(--bg2);
+  color: var(--text);
+}
+.mp-month.today {
+  border-color: var(--line2);
+  color: var(--text);
+}
+.mp-month.today::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin: 2px auto 0;
+}
+.mp-month.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-color: rgba(124, 106, 255, 0.35);
+}
+.mp-month.active:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.mp-footer {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+.mp-today {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: var(--transition);
+}
+.mp-today:hover {
+  background: var(--accent-bg);
+}
 
 .sidebar-balance {
   padding: 0.75rem 1.25rem 1.25rem;
@@ -329,12 +460,41 @@
     gap: 6px;
     flex: 1;
     justify-content: center;
+    position: relative;     /* pour le popover */
+  }
+  .mobile-month-text-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    transition: var(--transition);
+  }
+  .mobile-month-text-btn:hover {
+    background: var(--bg2);
+    border-color: var(--line);
+  }
+  .mobile-month-text-btn[aria-expanded="true"] {
+    background: var(--bg3);
+    border-color: var(--line2);
   }
   .mobile-month-text {
     font-size: 13px;
     font-weight: 500;
     color: var(--text);
     white-space: nowrap;
+  }
+  /* Popover en mode mobile : centré sous la nav, plus large */
+  .mobile-month-nav .month-picker {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    top: calc(100% + 8px);
+    width: 280px;
   }
 
   .mobile-bal {

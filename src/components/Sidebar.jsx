@@ -1,10 +1,100 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, ChevronRight, Calendar, LogOut, Shield, Zap, Lock, MoreHorizontal, X, User, Trophy, Receipt } from 'lucide-react'
-import { fmtMonth, computeStats, fmt } from '../utils/storage'
+import { fmtMonth, computeStats, fmt, monthKey as computeMonthKey } from '../utils/storage'
 import { SPRING_GENTLE, SPRING_SNAPPY, EASE_OUT_EXPO } from '../utils/motion'
-import { useT } from '../utils/i18n.jsx'
+import { useT, useI18n } from '../utils/i18n.jsx'
 import './Sidebar.css'
+
+// ════════════════════════════════════════════════════════════
+// MonthPicker — popover petit calendrier (mois/année)
+// ════════════════════════════════════════════════════════════
+function MonthPicker({ currentMonth, onSelect, onClose, lang, t }) {
+  const [year, monthStr] = currentMonth.split('-')
+  const [viewYear, setViewYear] = useState(parseInt(year, 10))
+  const ref = useRef(null)
+
+  const todayKey = computeMonthKey(new Date())
+  const localeCode = lang === 'en' ? 'en-US' : 'fr-FR'
+
+  // Génère les 12 noms de mois courts en fonction de la langue
+  const months = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const label = new Date(2000, i, 1).toLocaleDateString(localeCode, { month: 'short' })
+      // Capitalise première lettre
+      return label.charAt(0).toUpperCase() + label.slice(1).replace('.', '')
+    })
+  }, [localeCode])
+
+  // Outside click + ESC
+  useEffect(() => {
+    function onClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) onClose()
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
+
+  function pick(monthIndex) {
+    const key = `${viewYear}-${String(monthIndex + 1).padStart(2, '0')}`
+    onSelect(key)
+    onClose()
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      className="month-picker"
+      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -8, scale: 0.96 }}
+      transition={{ duration: 0.18, ease: EASE_OUT_EXPO }}
+    >
+      <div className="mp-header">
+        <button className="mp-year-arrow" onClick={() => setViewYear(y => y - 1)} aria-label="Previous year">
+          <ChevronLeft size={14}/>
+        </button>
+        <span className="mp-year-label">{viewYear}</span>
+        <button className="mp-year-arrow" onClick={() => setViewYear(y => y + 1)} aria-label="Next year">
+          <ChevronRight size={14}/>
+        </button>
+      </div>
+
+      <div className="mp-grid">
+        {months.map((label, i) => {
+          const key = `${viewYear}-${String(i + 1).padStart(2, '0')}`
+          const isActive = key === currentMonth
+          const isToday  = key === todayKey
+          return (
+            <button
+              key={i}
+              className={`mp-month ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}`}
+              onClick={() => pick(i)}
+            >
+              {label}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="mp-footer">
+        <button
+          className="mp-today"
+          onClick={() => { onSelect(todayKey); onClose() }}
+        >
+          {t('cal.today')}
+        </button>
+      </div>
+    </motion.div>
+  )
+}
 
 const NAV = [
   { id: 'dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard, premium: false },
@@ -16,7 +106,10 @@ const NAV = [
 
 export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurrentMonth, allMonthKeys, navigateMonth, data, onSignOut, userEmail, displayName, avatarUrl, isAdmin, isPremium }) {
   const t = useT()
+  const { lang } = useI18n()
   const [showMore, setShowMore] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [pickerOpenMobile, setPickerOpenMobile] = useState(false)
   const stats = computeStats(data.months[currentMonth])
 
   // ── Sessions : navigation par année ──────────────────
@@ -65,11 +158,29 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
 
         <div className="month-nav">
           <button className="month-arrow" onClick={() => navigateMonth(-1)}><ChevronLeft size={16}/></button>
-          <div className="month-current">
+          <button
+            className="month-current"
+            onClick={() => setPickerOpen(o => !o)}
+            aria-expanded={pickerOpen}
+            aria-haspopup="dialog"
+            title={t('cal.pick_month') || 'Choisir un mois'}
+          >
             <Calendar size={12} className="month-cal-icon"/>
             <span>{fmtMonth(currentMonth)}</span>
-          </div>
+          </button>
           <button className="month-arrow" onClick={() => navigateMonth(1)}><ChevronRight size={16}/></button>
+
+          <AnimatePresence>
+            {pickerOpen && (
+              <MonthPicker
+                currentMonth={currentMonth}
+                onSelect={setCurrentMonth}
+                onClose={() => setPickerOpen(false)}
+                lang={lang}
+                t={t}
+              />
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="sidebar-balance">
@@ -211,8 +322,28 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
         </div>
         <div className="mobile-month-nav">
           <button className="month-arrow" onClick={() => navigateMonth(-1)}><ChevronLeft size={14}/></button>
-          <span className="mobile-month-text">{fmtMonth(currentMonth)}</span>
+          <button
+            className="mobile-month-text-btn"
+            onClick={() => setPickerOpenMobile(o => !o)}
+            aria-expanded={pickerOpenMobile}
+            aria-haspopup="dialog"
+          >
+            <Calendar size={11} style={{ marginRight: 4, opacity: 0.65, verticalAlign: '-1px' }}/>
+            <span className="mobile-month-text">{fmtMonth(currentMonth)}</span>
+          </button>
           <button className="month-arrow" onClick={() => navigateMonth(1)}><ChevronRight size={14}/></button>
+
+          <AnimatePresence>
+            {pickerOpenMobile && (
+              <MonthPicker
+                currentMonth={currentMonth}
+                onSelect={setCurrentMonth}
+                onClose={() => setPickerOpenMobile(false)}
+                lang={lang}
+                t={t}
+              />
+            )}
+          </AnimatePresence>
         </div>
         <div className={`mobile-bal ${stats.balance >= 0 ? 'pos' : 'neg'}`}>
           {stats.balance >= 0 ? '+' : '−'}{fmt(Math.abs(stats.balance))}

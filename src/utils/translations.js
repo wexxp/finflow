@@ -25,6 +25,10 @@ export const TRANSLATIONS = {
     'sidebar.signout':      'Déconnexion',
     'sidebar.more':         'Plus',
 
+    // Calendar / month picker
+    'cal.today':            'Aujourd\'hui',
+    'cal.pick_month':       'Choisir un mois',
+
     // Auth
     'auth.login_title':     'Connecte-toi à ton espace',
     'auth.register_title':  'Crée ton compte gratuitement',
@@ -338,6 +342,10 @@ export const TRANSLATIONS = {
     'sidebar.sessions':     'Sessions',
     'sidebar.signout':      'Sign out',
     'sidebar.more':         'More',
+
+    // Calendar / month picker
+    'cal.today':            'Today',
+    'cal.pick_month':       'Pick a month',
 
     // Auth
     'auth.login_title':     'Sign in to your account',
