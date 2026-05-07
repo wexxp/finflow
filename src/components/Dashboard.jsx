@@ -56,10 +56,15 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
   const ach = achSummary(achievements)
   const lastUnlocked = [...achievements].filter(a => a.unlocked).slice(-3).reverse()
 
-  // Fiscal — alertes pour l'année courante
+  // Fiscal — alertes pour l'année courante (suit le pays choisi dans Fiscal)
   const currentYear = String(new Date().getFullYear())
-  const fiscalSummary = computeFiscalSummary(allRvs, currentYear)
-  const dac7Alert = fiscalSummary.alerts.find(a => a.id === 'dac7' && a.severity === 'warning')
+  const fiscalCountry = (() => {
+    try { return localStorage.getItem('icedep_fiscal_country') || 'FR' }
+    catch { return 'FR' }
+  })()
+  const fiscalSummary = computeFiscalSummary(allRvs, currentYear, fiscalCountry)
+  // L'alerte "platforms" (DAC7 en FR, HMRC platform reporting en GB) en mode warning
+  const platformAlert = fiscalSummary.alerts.find(a => a.icon === 'platforms' && a.severity === 'warning')
 
   // Spending by cat for pie
   const depBycat = {}
@@ -152,7 +157,7 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
         />
       </div>
 
-      {isPremium && dac7Alert && (
+      {isPremium && platformAlert && (
         <motion.button
           className="fiscal-banner"
           onClick={() => setActiveTab('fiscal')}
@@ -166,14 +171,20 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
             <AlertTriangle size={18}/>
           </div>
           <div className="fiscal-banner-info">
-            <div className="fiscal-banner-title">Seuil DAC7 atteint en {currentYear}</div>
+            <div className="fiscal-banner-title">
+              {t('dashboard.fiscal_banner_title')
+                .replace('{title}', t(platformAlert.titleKey))
+                .replace('{year}', currentYear)}
+            </div>
             <div className="fiscal-banner-sub">
-              {fmt(fiscalSummary.totalCA)} de CA · {fiscalSummary.nbVentes} ventes — les plateformes vous transmettent au fisc
+              {t(fiscalCountry === 'GB' ? 'dashboard.fiscal_banner_sub_gb' : 'dashboard.fiscal_banner_sub_fr')
+                .replace('{ca}', fmt(fiscalSummary.totalCA))
+                .replace('{sales}', String(fiscalSummary.nbVentes))}
             </div>
           </div>
           <div className="fiscal-banner-cta">
             <Receipt size={14}/>
-            <span>Voir détails</span>
+            <span>{t('dashboard.see_details')}</span>
             <ArrowRight size={14} className="fiscal-banner-arrow"/>
           </div>
         </motion.button>
@@ -194,7 +205,7 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
           </div>
           <div className="trophy-widget-info">
             <div className="trophy-widget-top">
-              <span className="trophy-widget-title">Trophées</span>
+              <span className="trophy-widget-title">{t('sidebar.trophies')}</span>
               <span className="trophy-widget-count">{ach.unlocked} / {ach.total}</span>
             </div>
             <div className="trophy-widget-track">

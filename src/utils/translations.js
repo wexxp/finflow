@@ -94,6 +94,10 @@ export const TRANSLATIONS = {
     'dashboard.see_all':    'Voir tout',
     'dashboard.no_tx':      'Aucune transaction',
     'dashboard.last_unlocked':'Dernier :',
+    'dashboard.see_details':'Voir détails',
+    'dashboard.fiscal_banner_title':    '{title} — atteint en {year}',
+    'dashboard.fiscal_banner_sub_fr':   '{ca} de CA · {sales} ventes — les plateformes vous transmettent au fisc',
+    'dashboard.fiscal_banner_sub_gb':   '{ca} de CA · {sales} ventes — les plateformes transmettent vos données à HMRC',
 
     // Common
     'common.loading':       'Chargement…',
@@ -399,7 +403,7 @@ export const TRANSLATIONS = {
     // Dashboard
     'dashboard.subtitle':   'Dashboard — overview',
     'dashboard.prediction': 'End of month forecast',
-    'dashboard.kpi_revenue': 'Revenue',
+    'dashboard.kpi_revenue': 'Income',
     'dashboard.kpi_expenses':'Expenses',
     'dashboard.kpi_resale_profit': 'Resale profit',
     'dashboard.kpi_saving_rate': 'Saving rate',
@@ -412,6 +416,10 @@ export const TRANSLATIONS = {
     'dashboard.see_all':    'See all',
     'dashboard.no_tx':      'No transaction',
     'dashboard.last_unlocked':'Latest:',
+    'dashboard.see_details':'See details',
+    'dashboard.fiscal_banner_title':    '{title} — reached in {year}',
+    'dashboard.fiscal_banner_sub_fr':   '{ca} turnover · {sales} sales — platforms now report your data to French tax authorities',
+    'dashboard.fiscal_banner_sub_gb':   '{ca} turnover · {sales} sales — platforms now report your data to HMRC',
 
     // Common
     'common.loading':       'Loading…',
@@ -453,21 +461,21 @@ export const TRANSLATIONS = {
     // Annual
     'annual.title':         'Annual view',
     'annual.subtitle':      'Track your finances throughout the year',
-    'annual.kpi_revenue':   'Yearly revenue',
+    'annual.kpi_revenue':   'Yearly income',
     'annual.kpi_expenses':  'Yearly expenses',
     'annual.kpi_balance':   'Yearly balance',
     'annual.kpi_resale':    'Resales',
     'annual.evolution':     'Month by month',
     'annual.detail':        'Monthly detail',
     'annual.col_month':     'Month',
-    'annual.col_revenue':   'Revenue',
+    'annual.col_revenue':   'Income',
     'annual.col_expenses':  'Expenses',
     'annual.col_balance':   'Balance',
     'annual.col_health':    'Health',
 
     // Budget
     'budget.add_expense':   'Expense',
-    'budget.add_revenue':   'Revenue',
+    'budget.add_revenue':   'Income',
     'budget.desc_placeholder': 'Description',
     'budget.amount_placeholder': 'Amount',
     'budget.recurring':     'Recurring',
@@ -476,7 +484,7 @@ export const TRANSLATIONS = {
     'budget.transactions':  'Transactions',
     'budget.filter_all':    'All',
     'budget.filter_expenses':'Expenses',
-    'budget.filter_revenues':'Revenues',
+    'budget.filter_revenues':'Income',
     'budget.empty':         'No transaction',
     'budget.spending_by_cat':'Spending by category',
 
@@ -569,7 +577,7 @@ export const TRANSLATIONS = {
     'fiscal.country_label':    'Country',
     'fiscal.country.fr':       '🇫🇷 France',
     'fiscal.country.gb':       '🇬🇧 United Kingdom',
-    'fiscal.kpi_ca':           'Revenue',
+    'fiscal.kpi_ca':           'Turnover',
     'fiscal.kpi_ca_sub':       'total sales {year}',
     'fiscal.kpi_profit':       'Profit',
     'fiscal.kpi_profit_sub':   'after purchases & fees',
@@ -588,7 +596,7 @@ export const TRANSLATIONS = {
     'fiscal.severity_info':    'Information',
     'fiscal.severity_warning': 'Heads up',
     'fiscal.severity_critical':'Important',
-    'fiscal.prog_ca':          'Revenue',
+    'fiscal.prog_ca':          'Turnover',
     'fiscal.prog_sales':       'Number of sales',
     'fiscal.prog_profit':      'Cumulative profit',
 
