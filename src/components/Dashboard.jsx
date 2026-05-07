@@ -207,7 +207,7 @@ export default function Dashboard({ data, monthData, currentMonth, setActiveTab,
             </div>
             {lastUnlocked.length > 0 && (
               <div className="trophy-widget-last">
-                Dernier : {lastUnlocked.map(a => `${a.icon} ${a.title}`).join(' · ')}
+                {t('dashboard.last_unlocked')} {lastUnlocked.map(a => `${a.icon} ${t(a.titleKey)}`).join(' · ')}
               </div>
             )}
           </div>

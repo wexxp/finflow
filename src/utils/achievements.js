@@ -60,90 +60,65 @@ const longestMonthlyStreak = (rvs) => {
   return best
 }
 
-// ── Liste des trophées ──────────────────────────────────
+// ── Liste des trophées (titres/descs en clés i18n) ─────
 export const ACHIEVEMENTS = [
   // ━━━ Démarrage ━━━
-  { id: 'first_revente', cat: 'Démarrage', icon: '🎯', tier: 'bronze', title: 'Premier pas',
-    desc: 'Ajoute ta première revente',
+  { id: 'first_revente', catKey: 'starter', icon: '🎯', tier: 'bronze',
+    titleKey: 'ach.first_revente.title', descKey: 'ach.first_revente.desc',
     compute: (rvs) => clamp(rvs.length, 1) },
 
-  { id: 'first_sale', cat: 'Démarrage', icon: '💰', tier: 'bronze', title: 'Première vente',
-    desc: 'Vends ton premier article',
+  { id: 'first_sale', catKey: 'starter', icon: '💰', tier: 'bronze',
+    titleKey: 'ach.first_sale.title', descKey: 'ach.first_sale.desc',
     compute: (rvs) => clamp(SOLD_COUNT(rvs), 1) },
 
-  { id: 'first_profit', cat: 'Démarrage', icon: '💸', tier: 'bronze', title: 'Au noir',
-    desc: 'Réalise ton premier bénéfice positif',
+  { id: 'first_profit', catKey: 'starter', icon: '💸', tier: 'bronze',
+    titleKey: 'ach.first_profit.title', descKey: 'ach.first_profit.desc',
     compute: (rvs) => flag(sold(rvs).some(r => benefOf(r) > 0)) },
 
   // ━━━ Volume ━━━
-  { id: 'sales_10',  cat: 'Volume', icon: '🔟',  tier: 'bronze',   title: 'Petit revendeur',
-    desc: 'Vends 10 articles',  compute: (rvs) => clamp(SOLD_COUNT(rvs), 10) },
-  { id: 'sales_50',  cat: 'Volume', icon: '🔥',  tier: 'silver',   title: 'Revendeur confirmé',
-    desc: 'Vends 50 articles',  compute: (rvs) => clamp(SOLD_COUNT(rvs), 50) },
-  { id: 'sales_100', cat: 'Volume', icon: '💯',  tier: 'gold',     title: 'Centurion',
-    desc: 'Vends 100 articles', compute: (rvs) => clamp(SOLD_COUNT(rvs), 100) },
-  { id: 'sales_500', cat: 'Volume', icon: '🏆',  tier: 'platinum', title: 'Légende vivante',
-    desc: 'Vends 500 articles', compute: (rvs) => clamp(SOLD_COUNT(rvs), 500) },
+  { id: 'sales_10',  catKey: 'volume', icon: '🔟',  tier: 'bronze',   titleKey: 'ach.sales_10.title',  descKey: 'ach.sales_10.desc',  compute: (rvs) => clamp(SOLD_COUNT(rvs), 10) },
+  { id: 'sales_50',  catKey: 'volume', icon: '🔥',  tier: 'silver',   titleKey: 'ach.sales_50.title',  descKey: 'ach.sales_50.desc',  compute: (rvs) => clamp(SOLD_COUNT(rvs), 50) },
+  { id: 'sales_100', catKey: 'volume', icon: '💯',  tier: 'gold',     titleKey: 'ach.sales_100.title', descKey: 'ach.sales_100.desc', compute: (rvs) => clamp(SOLD_COUNT(rvs), 100) },
+  { id: 'sales_500', catKey: 'volume', icon: '🏆',  tier: 'platinum', titleKey: 'ach.sales_500.title', descKey: 'ach.sales_500.desc', compute: (rvs) => clamp(SOLD_COUNT(rvs), 500) },
 
   // ━━━ Bénéfices cumulés ━━━
-  { id: 'profit_100',   cat: 'Bénéfices', icon: '💵', tier: 'bronze',   title: 'Premier billet',
-    desc: 'Cumule 100€ de bénéfices',     compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 100) },
-  { id: 'profit_500',   cat: 'Bénéfices', icon: '💴', tier: 'silver',   title: 'Pile de billets',
-    desc: 'Cumule 500€ de bénéfices',     compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 500) },
-  { id: 'profit_1000',  cat: 'Bénéfices', icon: '💎', tier: 'gold',     title: 'Mille euros',
-    desc: 'Cumule 1 000€ de bénéfices',   compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 1000) },
-  { id: 'profit_5000',  cat: 'Bénéfices', icon: '👑', tier: 'platinum', title: 'Cinq mille',
-    desc: 'Cumule 5 000€ de bénéfices',   compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 5000) },
-  { id: 'profit_10000', cat: 'Bénéfices', icon: '🚀', tier: 'platinum', title: 'Dix mille',
-    desc: 'Cumule 10 000€ de bénéfices',  compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 10000) },
+  { id: 'profit_100',   catKey: 'profit', icon: '💵', tier: 'bronze',   titleKey: 'ach.profit_100.title',   descKey: 'ach.profit_100.desc',   compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 100) },
+  { id: 'profit_500',   catKey: 'profit', icon: '💴', tier: 'silver',   titleKey: 'ach.profit_500.title',   descKey: 'ach.profit_500.desc',   compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 500) },
+  { id: 'profit_1000',  catKey: 'profit', icon: '💎', tier: 'gold',     titleKey: 'ach.profit_1000.title',  descKey: 'ach.profit_1000.desc',  compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 1000) },
+  { id: 'profit_5000',  catKey: 'profit', icon: '👑', tier: 'platinum', titleKey: 'ach.profit_5000.title',  descKey: 'ach.profit_5000.desc',  compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 5000) },
+  { id: 'profit_10000', catKey: 'profit', icon: '🚀', tier: 'platinum', titleKey: 'ach.profit_10000.title', descKey: 'ach.profit_10000.desc', compute: (rvs) => clamp(TOTAL_PROFIT(rvs), 10000) },
 
   // ━━━ Marges ━━━
-  { id: 'margin_50',  cat: 'Marges', icon: '📈', tier: 'bronze', title: 'Bon flair',
-    desc: 'Une vente avec >50% de marge',  compute: (rvs) => flag(BEST_MARGIN(rvs) >= 50) },
-  { id: 'margin_100', cat: 'Marges', icon: '🎲', tier: 'silver', title: 'Doublé',
-    desc: 'Une vente avec >100% de marge', compute: (rvs) => flag(BEST_MARGIN(rvs) >= 100) },
-  { id: 'margin_300', cat: 'Marges', icon: '🌟', tier: 'gold',   title: 'Jackpot',
-    desc: 'Une vente avec >300% de marge', compute: (rvs) => flag(BEST_MARGIN(rvs) >= 300) },
+  { id: 'margin_50',  catKey: 'margin', icon: '📈', tier: 'bronze', titleKey: 'ach.margin_50.title',  descKey: 'ach.margin_50.desc',  compute: (rvs) => flag(BEST_MARGIN(rvs) >= 50) },
+  { id: 'margin_100', catKey: 'margin', icon: '🎲', tier: 'silver', titleKey: 'ach.margin_100.title', descKey: 'ach.margin_100.desc', compute: (rvs) => flag(BEST_MARGIN(rvs) >= 100) },
+  { id: 'margin_300', catKey: 'margin', icon: '🌟', tier: 'gold',   titleKey: 'ach.margin_300.title', descKey: 'ach.margin_300.desc', compute: (rvs) => flag(BEST_MARGIN(rvs) >= 300) },
 
   // ━━━ Coups de maître ━━━
-  { id: 'best_50',  cat: 'Coups de maître', icon: '✨', tier: 'bronze', title: 'Belle prise',
-    desc: 'Une vente avec +50€ de bénéfice',  compute: (rvs) => flag(BEST_SALE(rvs) >= 50) },
-  { id: 'best_100', cat: 'Coups de maître', icon: '💎', tier: 'silver', title: 'Coup de maître',
-    desc: 'Une vente avec +100€ de bénéfice', compute: (rvs) => flag(BEST_SALE(rvs) >= 100) },
-  { id: 'best_500', cat: 'Coups de maître', icon: '🏅', tier: 'gold',   title: 'Vente du siècle',
-    desc: 'Une vente avec +500€ de bénéfice', compute: (rvs) => flag(BEST_SALE(rvs) >= 500) },
+  { id: 'best_50',  catKey: 'bigwin', icon: '✨', tier: 'bronze', titleKey: 'ach.best_50.title',  descKey: 'ach.best_50.desc',  compute: (rvs) => flag(BEST_SALE(rvs) >= 50) },
+  { id: 'best_100', catKey: 'bigwin', icon: '💎', tier: 'silver', titleKey: 'ach.best_100.title', descKey: 'ach.best_100.desc', compute: (rvs) => flag(BEST_SALE(rvs) >= 100) },
+  { id: 'best_500', catKey: 'bigwin', icon: '🏅', tier: 'gold',   titleKey: 'ach.best_500.title', descKey: 'ach.best_500.desc', compute: (rvs) => flag(BEST_SALE(rvs) >= 500) },
 
   // ━━━ Diversification ━━━
-  { id: 'multi_platform', cat: 'Diversification', icon: '🌍', tier: 'silver', title: 'Multi-plateforme',
-    desc: 'Vends sur 3 plateformes différentes',
+  { id: 'multi_platform', catKey: 'diversification', icon: '🌍', tier: 'silver',
+    titleKey: 'ach.multi_platform.title', descKey: 'ach.multi_platform.desc',
     compute: (rvs) => clamp(new Set(sold(rvs).map(r => r.plat)).size, 3) },
 
-  { id: 'multi_cat', cat: 'Diversification', icon: '🎨', tier: 'silver', title: 'Polyvalent',
-    desc: 'Vends dans 5 catégories différentes',
+  { id: 'multi_cat', catKey: 'diversification', icon: '🎨', tier: 'silver',
+    titleKey: 'ach.multi_cat.title', descKey: 'ach.multi_cat.desc',
     compute: (rvs) => clamp(new Set(sold(rvs).map(r => r.cat)).size, 5) },
 
   // ━━━ Mois productifs ━━━
-  { id: 'month_5',  cat: 'Mois productifs', icon: '🔥', tier: 'bronze', title: 'Mois productif',
-    desc: '5 ventes dans le même mois',     compute: (rvs) => clamp(maxMonthSales(rvs), 5) },
-  { id: 'month_10', cat: 'Mois productifs', icon: '⚡', tier: 'silver', title: 'Mois en feu',
-    desc: '10 ventes dans le même mois',    compute: (rvs) => clamp(maxMonthSales(rvs), 10) },
-  { id: 'month_20', cat: 'Mois productifs', icon: '🌟', tier: 'gold',   title: 'Mois exceptionnel',
-    desc: '20 ventes dans le même mois',    compute: (rvs) => clamp(maxMonthSales(rvs), 20) },
+  { id: 'month_5',  catKey: 'month', icon: '🔥', tier: 'bronze', titleKey: 'ach.month_5.title',  descKey: 'ach.month_5.desc',  compute: (rvs) => clamp(maxMonthSales(rvs), 5) },
+  { id: 'month_10', catKey: 'month', icon: '⚡', tier: 'silver', titleKey: 'ach.month_10.title', descKey: 'ach.month_10.desc', compute: (rvs) => clamp(maxMonthSales(rvs), 10) },
+  { id: 'month_20', catKey: 'month', icon: '🌟', tier: 'gold',   titleKey: 'ach.month_20.title', descKey: 'ach.month_20.desc', compute: (rvs) => clamp(maxMonthSales(rvs), 20) },
 
   // ━━━ Régularité ━━━
-  { id: 'streak_3',  cat: 'Régularité', icon: '📅', tier: 'silver',   title: 'Trimestre régulier',
-    desc: 'Au moins 1 vente / mois sur 3 mois consécutifs',
-    compute: (rvs) => clamp(longestMonthlyStreak(rvs), 3) },
-  { id: 'streak_12', cat: 'Régularité', icon: '🗓️', tier: 'platinum', title: 'Année régulière',
-    desc: 'Au moins 1 vente / mois sur 12 mois consécutifs',
-    compute: (rvs) => clamp(longestMonthlyStreak(rvs), 12) },
+  { id: 'streak_3',  catKey: 'streak', icon: '📅', tier: 'silver',   titleKey: 'ach.streak_3.title',  descKey: 'ach.streak_3.desc',  compute: (rvs) => clamp(longestMonthlyStreak(rvs), 3) },
+  { id: 'streak_12', catKey: 'streak', icon: '🗓️', tier: 'platinum', titleKey: 'ach.streak_12.title', descKey: 'ach.streak_12.desc', compute: (rvs) => clamp(longestMonthlyStreak(rvs), 12) },
 ]
 
-// ── Catégories ordonnées (pour l'affichage groupé) ───────
-export const CATEGORIES = [
-  'Démarrage', 'Volume', 'Bénéfices', 'Marges',
-  'Coups de maître', 'Diversification', 'Mois productifs', 'Régularité',
-]
+// ── Catégories ordonnées (clés i18n pour l'affichage groupé) ───────
+export const CATEGORIES = ['starter', 'volume', 'profit', 'margin', 'bigwin', 'diversification', 'month', 'streak']
 
 // Récupère TOUTES les reventes du user (toutes périodes confondues)
 export function getAllReventes(data) {

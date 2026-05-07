@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   Receipt, Info, AlertTriangle, AlertOctagon, CheckCircle2,
@@ -6,16 +6,12 @@ import {
 } from 'lucide-react'
 import { fmt } from '../utils/storage'
 import { getAllReventes } from '../utils/achievements'
-import { computeFiscalSummary, getAvailableYears } from '../utils/fiscal'
+import { computeFiscalSummary, getAvailableYears, COUNTRIES, DEFAULT_COUNTRY, FISCAL_THRESHOLDS } from '../utils/fiscal'
 import { AnimatedAmount, AnimatedInt, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
+import { useT } from '../utils/i18n.jsx'
 import './FiscalView.css'
 
-const SEVERITY_META = {
-  ok:        { color: 'var(--green)', label: 'OK',          dot: 'var(--green)' },
-  info:      { color: 'var(--blue)',  label: 'Information', dot: 'var(--blue)'  },
-  warning:   { color: 'var(--gold)',  label: 'À surveiller',dot: 'var(--gold)'  },
-  critical:  { color: 'var(--red)',   label: 'Important',   dot: 'var(--red)'   },
-}
+const COUNTRY_KEY = 'icedep_fiscal_country'
 
 const ICON_MAP = {
   info:      Info,
@@ -32,13 +28,38 @@ function StatusIcon({ severity }) {
   return <Info size={14}/>
 }
 
+// Interpolation simple {var} → value
+function interp(str, vars = {}) {
+  if (!vars) return str
+  return Object.entries(vars).reduce(
+    (s, [k, v]) => s.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
+    str
+  )
+}
+
+// Format un montant dans la devise du pays (GB = £ avant, FR = € après)
+function fmtCurrency(amount, country) {
+  const t = FISCAL_THRESHOLDS[country] || FISCAL_THRESHOLDS.FR
+  const num = Math.round(amount).toLocaleString(t.locale)
+  return country === 'GB' ? `£${num}` : `${num} €`
+}
+
 // ════════════════════════════════════════════════════════════
 // Carte d'alerte / information fiscale
 // ════════════════════════════════════════════════════════════
-function AlertCard({ alert }) {
-  const meta = SEVERITY_META[alert.severity] || SEVERITY_META.info
+function AlertCard({ alert, t, country }) {
+  const SEVERITY = {
+    ok:        { color: 'var(--green)', label: t('fiscal.severity_ok') },
+    info:      { color: 'var(--blue)',  label: t('fiscal.severity_info') },
+    warning:   { color: 'var(--gold)',  label: t('fiscal.severity_warning') },
+    critical:  { color: 'var(--red)',   label: t('fiscal.severity_critical') },
+  }
+  const meta = SEVERITY[alert.severity] || SEVERITY.info
   const Icon = ICON_MAP[alert.icon] || Info
   const [open, setOpen] = useState(alert.severity !== 'ok')
+
+  const title   = t(alert.titleKey)
+  const message = interp(t(alert.msgKey), alert.msgVars)
 
   return (
     <motion.article
@@ -57,7 +78,7 @@ function AlertCard({ alert }) {
         </div>
 
         <div className="fiscal-alert-title-block">
-          <div className="fiscal-alert-title">{alert.title}</div>
+          <div className="fiscal-alert-title">{title}</div>
           <div className="fiscal-alert-status">
             <StatusIcon severity={alert.severity}/>
             <span>{meta.label}</span>
@@ -84,16 +105,18 @@ function AlertCard({ alert }) {
         style={{ overflow: 'hidden' }}
       >
         <div className="fiscal-alert-body-inner">
-          <p className="fiscal-alert-msg">{alert.message}</p>
+          <p className="fiscal-alert-msg">{message}</p>
 
           {alert.progress && alert.progress.length > 0 && (
             <div className="fiscal-progress-list">
               {alert.progress.map((p, i) => (
                 <div key={i} className="fiscal-progress">
                   <div className="fiscal-progress-row">
-                    <span className="fiscal-progress-label">{p.label}</span>
+                    <span className="fiscal-progress-label">{t(p.labelKey)}</span>
                     <span className="fiscal-progress-val">
-                      {p.unit === '€' ? fmt(p.current) : p.current} / {p.unit === '€' ? fmt(p.target) : p.target}
+                      {p.kind === 'amount'
+                        ? `${fmtCurrency(p.current, country)} / ${fmtCurrency(p.target, country)}`
+                        : `${p.current} / ${p.target}`}
                     </span>
                   </div>
                   <div className="fiscal-progress-track">
@@ -120,7 +143,7 @@ function AlertCard({ alert }) {
 // ════════════════════════════════════════════════════════════
 function YearPicker({ year, years, onChange }) {
   return (
-    <div className="fiscal-year-picker" role="tablist" aria-label="Année fiscale">
+    <div className="fiscal-year-picker" role="tablist" aria-label="Year">
       {years.map(y => (
         <button
           key={y}
@@ -144,16 +167,58 @@ function YearPicker({ year, years, onChange }) {
 }
 
 // ════════════════════════════════════════════════════════════
+// Sélecteur de pays (pills avec drapeau)
+// ════════════════════════════════════════════════════════════
+function CountryPicker({ country, onChange, t }) {
+  return (
+    <div className="fiscal-country-picker" role="tablist" aria-label={t('fiscal.country_label')}>
+      {COUNTRIES.map(c => (
+        <button
+          key={c}
+          role="tab"
+          aria-selected={c === country}
+          className={`fiscal-country-pill ${c === country ? 'active' : ''}`}
+          onClick={() => onChange(c)}
+        >
+          {c === country && (
+            <motion.span
+              layoutId="fiscalCountryActive"
+              className="fiscal-country-pill-bg"
+              transition={SPRING_GENTLE}
+            />
+          )}
+          <span className="fiscal-country-pill-label">{t(`fiscal.country.${c.toLowerCase()}`)}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════
 // Vue principale
 // ════════════════════════════════════════════════════════════
 export default function FiscalView({ data }) {
+  const t = useT()
   const allReventes = useMemo(() => getAllReventes(data), [data])
   const availableYears = useMemo(() => getAvailableYears(allReventes), [allReventes])
   const [year, setYear] = useState(availableYears[0] || String(new Date().getFullYear()))
 
+  // Pays : persisté en localStorage
+  const [country, setCountryState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(COUNTRY_KEY)
+      if (COUNTRIES.includes(stored)) return stored
+    } catch {}
+    return DEFAULT_COUNTRY
+  })
+  useEffect(() => {
+    try { localStorage.setItem(COUNTRY_KEY, country) } catch {}
+  }, [country])
+  const setCountry = (c) => { if (COUNTRIES.includes(c)) setCountryState(c) }
+
   const summary = useMemo(
-    () => computeFiscalSummary(allReventes, year),
-    [allReventes, year]
+    () => computeFiscalSummary(allReventes, year, country),
+    [allReventes, year, country]
   )
 
   return (
@@ -167,11 +232,14 @@ export default function FiscalView({ data }) {
         <div>
           <h1 className="page-title">
             <Receipt size={26} style={{ verticalAlign: '-3px', marginRight: 8, color: 'var(--accent)' }}/>
-            Fiscal
+            {t('fiscal.title')}
           </h1>
-          <p className="page-sub">Synthèse fiscale de vos reventes</p>
+          <p className="page-sub">{t('fiscal.subtitle')}</p>
         </div>
-        <YearPicker year={year} years={availableYears} onChange={setYear}/>
+        <div className="fiscal-pickers">
+          <CountryPicker country={country} onChange={setCountry} t={t}/>
+          <YearPicker year={year} years={availableYears} onChange={setYear}/>
+        </div>
       </motion.div>
 
       {/* ── KPIs ───────────────────────────────────────── */}
@@ -182,35 +250,35 @@ export default function FiscalView({ data }) {
         transition={{ duration: 0.45, delay: 0.05, ease: EASE_OUT_EXPO }}
       >
         <div className="fiscal-kpi">
-          <span className="fiscal-kpi-label">Chiffre d'affaires</span>
+          <span className="fiscal-kpi-label">{t('fiscal.kpi_ca')}</span>
           <span className="fiscal-kpi-value blue">
             <AnimatedAmount value={summary.totalCA} duration={1.1}/>
           </span>
-          <span className="fiscal-kpi-sub">total des ventes {year}</span>
+          <span className="fiscal-kpi-sub">{interp(t('fiscal.kpi_ca_sub'), { year })}</span>
         </div>
 
         <div className="fiscal-kpi">
-          <span className="fiscal-kpi-label">Bénéfices</span>
+          <span className="fiscal-kpi-label">{t('fiscal.kpi_profit')}</span>
           <span className={`fiscal-kpi-value ${summary.totalBenef >= 0 ? 'green' : 'red'}`}>
             <AnimatedAmount value={summary.totalBenef} signed duration={1.1}/>
           </span>
-          <span className="fiscal-kpi-sub">après achats &amp; frais</span>
+          <span className="fiscal-kpi-sub">{t('fiscal.kpi_profit_sub')}</span>
         </div>
 
         <div className="fiscal-kpi">
-          <span className="fiscal-kpi-label">Ventes</span>
+          <span className="fiscal-kpi-label">{t('fiscal.kpi_sales')}</span>
           <span className="fiscal-kpi-value">
             <AnimatedInt value={summary.nbVentes} duration={1.2}/>
           </span>
-          <span className="fiscal-kpi-sub">articles vendus</span>
+          <span className="fiscal-kpi-sub">{t('fiscal.kpi_sales_sub')}</span>
         </div>
 
         <div className="fiscal-kpi">
-          <span className="fiscal-kpi-label">En attente</span>
+          <span className="fiscal-kpi-label">{t('fiscal.kpi_pending')}</span>
           <span className="fiscal-kpi-value gold">
             <AnimatedInt value={summary.nbEnAttente} duration={1.2}/>
           </span>
-          <span className="fiscal-kpi-sub">articles non vendus</span>
+          <span className="fiscal-kpi-sub">{t('fiscal.kpi_pending_sub')}</span>
         </div>
       </motion.div>
 
@@ -223,8 +291,8 @@ export default function FiscalView({ data }) {
           transition={{ delay: 0.2 }}
         >
           <Banknote size={36} style={{ color: 'var(--text3)', marginBottom: 10 }}/>
-          <p className="fiscal-empty-title">Aucune revente en {year}</p>
-          <p className="fiscal-empty-sub">Ajoutez des reventes dans l'onglet Reventes pour voir s'afficher votre synthèse fiscale.</p>
+          <p className="fiscal-empty-title">{interp(t('fiscal.empty_title'), { year })}</p>
+          <p className="fiscal-empty-sub">{t('fiscal.empty_sub')}</p>
         </motion.div>
       )}
 
@@ -234,9 +302,9 @@ export default function FiscalView({ data }) {
           <div className="fiscal-section-head">
             <h2 className="fiscal-section-title">
               <Sparkles size={15} style={{ verticalAlign: '-2px', marginRight: 6, color: 'var(--accent)' }}/>
-              Informations fiscales
+              {t('fiscal.section_title')}
             </h2>
-            <span className="fiscal-section-sub">Calculé d'après les reventes de {year}</span>
+            <span className="fiscal-section-sub">{interp(t('fiscal.section_sub'), { year })}</span>
           </div>
 
           <motion.div
@@ -244,8 +312,9 @@ export default function FiscalView({ data }) {
             variants={containerVariants}
             initial="hidden"
             animate="show"
+            key={`${country}-${year}`} /* re-stagger quand on change pays/année */
           >
-            {summary.alerts.map(a => <AlertCard key={a.id} alert={a}/>)}
+            {summary.alerts.map(a => <AlertCard key={a.id} alert={a} t={t} country={country}/>)}
           </motion.div>
         </section>
       )}
@@ -260,7 +329,14 @@ export default function FiscalView({ data }) {
       >
         <Info size={14} style={{ flexShrink: 0, marginTop: 2 }}/>
         <p>
-          <strong>Information éducative.</strong> ICEdep n'est pas un cabinet fiscal et ne fournit pas de conseil personnalisé. Pour toute situation complexe ou en cas de doute, consultez le site officiel <a href="https://www.impots.gouv.fr" target="_blank" rel="noopener noreferrer">impots.gouv.fr</a> ou un expert-comptable.
+          <strong>{t('fiscal.disclaimer_intro')}</strong>{' '}
+          {country === 'GB' ? t('fiscal.disclaimer_gb') : t('fiscal.disclaimer_fr')}{' '}
+          {country === 'FR' && (
+            <a href="https://www.impots.gouv.fr" target="_blank" rel="noopener noreferrer">impots.gouv.fr</a>
+          )}
+          {country === 'GB' && (
+            <a href="https://www.gov.uk/government/organisations/hm-revenue-customs" target="_blank" rel="noopener noreferrer">gov.uk/HMRC</a>
+          )}
         </p>
       </motion.div>
     </div>

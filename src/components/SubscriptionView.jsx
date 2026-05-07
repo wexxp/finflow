@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Zap, Shield, TrendingUp, RefreshCw, ExternalLink, Sparkles } from 'lucide-react'
+import { useT } from '../utils/i18n.jsx'
 import './SubscriptionView.css'
 
 const PLAN_ID = 'P-7Y373755ED226545YNHWAAGY'
 const CLIENT_ID = 'ARXywqqKhNe42d9jabekG_hiV6QtH7wkDL5hooFZETC55-vlB-yS8Bf_dNyR4ytCVOd59NsjLTFLxXk3'
 
-const FEATURES = [
-  { icon: TrendingUp, text: 'Suivi illimité des dépenses et revenus' },
-  { icon: RefreshCw,  text: 'Suivi des reventes avec calcul de marge' },
-  { icon: Shield,     text: 'Données sécurisées et synchronisées' },
-  { icon: Zap,        text: 'Sessions mensuelles et vue annuelle' },
-  { icon: Check,      text: 'Objectifs d\'épargne personnalisés' },
-  { icon: Check,      text: 'Catégories et plateformes personnalisables' },
+const FEATURE_KEYS = [
+  { icon: TrendingUp, key: 'sub.feat.tracking' },
+  { icon: RefreshCw,  key: 'sub.feat.resales' },
+  { icon: Shield,     key: 'sub.feat.security' },
+  { icon: Zap,        key: 'sub.feat.annual' },
+  { icon: Check,      key: 'sub.feat.goals' },
+  { icon: Check,      key: 'sub.feat.custom' },
 ]
 
 export default function SubscriptionView({ userId, userEmail, isPremium, isAdmin, refreshProfile }) {
+  const t = useT()
   const buttonRef = useRef(null)
   const [paypalReady, setPaypalReady] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
@@ -75,10 +77,10 @@ export default function SubscriptionView({ userId, userEmail, isPremium, isAdmin
       <div className="sub-view">
         <div className="sub-success">
           <div className="sub-success-icon">🎉</div>
-          <h2>Merci pour ton abonnement !</h2>
-          <p>Le paiement est validé. L'activation Premium se fait automatiquement dans les prochaines secondes.</p>
+          <h2>{t('sub.success.title')}</h2>
+          <p>{t('sub.success.desc')}</p>
           <p style={{ marginTop: 12, fontSize: 13, color: 'var(--text3)' }}>
-            Si Premium n'apparaît pas dans 1 minute, recharge la page (Ctrl+R). Tu peux aussi nous contacter avec ton email PayPal pour qu'on l'active manuellement.
+            {t('sub.success.note')}
           </p>
         </div>
       </div>
@@ -90,30 +92,30 @@ export default function SubscriptionView({ userId, userEmail, isPremium, isAdmin
       <div className="sub-view">
         <div className="sub-header fade-up">
           <div className="sub-badge gold-badge">
-            <Zap size={12} style={{ marginRight: 4 }}/> {isAdmin ? 'Accès Administrateur' : 'Premium actif'}
+            <Zap size={12} style={{ marginRight: 4 }}/> {isAdmin ? t('sub.active.badge_admin') : t('sub.active.badge_premium')}
           </div>
           <h1 className="sub-title">
             <Sparkles size={26} style={{ verticalAlign: '-3px', marginRight: 8, color: 'var(--gold)' }}/>
-            Tu profites de tout
+            {t('sub.active.title')}
           </h1>
-          <p className="sub-desc">Toutes les fonctionnalités ICEdep sont débloquées sur ton compte.</p>
+          <p className="sub-desc">{t('sub.active.desc')}</p>
         </div>
 
         <div className="sub-card sub-card-active fade-up stagger-1">
           <div className="sub-active-row">
             <div className="sub-active-icon">⭐</div>
             <div className="sub-active-info">
-              <div className="sub-active-label">Abonnement</div>
-              <div className="sub-active-value">{isAdmin ? 'Compte administrateur' : 'ICEdep Premium · 4,99€ / mois'}</div>
+              <div className="sub-active-label">{t('sub.active.label')}</div>
+              <div className="sub-active-value">{isAdmin ? t('sub.active.value_admin') : t('sub.active.value_premium')}</div>
               <div className="sub-active-email">{userEmail}</div>
             </div>
           </div>
 
           <div className="sub-features">
-            {FEATURES.map((f, i) => (
+            {FEATURE_KEYS.map((f, i) => (
               <div key={i} className="sub-feature">
                 <div className="sub-feature-icon active"><Check size={14}/></div>
-                <span>{f.text}</span>
+                <span>{t(f.key)}</span>
               </div>
             ))}
           </div>
@@ -125,12 +127,12 @@ export default function SubscriptionView({ userId, userEmail, isPremium, isAdmin
               target="_blank"
               rel="noopener noreferrer"
             >
-              Gérer mon abonnement sur PayPal <ExternalLink size={13}/>
+              {t('sub.active.manage_paypal')} <ExternalLink size={13}/>
             </a>
           )}
         </div>
 
-        <p className="sub-thanks">Merci de soutenir ICEdep 💜</p>
+        <p className="sub-thanks">{t('sub.active.thanks')}</p>
       </div>
     )
   }
@@ -151,10 +153,10 @@ export default function SubscriptionView({ userId, userEmail, isPremium, isAdmin
         <p className="sub-cancel">Résiliable à tout moment</p>
 
         <div className="sub-features">
-          {FEATURES.map((f, i) => (
+          {FEATURE_KEYS.map((f, i) => (
             <div key={i} className="sub-feature">
               <div className="sub-feature-icon"><Check size={14}/></div>
-              <span>{f.text}</span>
+              <span>{t(f.key)}</span>
             </div>
           ))}
         </div>

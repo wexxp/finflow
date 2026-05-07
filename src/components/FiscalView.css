@@ -9,6 +9,49 @@
   flex-wrap: wrap;
 }
 
+/* ── Conteneur des deux pickers ── */
+.fiscal-pickers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+/* ── Country picker (pills avec drapeau) ── */
+.fiscal-country-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+}
+.fiscal-country-pill {
+  position: relative;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  border-radius: 99px;
+  transition: color var(--transition);
+}
+.fiscal-country-pill:hover { color: var(--text2); }
+.fiscal-country-pill.active { color: var(--text); }
+.fiscal-country-pill-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  border-radius: 99px;
+  z-index: 0;
+}
+.fiscal-country-pill-label { position: relative; z-index: 1; }
+
 /* ── Year picker (pills avec layoutId magic) ── */
 .fiscal-year-picker {
   display: inline-flex;
@@ -282,7 +325,8 @@
 @media (max-width: 768px) {
   .fiscal-view { max-width: 100%; }
   .fiscal-header { flex-direction: column; align-items: stretch; gap: 1rem; }
-  .fiscal-year-picker { align-self: flex-start; }
+  .fiscal-pickers { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+  .fiscal-year-picker, .fiscal-country-picker { align-self: flex-start; }
   .fiscal-kpis { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .fiscal-kpi { padding: 1rem; }
   .fiscal-kpi-value { font-size: 24px; }

@@ -14,7 +14,7 @@ function fmtProgress(a) {
   return `${a.current} / ${a.target}`
 }
 
-function AchievementCard({ a }) {
+function AchievementCard({ a, t }) {
   const tc = TIER_COLORS[a.tier] || TIER_COLORS.bronze
   return (
     <motion.div
@@ -33,12 +33,12 @@ function AchievementCard({ a }) {
         </motion.div>
         <div className="ach-info">
           <div className="ach-title-row">
-            <span className="ach-title">{a.title}</span>
+            <span className="ach-title">{t(a.titleKey)}</span>
             <span className="ach-tier" style={{ color: tc.fg, borderColor: tc.border, background: tc.bg }}>
               {a.tier}
             </span>
           </div>
-          <p className="ach-desc">{a.desc}</p>
+          <p className="ach-desc">{t(a.descKey)}</p>
         </div>
         {a.unlocked && (
           <motion.div
@@ -77,13 +77,14 @@ export default function AchievementsView({ data }) {
   const achievements = useMemo(() => computeAchievements(allReventes), [allReventes])
   const sum = useMemo(() => summary(achievements), [achievements])
 
-  // Group by category, en respectant l'ordre défini dans CATEGORIES
+  // Group by catKey, en respectant l'ordre défini dans CATEGORIES
   const byCat = useMemo(() => {
     const map = {}
     for (const cat of CATEGORIES) map[cat] = []
     achievements.forEach(a => {
-      if (!map[a.cat]) map[a.cat] = []
-      map[a.cat].push(a)
+      const k = a.catKey
+      if (!map[k]) map[k] = []
+      map[k].push(a)
     })
     return map
   }, [achievements])
@@ -138,13 +139,13 @@ export default function AchievementsView({ data }) {
         </div>
       )}
 
-      {CATEGORIES.map((cat, i) => {
-        const list = byCat[cat] || []
+      {CATEGORIES.map((catKey, i) => {
+        const list = byCat[catKey] || []
         if (!list.length) return null
         const unlockedCount = list.filter(a => a.unlocked).length
         return (
           <motion.div
-            key={cat}
+            key={catKey}
             className="ach-category"
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -152,7 +153,7 @@ export default function AchievementsView({ data }) {
             transition={{ duration: 0.5, delay: 0.15 + i * 0.08, ease: EASE_OUT_EXPO }}
           >
             <div className="ach-category-header">
-              <h2 className="ach-category-title">{cat}</h2>
+              <h2 className="ach-category-title">{t(`achievements.cat.${catKey}`)}</h2>
               <span className="ach-category-count">{unlockedCount} / {list.length}</span>
             </div>
             <motion.div
@@ -162,7 +163,7 @@ export default function AchievementsView({ data }) {
               whileInView="show"
               viewport={{ once: true, margin: '-30px' }}
             >
-              {list.map(a => <AchievementCard key={a.id} a={a}/>)}
+              {list.map(a => <AchievementCard key={a.id} a={a} t={t}/>)}
             </motion.div>
           </motion.div>
         )
