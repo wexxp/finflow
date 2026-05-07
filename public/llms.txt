@@ -1,0 +1,41 @@
+# ICEdep
+
+> ICEdep est une application web de gestion de finances personnelles spécialisée pour les revendeurs sur Vinted, Leboncoin, Vestiaire Collectif et eBay. Elle calcule automatiquement les marges, suit les bénéfices cumulés, génère des prévisions de fin de mois et inclut un assistant fiscal pour les seuils français (DAC7, BIC) et britanniques (Trading Allowance, HMRC platform reporting).
+
+## Site
+
+- [Page d'accueil](https://icedep-coral-six.vercel.app/) : présentation, tarifs, inscription gratuite
+
+## Fonctionnalités principales
+
+- **Suivi des reventes** : prix d'achat, frais, prix de vente, marge automatique, plateforme, sous-catégorie. Compatible Vinted, Leboncoin, Vestiaire Collectif, eBay, Prego, Sell, Facebook Marketplace.
+- **Tableau de bord** : KPIs (revenus, dépenses, bénéfices reventes, taux d'épargne), prévisions de fin de mois, graphiques d'évolution.
+- **Budget mensuel** : transactions classées par catégorie, dépenses récurrentes automatiques.
+- **Objectifs d'épargne** : suivi progression, score de santé bonifié quand on épargne.
+- **Vue annuelle** : évolution mois par mois, table détaillée.
+- **24 trophées** : bronze/silver/gold/platinum, débloqués selon ventes, marges, bénéfices cumulés.
+- **Assistant fiscal** :
+  - 🇫🇷 France : DAC7 (2 000 € / 30 ventes), BIC 305 €, micro-BIC 188 700 €, taxe forfaitaire objet précieux 5 000 €
+  - 🇬🇧 Royaume-Uni : Trading Allowance 1 000 £, platform reporting HMRC 1 700 £, CGT annual exempt 3 000 £, personal item 6 000 £
+
+## Tarifs
+
+- **Gratuit** : tableau de bord, budget, transactions, récurrents, profil
+- **Premium 4,99 €/mois** : suivi reventes, marges, vue annuelle, objectifs, trophées, fiscal
+
+## Public cible
+
+Particuliers et auto-entrepreneurs revendant des objets sur Vinted, Leboncoin, Vestiaire Collectif, eBay. Spécifiquement adapté à la fiscalité française et britannique.
+
+## Différenciateurs
+
+- Spécifique aux revendeurs (vs apps génériques type Bankin'/Linxo)
+- Assistant fiscal DAC7 — aucune autre app FR ne le fait clairement
+- Multi-pays (FR/UK) avec seuils HMRC pour le marché britannique
+- 100 % chiffré, aucune pub, aucun tracker, données non revendues
+- PWA installable sur mobile
+
+## Contact
+
+- Site : https://icedep-coral-six.vercel.app/
+- GitHub : https://github.com/wexxp/finflow

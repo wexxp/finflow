@@ -1,13 +1,122 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ICEdep</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- ── PRIMARY ─────────────────────────────────────── -->
+    <title>ICEdep — Gestion finance & suivi reventes pour revendeurs Vinted</title>
+    <meta name="description" content="ICEdep est l'app gestionnaire de finances et reventes pensée pour les revendeurs Vinted, Leboncoin et Vestiaire. Suivi des marges, prévisions, objectifs et alerte fiscale DAC7. Gratuit pour démarrer." />
+    <meta name="keywords" content="gestion finance vinted, suivi reventes, calcul marge revente, comptabilité revendeur, app budget vinted, DAC7 calculateur, leboncoin reventes, vestiaire collectif, app finance personnelle, tracker reventes" />
+    <meta name="author" content="ICEdep" />
+    <meta name="theme-color" content="#7c6aff" />
+    <link rel="canonical" href="https://icedep-coral-six.vercel.app/" />
+
+    <!-- ── ICONS / PWA ─────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- ── OPEN GRAPH (Facebook, LinkedIn, WhatsApp, Discord) ── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ICEdep" />
+    <meta property="og:title" content="ICEdep — Gardez la tête froide sur vos dépenses" />
+    <meta property="og:description" content="L'app pensée pour les revendeurs Vinted/Leboncoin. Suivi des marges, prévisions de fin de mois, objectifs d'épargne et assistant fiscal DAC7. Gratuit pour démarrer." />
+    <meta property="og:url" content="https://icedep-coral-six.vercel.app/" />
+    <meta property="og:image" content="https://icedep-coral-six.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ICEdep — Tableau de bord finance pour revendeurs" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- ── TWITTER / X ─────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ICEdep — Gestion finance & reventes" />
+    <meta name="twitter:description" content="L'app pensée pour les revendeurs Vinted/Leboncoin. Marges, prévisions, fiscalité — gratuit pour démarrer." />
+    <meta name="twitter:image" content="https://icedep-coral-six.vercel.app/og-image.png" />
+
+    <!-- ── JSON-LD : SoftwareApplication ───────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ICEdep",
+      "description": "Gestionnaire de finances personnelles et de reventes pour les revendeurs Vinted, Leboncoin et Vestiaire Collectif. Suivi des marges, prévisions, objectifs d'épargne et assistant fiscal DAC7.",
+      "url": "https://icedep-coral-six.vercel.app/",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web, iOS, Android (PWA)",
+      "inLanguage": ["fr-FR", "en-GB"],
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "ICEdep Gratuit",
+          "price": "0",
+          "priceCurrency": "EUR",
+          "description": "Tableau de bord, budget, transactions, récurrents"
+        },
+        {
+          "@type": "Offer",
+          "name": "ICEdep Premium",
+          "price": "4.99",
+          "priceCurrency": "EUR",
+          "description": "Suivi reventes, marges, objectifs, vue annuelle, trophées, fiscal",
+          "priceValidUntil": "2030-12-31"
+        }
+      ],
+      "featureList": [
+        "Suivi des reventes avec calcul automatique des marges",
+        "Tableau de bord avec prévisions de fin de mois",
+        "Objectifs d'épargne avec score de santé bonifié",
+        "Vue annuelle et graphiques d'évolution",
+        "Assistant fiscal DAC7 pour revendeurs (FR/UK)",
+        "24 trophées de revendeur",
+        "Compatible Vinted, Leboncoin, Vestiaire Collectif, eBay"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "ICEdep",
+        "url": "https://icedep-coral-six.vercel.app/"
+      }
+    }
+    </script>
+
+    <!-- ── JSON-LD : Organization ──────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ICEdep",
+      "url": "https://icedep-coral-six.vercel.app/",
+      "logo": "https://icedep-coral-six.vercel.app/icon-512.png",
+      "description": "ICEdep, l'app de gestion finance pensée pour les revendeurs Vinted, Leboncoin et Vestiaire Collectif.",
+      "foundingDate": "2026",
+      "founders": [{ "@type": "Person", "name": "Jeremy Carle" }]
+    }
+    </script>
+
+    <!-- ── Pré-rendu fallback (visible par Googlebot avant que React ne se charge) ── -->
+    <style>
+      .pre-render { display: none; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Pré-rendu visible par crawlers : contenu textuel minimal -->
+    <noscript>
+      <h1>ICEdep — Gestion finance & suivi reventes</h1>
+      <p>L'app pensée pour les revendeurs Vinted, Leboncoin et Vestiaire Collectif. Suivi automatique des marges, prévisions, objectifs d'épargne et assistant fiscal DAC7.</p>
+      <p>JavaScript est nécessaire pour utiliser ICEdep. Activez JavaScript dans votre navigateur.</p>
+    </noscript>
+
+    <div id="root">
+      <!-- Pré-rendu fallback pour Googlebot : contenu textuel rendu instantanément -->
+      <div class="pre-render">
+        <h1>ICEdep — Gardez la tête froide sur vos dépenses</h1>
+        <p>L'app de gestion finance pensée pour les revendeurs Vinted, Leboncoin et Vestiaire Collectif. Suivi des reventes avec calcul automatique des marges, prévisions de fin de mois, objectifs d'épargne et assistant fiscal DAC7.</p>
+        <p>Gratuit pour démarrer. Premium à 4,99 €/mois.</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
