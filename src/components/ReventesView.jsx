@@ -21,6 +21,40 @@ const DEFAULT_CATS = {
 const DEFAULT_PLATFORMS = ['Leboncoin','Vinted','Vestiaire Collectif','Prego','Sell','eBay','Facebook','De main en main','Autre']
 const CAT_COLORS = { électronique:'#60a5fa', mobilier:'#fbbf24', vêtements:'#f472b6', matériel:'#a78bfa', livres:'#4ade80', jeux:'#f87171', autre:'#9997a0' }
 
+// ─── Mapping des labels FR (clés en base) → clés i18n
+// Permet d'afficher en FR/EN sans toucher aux données stockées
+const CAT_I18N_KEYS = {
+  'électronique': 'electronique',
+  'mobilier':     'mobilier',
+  'vêtements':    'vetements',
+  'matériel':     'materiel',
+  'livres':       'livres',
+  'jeux':         'jeux',
+  'autre':        'autre',
+}
+const SUB_I18N_KEYS = {
+  'Téléphone':   'phone',
+  'Console':     'console',
+  'Ordinateur':  'computer',
+  'Tablette':    'tablet',
+  'Chaussures':  'shoes',
+  'T-shirt':     'tshirt',
+  'Pantalon':    'pants',
+  'Veste':       'jacket',
+  'Accessoires': 'accessories',
+  'Jeu PC':      'pcgame',
+  'Carte':       'card',
+  'Autre':       'other',
+}
+function catLabel(key, t) {
+  const k = CAT_I18N_KEYS[key]
+  return k ? t(`rv.cat.${k}`, key) : key   // fallback : valeur brute pour cats custom
+}
+function subLabel(key, t) {
+  const k = SUB_I18N_KEYS[key]
+  return k ? t(`rv.sub.${k}`, key) : key   // fallback pour sous-cats custom
+}
+
 export default function ReventesView({ monthData, currentMonth, userId, refreshData }) {
   const t = useT()
   const [name,setName]=useState('')
@@ -134,7 +168,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
               <div style={{fontSize:12,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:8}}>Mes sous-catégories</div>
               <div style={{display:'flex',gap:6,marginBottom:8}}>
                 <select value={newSubCat} onChange={e=>setNewSubCat(e.target.value)} style={{width:130}}>
-                  {Object.keys(DEFAULT_CATS).map(c=><option key={c} value={c}>{DEFAULT_CATS[c].icon} {c}</option>)}
+                  {Object.keys(DEFAULT_CATS).map(c=><option key={c} value={c}>{DEFAULT_CATS[c].icon} {catLabel(c, t)}</option>)}
                 </select>
                 <input placeholder="Ex: Streetwear…" value={newSub} onChange={e=>setNewSub(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addSubCatCustom()} style={{flex:1}}/>
                 <button onClick={addSubCatCustom} style={{height:42,padding:'0 14px',background:'var(--accent)',color:'#fff',border:'none',borderRadius:'var(--radius)',cursor:'pointer',fontSize:13}}>+</button>
@@ -142,7 +176,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
               <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
                 {Object.entries(customSubs).flatMap(([c,subs])=>subs.map(s=>(
                   <div key={c+s} style={{display:'flex',alignItems:'center',gap:5,padding:'4px 10px',background:'var(--bg2)',borderRadius:99,fontSize:13}}>
-                    {DEFAULT_CATS[c]?.icon} {s}<button onClick={()=>removeSubCat(c,s)} style={{background:'transparent',border:'none',color:'var(--text3)',cursor:'pointer',fontSize:15,lineHeight:1}}>×</button>
+                    {DEFAULT_CATS[c]?.icon} {subLabel(s, t)}<button onClick={()=>removeSubCat(c,s)} style={{background:'transparent',border:'none',color:'var(--text3)',cursor:'pointer',fontSize:15,lineHeight:1}}>×</button>
                   </div>
                 )))}
                 {Object.values(customSubs).flat().length===0&&<span style={{fontSize:13,color:'var(--text3)'}}>Aucune sous-catégorie personnalisée</span>}
@@ -157,7 +191,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
           <div className="field"><label>{t('reventes.field_article')}</label><input placeholder="Ex: Nike Air Max…" value={name} onChange={e=>setName(e.target.value)}/></div>
           <div className="field"><label>{t('reventes.field_cat')}</label>
             <select value={cat} onChange={e=>{setCat(e.target.value);setSubCat('')}}>
-              {Object.entries(DEFAULT_CATS).map(([k,v])=><option key={k} value={k}>{v.icon} {k}</option>)}
+              {Object.entries(DEFAULT_CATS).map(([k,v])=><option key={k} value={k}>{v.icon} {catLabel(k, t)}</option>)}
             </select>
           </div>
           <div className="field"><label>{t('reventes.field_platform')}</label>
@@ -172,7 +206,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
               <label>{t('reventes.field_subcat')} <span style={{color:'var(--text3)',fontWeight:400}}>— {t('reventes.field_subcat_optional')}</span></label>
               <select value={subCat} onChange={e=>setSubCat(e.target.value)} style={{width:220}}>
                 <option value="">{t('reventes.no_subcat')}</option>
-                {currentSubs.map(s=><option key={s}>{s}</option>)}
+                {currentSubs.map(s=><option key={s} value={s}>{subLabel(s, t)}</option>)}
               </select>
             </div>
           </div>
@@ -238,8 +272,8 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
                     {estVendu&&<span style={{fontSize:11,padding:'2px 7px',borderRadius:99,background:'var(--green-bg)',color:'var(--green)',display:'inline-flex',alignItems:'center',gap:4}}><CheckCircle size={10}/> {t('reventes.status_sold')}</span>}
                   </div>
                   <div className="rv-card-meta">
-                    <span className="rv-cat-badge" style={{background:bgcol+'22',color:bgcol}}>{r.cat}</span>
-                    {r.sub_cat && <span className="rv-sub-cat">{r.sub_cat}</span>}
+                    <span className="rv-cat-badge" style={{background:bgcol+'22',color:bgcol}}>{catLabel(r.cat, t)}</span>
+                    {r.sub_cat && <span className="rv-sub-cat">{subLabel(r.sub_cat, t)}</span>}
                     <span className="rv-plat">{r.plat}</span>
                     <span className="rv-date">{d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
                   </div>

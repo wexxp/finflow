@@ -204,6 +204,29 @@ export const TRANSLATIONS = {
     'reventes.mark_sold':   'Vendu !',
     'reventes.confirm_sold':'✓ Confirmer',
 
+    // Catégories de revente
+    'rv.cat.electronique':  'électronique',
+    'rv.cat.mobilier':      'mobilier',
+    'rv.cat.vetements':     'vêtements',
+    'rv.cat.materiel':      'matériel',
+    'rv.cat.livres':        'livres',
+    'rv.cat.jeux':          'jeux',
+    'rv.cat.autre':         'autre',
+
+    // Sous-catégories de revente
+    'rv.sub.phone':         'Téléphone',
+    'rv.sub.console':       'Console',
+    'rv.sub.computer':      'Ordinateur',
+    'rv.sub.tablet':        'Tablette',
+    'rv.sub.shoes':         'Chaussures',
+    'rv.sub.tshirt':        'T-shirt',
+    'rv.sub.pants':         'Pantalon',
+    'rv.sub.jacket':        'Veste',
+    'rv.sub.accessories':   'Accessoires',
+    'rv.sub.pcgame':        'Jeu PC',
+    'rv.sub.card':          'Carte',
+    'rv.sub.other':         'Autre',
+
     // Achievements
     'achievements.title':   'Trophées',
     'achievements.subtitle':'Tes accomplissements de revendeur',
@@ -525,6 +548,29 @@ export const TRANSLATIONS = {
     'reventes.free':        'Free',
     'reventes.mark_sold':   'Sold!',
     'reventes.confirm_sold':'✓ Confirm',
+
+    // Resale categories
+    'rv.cat.electronique':  'Electronics',
+    'rv.cat.mobilier':      'Furniture',
+    'rv.cat.vetements':     'Clothing',
+    'rv.cat.materiel':      'Tools',
+    'rv.cat.livres':        'Books',
+    'rv.cat.jeux':          'Gaming',
+    'rv.cat.autre':         'Other',
+
+    // Resale sub-categories
+    'rv.sub.phone':         'Phone',
+    'rv.sub.console':       'Console',
+    'rv.sub.computer':      'Computer',
+    'rv.sub.tablet':        'Tablet',
+    'rv.sub.shoes':         'Shoes',
+    'rv.sub.tshirt':        'T-shirt',
+    'rv.sub.pants':         'Pants',
+    'rv.sub.jacket':        'Jacket',
+    'rv.sub.accessories':   'Accessories',
+    'rv.sub.pcgame':        'PC Game',
+    'rv.sub.card':          'Card',
+    'rv.sub.other':         'Other',
 
     // Achievements
     'achievements.title':   'Trophies',
