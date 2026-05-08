@@ -150,10 +150,10 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
         <div className="add-box fade-in" style={{marginBottom:'1rem'}}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1.5rem'}}>
             <div>
-              <div style={{fontSize:12,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:8}}>Mes plateformes</div>
+              <div style={{fontSize:12,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:8}}>{t('reventes.my_platforms')}</div>
               <div style={{display:'flex',gap:6,marginBottom:8}}>
-                <input placeholder="Ex: Depop…" value={newPlatform} onChange={e=>setNewPlatform(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addPlatform()} style={{flex:1}}/>
-                <button onClick={addPlatform} style={{height:42,padding:'0 14px',background:'var(--accent)',color:'#fff',border:'none',borderRadius:'var(--radius)',cursor:'pointer',fontSize:13}}>+ Ajouter</button>
+                <input placeholder={t('reventes.platform_placeholder')} value={newPlatform} onChange={e=>setNewPlatform(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addPlatform()} style={{flex:1}}/>
+                <button onClick={addPlatform} style={{height:42,padding:'0 14px',background:'var(--accent)',color:'#fff',border:'none',borderRadius:'var(--radius)',cursor:'pointer',fontSize:13}}>{t('reventes.add_custom')}</button>
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
                 {customPlatforms.map(p=>(
@@ -161,16 +161,16 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
                     {p}<button onClick={()=>removePlatform(p)} style={{background:'transparent',border:'none',color:'var(--text3)',cursor:'pointer',fontSize:15,lineHeight:1}}>×</button>
                   </div>
                 ))}
-                {customPlatforms.length===0&&<span style={{fontSize:13,color:'var(--text3)'}}>Aucune plateforme personnalisée</span>}
+                {customPlatforms.length===0&&<span style={{fontSize:13,color:'var(--text3)'}}>{t('reventes.no_custom_platform')}</span>}
               </div>
             </div>
             <div>
-              <div style={{fontSize:12,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:8}}>Mes sous-catégories</div>
+              <div style={{fontSize:12,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:8}}>{t('reventes.my_subcats')}</div>
               <div style={{display:'flex',gap:6,marginBottom:8}}>
                 <select value={newSubCat} onChange={e=>setNewSubCat(e.target.value)} style={{width:130}}>
                   {Object.keys(DEFAULT_CATS).map(c=><option key={c} value={c}>{DEFAULT_CATS[c].icon} {catLabel(c, t)}</option>)}
                 </select>
-                <input placeholder="Ex: Streetwear…" value={newSub} onChange={e=>setNewSub(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addSubCatCustom()} style={{flex:1}}/>
+                <input placeholder={t('reventes.subcat_placeholder')} value={newSub} onChange={e=>setNewSub(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addSubCatCustom()} style={{flex:1}}/>
                 <button onClick={addSubCatCustom} style={{height:42,padding:'0 14px',background:'var(--accent)',color:'#fff',border:'none',borderRadius:'var(--radius)',cursor:'pointer',fontSize:13}}>+</button>
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
@@ -179,7 +179,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
                     {DEFAULT_CATS[c]?.icon} {subLabel(s, t)}<button onClick={()=>removeSubCat(c,s)} style={{background:'transparent',border:'none',color:'var(--text3)',cursor:'pointer',fontSize:15,lineHeight:1}}>×</button>
                   </div>
                 )))}
-                {Object.values(customSubs).flat().length===0&&<span style={{fontSize:13,color:'var(--text3)'}}>Aucune sous-catégorie personnalisée</span>}
+                {Object.values(customSubs).flat().length===0&&<span style={{fontSize:13,color:'var(--text3)'}}>{t('reventes.no_custom_subcat')}</span>}
               </div>
             </div>
           </div>

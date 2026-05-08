@@ -204,6 +204,15 @@ export const TRANSLATIONS = {
     'reventes.mark_sold':   'Vendu !',
     'reventes.confirm_sold':'✓ Confirmer',
 
+    // Customize panel
+    'reventes.my_platforms':       'Mes plateformes',
+    'reventes.my_subcats':         'Mes sous-catégories',
+    'reventes.add_custom':         '+ Ajouter',
+    'reventes.platform_placeholder': 'Ex: Depop…',
+    'reventes.subcat_placeholder': 'Ex: Streetwear…',
+    'reventes.no_custom_platform': 'Aucune plateforme personnalisée',
+    'reventes.no_custom_subcat':   'Aucune sous-catégorie personnalisée',
+
     // Catégories de revente
     'rv.cat.electronique':  'électronique',
     'rv.cat.mobilier':      'mobilier',
@@ -548,6 +557,15 @@ export const TRANSLATIONS = {
     'reventes.free':        'Free',
     'reventes.mark_sold':   'Sold!',
     'reventes.confirm_sold':'✓ Confirm',
+
+    // Customize panel
+    'reventes.my_platforms':       'My platforms',
+    'reventes.my_subcats':         'My sub-categories',
+    'reventes.add_custom':         '+ Add',
+    'reventes.platform_placeholder': 'e.g. Depop…',
+    'reventes.subcat_placeholder': 'e.g. Streetwear…',
+    'reventes.no_custom_platform': 'No custom platform',
+    'reventes.no_custom_subcat':   'No custom sub-category',
 
     // Resale categories
     'rv.cat.electronique':  'Electronics',
