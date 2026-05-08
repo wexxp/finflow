@@ -88,9 +88,27 @@ export const CAT_META = {
 export const DEP_CATS = ['alimentation','transport','loisirs','santé','logement','vêtements','épargne','autre']
 export const REV_CATS = ['salaire','freelance','remboursement','cadeau','revente','autre']
 
-export function fmtMonth(key) {
+// Helper unique : retourne le code locale (fr-FR / en-US) selon la langue active
+export function getLocale(lang) {
+  if (!lang) {
+    try { lang = localStorage.getItem('icedep_lang') || 'fr' }
+    catch { lang = 'fr' }
+  }
+  return lang === 'en' ? 'en-US' : 'fr-FR'
+}
+
+export function fmtMonth(key, lang) {
   const [y, m] = key.split('-')
-  return new Date(+y, +m - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+  const locale = getLocale(lang)
+  const formatted = new Date(+y, +m - 1, 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
+  // Capitalise première lettre (FR retourne "juin 2026", on veut "Juin 2026" ; EN est déjà capitalisé)
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+}
+
+// Format de date court pour les listes (ex: "5 mai" / "May 5")
+export function fmtDate(date, lang) {
+  if (typeof date === 'string') date = new Date(date + 'T00:00:00')
+  return date.toLocaleDateString(getLocale(lang), { day: 'numeric', month: 'short' })
 }
 
 export function monthKey(date = new Date()) {
@@ -99,7 +117,7 @@ export function monthKey(date = new Date()) {
 
 export function fmt(n) {
   if (n === undefined || n === null || isNaN(n)) return '0 €'
-  return Math.abs(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'
+  return Math.abs(n).toLocaleString(getLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'
 }
 
 export function fmtSigned(n) {

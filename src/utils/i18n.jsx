@@ -28,7 +28,12 @@ export function I18nProvider({ children }) {
   }, [lang])
 
   const setLang = (next) => {
-    if (SUPPORTED.includes(next)) setLangState(next)
+    if (SUPPORTED.includes(next)) {
+      // Écrit localStorage immédiatement (synchrone) pour que les helpers
+      // qui le lisent (fmtMonth, etc.) voient la nouvelle valeur dès le re-render
+      try { localStorage.setItem(STORAGE_KEY, next) } catch {}
+      setLangState(next)
+    }
   }
 
   // t(key) : retourne la traduction. Si manquante, fallback FR puis clé brute.

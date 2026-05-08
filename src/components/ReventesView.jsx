@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Clock, CheckCircle, Edit3, X, Settings } from 'lucide-react'
-import { fmt, fmtMonth } from '../utils/storage'
+import { fmt, fmtMonth, fmtDate } from '../utils/storage'
 import { addRevente, deleteRevente } from '../utils/db'
 import { supabase } from '../utils/supabase'
 import { AnimatedAmount, AnimatedPercent, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
@@ -275,7 +275,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
                     <span className="rv-cat-badge" style={{background:bgcol+'22',color:bgcol}}>{catLabel(r.cat, t)}</span>
                     {r.sub_cat && <span className="rv-sub-cat">{subLabel(r.sub_cat, t)}</span>}
                     <span className="rv-plat">{r.plat}</span>
-                    <span className="rv-date">{d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span>
+                    <span className="rv-date">{fmtDate(d)}</span>
                   </div>
                 </div>
               </div>

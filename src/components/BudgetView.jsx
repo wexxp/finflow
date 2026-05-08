@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, Repeat, Trash2, ArrowUp, ArrowDown, Target, Edit3, Check, X } from 'lucide-react'
-import { CAT_META, DEP_CATS, REV_CATS, fmt, fmtMonth } from '../utils/storage'
+import { CAT_META, DEP_CATS, REV_CATS, fmt, fmtMonth, fmtDate } from '../utils/storage'
 import { addTransaction, deleteTransaction, addRecurring, deleteRecurring, updateRecurring } from '../utils/db'
 import { useT } from '../utils/i18n.jsx'
 import './BudgetView.css'
@@ -253,7 +253,7 @@ export default function BudgetView({ data, monthData, currentMonth, userId, refr
                   <div className="tx-icon" style={{background:m.bg}}>{t.icon||m.icon}</div>
                   <div className="tx-info">
                     <span className="tx-name">{t.desc||t.label}</span>
-                    <span className="tx-meta">{t.cat} · {d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}{t.recurring?' · ↻':''}</span>
+                    <span className="tx-meta">{t.cat} · {fmtDate(d)}{t.recurring?' · ↻':''}</span>
                   </div>
                   <div className={`tx-amount ${t.type==='revenu'?'pos':'neg'}`}>{t.type==='revenu'?'+':'−'}{fmt(t.amount)}</div>
                   <button className="tx-del" onClick={()=>handleDeleteTx(t.id)}><Trash2 size={13}/></button>

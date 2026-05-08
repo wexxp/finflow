@@ -166,7 +166,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             title={t('cal.pick_month') || 'Choisir un mois'}
           >
             <Calendar size={12} className="month-cal-icon"/>
-            <span>{fmtMonth(currentMonth)}</span>
+            <span>{fmtMonth(currentMonth, lang)}</span>
           </button>
           <button className="month-arrow" onClick={() => navigateMonth(1)}><ChevronRight size={16}/></button>
 
@@ -288,7 +288,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
               const s = computeStats(data.months[key])
               return (
                 <button key={key} className={`sm-item ${key === currentMonth ? 'active' : ''}`} onClick={() => setCurrentMonth(key)}>
-                  <span className="sm-name">{fmtMonth(key)}</span>
+                  <span className="sm-name">{fmtMonth(key, lang)}</span>
                   <span className={`sm-bal ${s.balance >= 0 ? 'pos' : 'neg'}`}>{s.balance >= 0 ? '+' : '−'}{fmt(Math.abs(s.balance))}</span>
                 </button>
               )
@@ -329,7 +329,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
             aria-haspopup="dialog"
           >
             <Calendar size={11} style={{ marginRight: 4, opacity: 0.65, verticalAlign: '-1px' }}/>
-            <span className="mobile-month-text">{fmtMonth(currentMonth)}</span>
+            <span className="mobile-month-text">{fmtMonth(currentMonth, lang)}</span>
           </button>
           <button className="month-arrow" onClick={() => navigateMonth(1)}><ChevronRight size={14}/></button>
 
@@ -490,7 +490,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
                       className={`sm-item ${key === currentMonth ? 'active' : ''}`}
                       onClick={() => { setCurrentMonth(key); setShowMore(false) }}
                     >
-                      <span className="sm-name">{fmtMonth(key)}</span>
+                      <span className="sm-name">{fmtMonth(key, lang)}</span>
                       <span className={`sm-bal ${s.balance >= 0 ? 'pos' : 'neg'}`}>{s.balance >= 0 ? '+' : '−'}{fmt(Math.abs(s.balance))}</span>
                     </button>
                   )

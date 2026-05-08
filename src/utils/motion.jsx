@@ -4,6 +4,7 @@
 // ════════════════════════════════════════════════════════════
 import { motion, useMotionValue, useTransform, animate as fmAnimate } from 'framer-motion'
 import { useEffect } from 'react'
+import { getLocale } from './storage'
 
 // ─── Easings (Apple-style spring + smooth) ─────────────────
 export const EASE_OUT_EXPO = [0.16, 1, 0.3, 1]
@@ -21,7 +22,7 @@ export function AnimatedAmount({ value = 0, duration = 1, signed = false, suffix
   const mv = useMotionValue(0)
   const display = useTransform(mv, (v) => {
     const abs = Math.abs(v)
-    const formatted = abs.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+    const formatted = abs.toLocaleString(getLocale(), { minimumFractionDigits: 0, maximumFractionDigits: 0 })
     if (signed) {
       const sign = v >= 0 ? '+' : '−'
       return `${sign}${formatted} ${suffix}`

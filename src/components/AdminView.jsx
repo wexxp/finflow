@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase'
 import { Users, TrendingUp, TrendingDown, RefreshCw, Shield, ShieldOff, Zap, ZapOff } from 'lucide-react'
-import { fmt } from '../utils/storage'
+import { fmt, getLocale } from '../utils/storage'
 import './AdminView.css'
 
 export default function AdminView() {
@@ -101,7 +101,7 @@ export default function AdminView() {
                   {u.is_premium && <Zap size={12} style={{ color:'var(--gold)', marginRight:4 }}/>}
                   {u.email}
                 </td>
-                <td>{u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}</td>
+                <td>{u.created_at ? new Date(u.created_at).toLocaleDateString(getLocale()) : '—'}</td>
                 <td>{u.nbTx}</td>
                 <td style={{ color:'var(--green)' }}>+{fmt(u.revenus)}</td>
                 <td style={{ color:'var(--red)' }}>−{fmt(u.depenses)}</td>
