@@ -233,6 +233,14 @@
   background-clip: text;
   color: transparent;
   font-style: italic;
+  /* L'italique penche à droite : on donne de la marge pour pas clipper le "e" */
+  padding-right: 0.12em;
+  margin-right: 0.02em;
+  /* Si le span est sur plusieurs lignes, applique le padding sur chaque fragment */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  /* Évite tout clipping involontaire du rendu */
+  overflow: visible;
 }
 
 .hero-sub {
