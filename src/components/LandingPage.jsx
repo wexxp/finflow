@@ -3,6 +3,7 @@ import {
   ArrowRight, Sparkles, Brain, Wallet, Target, BarChart3,
   RefreshCw, Zap, Shield, Check
 } from 'lucide-react'
+import Logo from './Logo.jsx'
 import './LandingPage.css'
 
 function scrollToId(id) {
@@ -33,7 +34,7 @@ export default function LandingPage({ onLogin, onRegister }) {
       {/* ════════ NAV ════════ */}
       <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-brand">
-          <span className="brand-icon">◈</span>
+          <Logo size={26} className="brand-icon"/>
           <span className="brand-name">ICEdep</span>
         </div>
         <div className="nav-mid">
@@ -248,7 +249,7 @@ export default function LandingPage({ onLogin, onRegister }) {
       {/* ════════ FOOTER ════════ */}
       <footer className="landing-footer">
         <div className="footer-brand">
-          <span className="brand-icon">◈</span>
+          <Logo size={22} className="brand-icon"/>
           <span className="brand-name">ICEdep</span>
         </div>
         <span className="footer-copy">© 2026 ICEdep — Made in France 🇫🇷</span>

@@ -4,6 +4,7 @@ import { LayoutDashboard, Wallet, RefreshCw, BarChart2, Target, ChevronLeft, Che
 import { fmtMonth, computeStats, fmt, monthKey as computeMonthKey } from '../utils/storage'
 import { SPRING_GENTLE, SPRING_SNAPPY, EASE_OUT_EXPO } from '../utils/motion'
 import { useT, useI18n } from '../utils/i18n.jsx'
+import Logo from './Logo.jsx'
 import './Sidebar.css'
 
 // ════════════════════════════════════════════════════════════
@@ -152,7 +153,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
       {/* ── Desktop sidebar ── */}
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <span className="brand-icon">◈</span>
+          <Logo size={26} className="brand-icon"/>
           <span className="brand-name">ICEdep</span>
         </div>
 
@@ -317,7 +318,7 @@ export default function Sidebar({ activeTab, setActiveTab, currentMonth, setCurr
       {/* ── Mobile top header ── */}
       <header className="mobile-header">
         <div className="mobile-brand">
-          <span className="brand-icon">◈</span>
+          <Logo size={20} className="brand-icon"/>
           <span className="brand-name">ICEdep</span>
         </div>
         <div className="mobile-month-nav">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../utils/supabase'
 import { useT } from '../utils/i18n.jsx'
+import Logo from './Logo.jsx'
 import './Auth.css'
 
 function validatePassword(pwd) {
@@ -150,7 +151,7 @@ export default function Auth({ defaultMode = 'login' }) {
     return (
       <div className="auth-wrap">
         <div className="auth-card">
-          <div className="auth-brand"><span className="auth-icon">◈</span><span className="auth-name">ICEdep</span></div>
+          <div className="auth-brand"><Logo size={28} className="auth-icon"/><span className="auth-name">ICEdep</span></div>
           <p className="auth-sub">{t('auth.forgot_title')}</p>
           {forgotSent ? (
             <p className="auth-success">{t('auth.forgot_sent')}</p>
@@ -175,7 +176,7 @@ export default function Auth({ defaultMode = 'login' }) {
   return (
     <div className="auth-wrap">
       <div className="auth-card">
-        <div className="auth-brand"><span className="auth-icon">◈</span><span className="auth-name">ICEdep</span></div>
+        <div className="auth-brand"><Logo size={28} className="auth-icon"/><span className="auth-name">ICEdep</span></div>
         <p className="auth-sub">{mode === 'login' ? t('auth.login_title') : t('auth.register_title')}</p>
         <div className="auth-fields">
           <div className="auth-field">
