@@ -7,6 +7,7 @@ import './ProfileView.css'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 Mo
 const AVATAR_SIZE = 256
+const ALLOWED_MIME = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
 
 export default function ProfileView({ userId, userEmail, displayName, avatarUrl, isPremium, isAdmin, refreshProfile }) {
   const { theme, setTheme } = useTheme()
@@ -22,6 +23,12 @@ export default function ProfileView({ userId, userEmail, displayName, avatarUrl,
     if (!file) return
     if (file.size > MAX_FILE_SIZE) {
       setMsg(t('profile.photo_too_large'))
+      return
+    }
+    // MIME whitelist : refuse SVG (script injection) et autres types
+    if (!ALLOWED_MIME.includes((file.type || '').toLowerCase())) {
+      setMsg('❌ Format non supporté (JPEG, PNG, WEBP, GIF uniquement)')
+      e.target.value = ''
       return
     }
     setMsg('')
