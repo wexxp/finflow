@@ -162,9 +162,7 @@
   gap: 10px;
   flex-shrink: 0;
 }
-.nav-v2-logo {
-  filter: drop-shadow(0 0 8px var(--cyan-glow));
-}
+/* drop-shadow retiré — le logo PNG a déjà son glow intégré */
 .nav-v2-name {
   font-family: var(--font-display, 'DM Serif Display', serif);
   font-size: 22px;
