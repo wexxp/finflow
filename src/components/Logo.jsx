@@ -25,19 +25,20 @@ export default function Logo({ size = 24, className = '', style }) {
     )
   }
 
+  // On utilise la hauteur comme dimension de référence ; la largeur s'adapte
+  // automatiquement à la proportion native du PNG (qui est rectangulaire après trim).
   return (
     <img
       src="/logo.png"
       alt="ICEdep logo"
-      width={size}
       height={size}
       className={className}
       onError={() => setErrored(true)}
       style={{
-        width: size,
         height: size,
-        objectFit: 'contain',
+        width: 'auto',
         display: 'inline-block',
+        verticalAlign: 'middle',
         ...style,
       }}
     />
