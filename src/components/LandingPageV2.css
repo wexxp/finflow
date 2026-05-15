@@ -280,12 +280,17 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-text-fill-color: transparent;   /* fallback Safari mobile */
   padding-right: 0.12em;
   margin-right: 0.04em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  text-shadow: 0 0 60px rgba(38, 238, 235, 0.15);
+  /* drop-shadow retiré sur mobile car gourmand + parfois conflit avec background-clip */
   filter: drop-shadow(0 0 20px rgba(38, 238, 235, 0.2));
+}
+/* Sur mobile : suppression du filter qui peut faire disparaître le texte gradient */
+@media (max-width: 768px) {
+  .hero-v2-title-em {
+    filter: none;
+  }
 }
 
 /* Word reveal */

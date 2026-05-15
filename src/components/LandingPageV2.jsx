@@ -341,11 +341,20 @@ function HeroV2({ onLogin, onRegister }) {
         <h1 className="hero-v2-title">
           <RevealText text="Gardez la" delay={0.4}/>
           <br/>
-          <span className="hero-v2-title-em">
-            <RevealText text="tête froide" delay={0.55}/>
+          {/* "tête froide" : un seul span pour préserver le gradient text intact
+              (le découpage mot par mot casse background-clip:text sur Safari mobile) */}
+          <span className="reveal-word-wrap">
+            <motion.span
+              className="hero-v2-title-em reveal-word"
+              initial={{ y: '110%', opacity: 0 }}
+              animate={{ y: '0%', opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            >
+              tête froide
+            </motion.span>
           </span>
           <br/>
-          <RevealText text="sur vos dépenses." delay={0.75}/>
+          <RevealText text="sur vos dépenses." delay={0.85}/>
         </h1>
 
         <motion.p
