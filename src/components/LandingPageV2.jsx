@@ -20,10 +20,12 @@ import './LandingPageV2.css'
 function CustomCursor() {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  const springConfig = { damping: 25, stiffness: 400, mass: 0.5 }
+  // Spring partagé : dot ET ring utilisent les mêmes valeurs lissées
+  // → ils restent toujours parfaitement centrés l'un sur l'autre
+  const springConfig = { damping: 28, stiffness: 350, mass: 0.4 }
   const sx = useSpring(x, springConfig)
   const sy = useSpring(y, springConfig)
-  const [variant, setVariant] = useState('default')   // default | hover
+  const [variant, setVariant] = useState('default')
 
   useEffect(() => {
     const onMove = (e) => {
@@ -56,7 +58,7 @@ function CustomCursor() {
       />
       <motion.div
         className="cursor-ring"
-        style={{ left: x, top: y }}
+        style={{ left: sx, top: sy }}
         animate={{
           scale: variant === 'hover' ? 2.5 : 1,
           opacity: variant === 'hover' ? 0.4 : 1,

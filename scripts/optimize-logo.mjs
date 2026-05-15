@@ -14,7 +14,7 @@ const OUTPUT = path.join(__dirname, '..', 'public', 'logo.png')
 const BACKUP = path.join(__dirname, '..', 'public', 'logo-original.png')
 
 const MAX_SIZE = 512        // taille max (apple-touch-icon = 180, favicon = 32)
-const TRIM_THRESHOLD = 10   // pixels considérés "vides" en-dessous de cet alpha
+const TRIM_THRESHOLD = 80   // alpha threshold pour trim agressif (vire le halo périphérique)
 
 async function main() {
   console.log('🖼️  Optimisation du logo ICEdep\n')
