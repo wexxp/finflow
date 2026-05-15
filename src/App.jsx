@@ -5,7 +5,11 @@ import { fetchAllUserData, applyRecurringToMonth, fetchProfile } from './utils/d
 import { monthKey } from './utils/storage'
 import { PageTransition } from './utils/motion'
 import { playTabSwitch } from './utils/audio'
-import LandingPage from './components/LandingPage'
+// ─── LANDING PAGE ──────────────────────────────────────
+// V2 (futuriste néon) en cours de test — V1 reste en backup
+// Pour revenir à l'ancienne : remplacer ./components/LandingPageV2 par ./components/LandingPage
+import LandingPage from './components/LandingPageV2'
+// import LandingPage from './components/LandingPage'  // ← V1 / backup
 import Auth from './components/Auth'
 import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
