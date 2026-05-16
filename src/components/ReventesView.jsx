@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Trash2, Clock, CheckCircle, Edit3, X, Settings } from 'lucide-react'
+import { Plus, Trash2, Clock, CheckCircle, Edit3, X, Settings, Upload } from 'lucide-react'
 import { fmt, fmtMonth, fmtDate } from '../utils/storage'
 import { addRevente, deleteRevente } from '../utils/db'
 import { supabase } from '../utils/supabase'
 import { AnimatedAmount, AnimatedPercent, EASE_OUT_EXPO, SPRING_GENTLE, fadeUpVariants, containerVariants } from '../utils/motion'
 import { useT } from '../utils/i18n.jsx'
+import CsvImportModal from './CsvImportModal'
 import './ReventesView.css'
 
 const DEFAULT_CATS = {
@@ -55,7 +56,7 @@ function subLabel(key, t) {
   return k ? t(`rv.sub.${k}`, key) : key   // fallback pour sous-cats custom
 }
 
-export default function ReventesView({ monthData, currentMonth, userId, refreshData }) {
+export default function ReventesView({ monthData, currentMonth, userId, refreshData, isPremium }) {
   const t = useT()
   const [name,setName]=useState('')
   const [cat,setCat]=useState('électronique')
@@ -76,6 +77,7 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
   const [newPlatform,setNewPlatform]=useState('')
   const [newSub,setNewSub]=useState('')
   const [newSubCat,setNewSubCat]=useState('vêtements')
+  const [showImport,setShowImport]=useState(false)
 
   const rvs = monthData?.reventes || []
   const vendu = rvs.filter(r => r.vente > 0)
@@ -140,6 +142,9 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
             <div className="rv-sum-sep"/>
             <div className="rv-sum-item"><span className="rv-sum-label">{t('reventes.sum_pending')}</span><span className="rv-sum-val" style={{color:'var(--gold)'}}>{enAttente.length} {enAttente.length>1?t('common.articles'):t('common.article')}</span></div>
           </motion.div>
+          <button onClick={()=>setShowImport(true)} title={!isPremium ? t('reventes.import_premium_only') : ''} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 12px',border:'1px solid var(--cyan-dim)',borderRadius:'var(--radius)',background:'var(--cyan-bg)',color:'var(--cyan)',fontSize:13,cursor:'pointer',fontFamily:'var(--font-body)',opacity:isPremium?1:0.55}}>
+            <Upload size={14}/> {t('reventes.import_csv')}
+          </button>
           <button onClick={()=>setShowCustom(!showCustom)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 12px',border:'1px solid var(--line2)',borderRadius:'var(--radius)',background:showCustom?'var(--accent-bg)':'transparent',color:showCustom?'var(--accent)':'var(--text2)',fontSize:13,cursor:'pointer'}}>
             <Settings size={14}/> {t('reventes.customize')}
           </button>
@@ -305,6 +310,15 @@ export default function ReventesView({ monthData, currentMonth, userId, refreshD
         })}
         </AnimatePresence>
       </motion.div>
+
+      <CsvImportModal
+        open={showImport}
+        onClose={()=>setShowImport(false)}
+        userId={userId}
+        currentMonth={currentMonth}
+        refreshData={refreshData}
+        isPremium={isPremium}
+      />
     </div>
   )
 }
