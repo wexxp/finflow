@@ -95,7 +95,20 @@
   padding: 1.1rem 1.25rem;
   transition: border-color var(--transition), transform var(--transition);
 }
-.achievement-card.unlocked:hover { transform: translateY(-2px); }
+.achievement-card.unlocked {
+  border-color: rgba(38, 238, 235, 0.18);
+}
+.achievement-card.unlocked:hover {
+  transform: translateY(-2px);
+  border-color: var(--cyan);
+  box-shadow: 0 8px 28px -10px var(--cyan-glow);
+}
+.achievement-card.unlocked .ach-icon-wrap {
+  background: var(--grad-signature);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 16px -4px var(--cyan-glow);
+}
 .achievement-card.locked { opacity: 0.65; }
 
 .ach-top {

@@ -1,8 +1,36 @@
 .sub-view { max-width: 480px; margin: 0 auto; padding: 2rem 0; }
 
 .sub-header { text-align: center; margin-bottom: 2rem; }
-.sub-badge { display: inline-block; padding: 4px 14px; border-radius: 99px; background: var(--accent-bg); color: var(--accent); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 1rem; }
+.sub-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 99px;
+  background: var(--grad-signature);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 18px -4px var(--cyan-glow);
+}
 .sub-title { font-family: var(--font-display); font-size: 32px; letter-spacing: -0.02em; margin-bottom: 8px; }
+.sub-card {
+  position: relative;
+}
+.sub-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-xl);
+  padding: 1px;
+  background: var(--grad-signature);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0.45;
+  pointer-events: none;
+}
 .sub-desc { font-size: 15px; color: var(--text2); }
 
 .sub-card { background: var(--bg1); border: 1px solid var(--line2); border-radius: var(--radius-xl); padding: 2rem; }

@@ -120,7 +120,11 @@
   border-radius: 99px;
 }
 .profile-badge.admin   { background: var(--accent-bg); color: var(--accent); }
-.profile-badge.premium { background: rgba(251, 191, 36, 0.15); color: var(--gold); }
+.profile-badge.premium {
+  background: var(--grad-signature);
+  color: #fff;
+  box-shadow: 0 0 18px -4px var(--cyan-glow);
+}
 .profile-badge.free    { background: var(--bg2); color: var(--text2); }
 
 .profile-save-btn {
@@ -130,7 +134,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--accent);
+  background: var(--grad-signature);
   color: #fff;
   border: none;
   border-radius: var(--radius);
@@ -138,9 +142,13 @@
   font-weight: 500;
   cursor: pointer;
   font-family: var(--font-body);
-  transition: opacity var(--transition);
+  transition: all var(--transition);
+  box-shadow: 0 4px 18px -6px var(--cyan-glow);
 }
-.profile-save-btn:hover { opacity: 0.88; }
+.profile-save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px -4px var(--cyan-glow);
+}
 .profile-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .profile-msg {

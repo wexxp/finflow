@@ -23,8 +23,21 @@
   padding: 0 1.25rem 1.5rem;
   border-bottom: 1px solid var(--line);
 }
-.brand-icon { font-size: 22px; color: var(--accent); }
-.brand-name { font-family: var(--font-display); font-size: 22px; color: var(--text); letter-spacing: -0.02em; }
+.brand-icon {
+  font-size: 22px;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 8px var(--cyan-glow));
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  background: var(--grad-signature);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
 
 .month-nav {
   display: flex;
@@ -233,7 +246,8 @@
   top: 50%;
   width: 3px;
   height: 0;
-  background: var(--accent);
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
   border-radius: 0 2px 2px 0;
   transform: translateY(-50%);
   transition: height var(--transition);
@@ -241,8 +255,8 @@
 }
 .nav-item:hover { background: var(--bg2); color: var(--text); }
 .nav-item.active {
-  background: linear-gradient(90deg, var(--accent-bg) 0%, transparent 80%);
-  color: var(--accent);
+  background: linear-gradient(90deg, var(--cyan-bg) 0%, var(--accent-bg) 50%, transparent 90%);
+  color: var(--text);
 }
 .nav-item.active::before { height: 60%; }
 .nav-item.locked { opacity: 0.65; }
@@ -451,8 +465,21 @@
     gap: 7px;
     flex-shrink: 0;
   }
-  .mobile-brand .brand-icon { font-size: 18px; color: var(--accent); }
-  .mobile-brand .brand-name { font-family: var(--font-display); font-size: 18px; color: var(--text); letter-spacing: -0.02em; }
+  .mobile-brand .brand-icon {
+    font-size: 18px;
+    color: var(--cyan);
+    filter: drop-shadow(0 0 6px var(--cyan-glow));
+  }
+  .mobile-brand .brand-name {
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    background: var(--grad-signature);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
 
   .mobile-month-nav {
     display: flex;
@@ -542,7 +569,10 @@
     min-width: 0;
   }
   .mobile-nav-item:hover { color: var(--text2); }
-  .mobile-nav-item.active { color: var(--accent); }
+  .mobile-nav-item.active {
+    color: var(--cyan);
+    filter: drop-shadow(0 0 6px var(--cyan-glow));
+  }
 
   .mobile-nav-icon {
     position: relative;

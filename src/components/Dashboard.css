@@ -15,6 +15,14 @@
   color: var(--text);
   margin-bottom: 4px;
 }
+.page-title .page-title-em {
+  background: var(--grad-signature);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-style: italic;
+}
 .page-sub { font-size: 14px; color: var(--text2); }
 
 .prediction-badge {
@@ -57,9 +65,11 @@
   transition: opacity var(--transition);
 }
 .kpi-card:hover {
-  border-color: var(--line2);
+  border-color: var(--cyan-dim);
   transform: translateY(-3px);
-  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 14px 30px -12px rgba(0, 0, 0, 0.5),
+    0 0 22px -10px var(--cyan-glow);
 }
 .kpi-card:hover::after { opacity: 0.5; }
 .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
