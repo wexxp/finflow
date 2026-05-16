@@ -613,7 +613,7 @@ function PricingV2({ onRegister }) {
       >
         <span className="eyebrow-v2">Tarifs</span>
         <h2 className="section-title-v2">Simple. Transparent.</h2>
-        <p className="section-sub-v2">Démarre gratos. Premium quand tu en as besoin.</p>
+        <p className="section-sub-v2">Démarrage gratuit. Premium quand tu en as besoin.</p>
       </motion.div>
 
       <div className="pricing-v2-grid">

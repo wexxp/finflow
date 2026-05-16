@@ -180,7 +180,7 @@ export default function LandingPage({ onLogin, onRegister }) {
         <div className="section-head center">
           <span className="eyebrow">Tarifs</span>
           <h2 className="section-title">Simple. Transparent.</h2>
-          <p className="section-sub">Démarre gratos. Premium quand tu en as besoin.</p>
+          <p className="section-sub">Démarrage gratuit. Premium quand tu en as besoin.</p>
         </div>
 
         <div className="pricing-grid">
