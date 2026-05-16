@@ -1,98 +1,66 @@
 import { useState, useRef, useMemo } from 'react'
 import Papa from 'papaparse'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, X, FileSpreadsheet, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, X, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download } from 'lucide-react'
 import { addRevente } from '../utils/db'
 import { useT } from '../utils/i18n.jsx'
 import './CsvImportModal.css'
 
 // ════════════════════════════════════════════════════════════
-// Détection automatique du format selon les en-têtes de colonnes
+// Mapping intelligent des en-têtes (FR + EN, accents tolérés)
+// Conçu pour les utilisateurs qui tenaient leur propre Excel/Sheets
 // ════════════════════════════════════════════════════════════
-const FORMATS = {
-  vinted: {
-    label: 'Vinted',
-    signals: ['vinted', 'transaction id', 'item title', 'item price'],
-    map: {
-      name:  ['item title', 'article', 'titre', 'nom'],
-      vente: ['item price', 'sale price', 'prix vente', 'price', 'total'],
-      frais: ['fee', 'fees', 'commission', 'frais'],
-      achat: ['cost', 'prix achat', 'cost price'],
-      date:  ['date', 'sale date', 'completed at', 'transaction date'],
-      plat:  [], // forcé à 'Vinted'
-    },
-    defaultPlat: 'Vinted',
-  },
-  ebay: {
-    label: 'eBay',
-    signals: ['ebay', 'item id', 'buyer username', 'sale amount'],
-    map: {
-      name:  ['item title', 'title', 'listing title'],
-      vente: ['sale amount', 'total amount', 'item price', 'sold for'],
-      frais: ['ebay fees', 'final value fee', 'fees', 'commission'],
-      achat: ['cost', 'purchase price'],
-      date:  ['sale date', 'date sold', 'transaction date', 'date'],
-      plat:  [],
-    },
-    defaultPlat: 'eBay',
-  },
-  vestiaire: {
-    label: 'Vestiaire Collective',
-    signals: ['vestiaire', 'designer', 'reference'],
-    map: {
-      name:  ['item', 'designer', 'product name', 'title'],
-      vente: ['final price', 'sale price', 'paid', 'amount'],
-      frais: ['commission', 'fees'],
-      achat: ['cost'],
-      date:  ['sold on', 'date', 'sale date'],
-      plat:  [],
-    },
-    defaultPlat: 'Vestiaire Collectif',
-  },
-  generic: {
-    label: 'Generic',
-    signals: [],
-    map: {
-      name:  ['article', 'item', 'nom', 'name', 'title', 'produit', 'product'],
-      vente: ['vente', 'sale', 'prix_vente', 'sale_price', 'price', 'prix', 'amount'],
-      frais: ['frais', 'fees', 'fee', 'commission'],
-      achat: ['achat', 'cost', 'prix_achat', 'cost_price', 'buy', 'purchase'],
-      date:  ['date'],
-      plat:  ['plateforme', 'platform', 'plat', 'marketplace'],
-      cat:   ['catégorie', 'categorie', 'category', 'cat'],
-    },
-    defaultPlat: 'Autre',
-  },
+const FIELD_HINTS = {
+  name:  ['article', 'item', 'nom', 'name', 'title', 'titre', 'produit', 'product', 'designation', 'description'],
+  vente: ['vente', 'sale', 'prix vente', 'prix de vente', 'sale price', 'sold for', 'sold', 'revenu', 'revenue', 'price', 'prix', 'amount', 'total', 'paid'],
+  achat: ['achat', 'cost', 'prix achat', 'prix d achat', 'buy price', 'purchase', 'cout', 'cout achat', 'investissement', 'investment'],
+  frais: ['frais', 'fees', 'fee', 'commission', 'taxe', 'tax', 'shipping', 'livraison'],
+  date:  ['date', 'date vente', 'sale date', 'date sold', 'sold on', 'date de vente'],
+  plat:  ['plateforme', 'plateform', 'platform', 'plat', 'marketplace', 'site', 'canal'],
+  cat:   ['categorie', 'category', 'cat', 'type', 'genre'],
 }
 
-function detectFormat(headers) {
-  const lowered = headers.map(h => h.toLowerCase().trim())
-  for (const key of ['vinted', 'ebay', 'vestiaire']) {
-    const fmt = FORMATS[key]
-    if (fmt.signals.some(sig => lowered.some(h => h.includes(sig)))) {
-      return key
-    }
-  }
-  return 'generic'
+// Normalise pour matcher : minuscules, sans accent, sans tirets/underscores
+function norm(s) {
+  return String(s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[-_.]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
-// Renvoie le nom de colonne correspondant pour un champ donné (ou '')
-function autoMap(field, headers, formatKey) {
-  const fmt = FORMATS[formatKey]
-  const candidates = (fmt.map[field] || []).concat(FORMATS.generic.map[field] || [])
-  const lowered = headers.map(h => h.toLowerCase().trim())
+function autoMap(field, headers) {
+  const candidates = FIELD_HINTS[field] || []
+  const normed = headers.map(h => norm(h))
+  // 1. Match exact
   for (const cand of candidates) {
-    const idx = lowered.findIndex(h => h === cand || h.includes(cand))
+    const idx = normed.findIndex(h => h === cand)
+    if (idx !== -1) return headers[idx]
+  }
+  // 2. Match "contient"
+  for (const cand of candidates) {
+    const idx = normed.findIndex(h => h.includes(cand))
     if (idx !== -1) return headers[idx]
   }
   return ''
 }
 
-// Parse un nombre depuis une string CSV (gère "12,50", "12.50", "€12.50", "$12")
+// Parse un nombre depuis une string CSV (gère "12,50", "12.50", "€12.50", "$12", "1 234,56")
 function parseNum(v) {
   if (v == null || v === '') return 0
-  const cleaned = String(v).replace(/[^\d.,-]/g, '').replace(',', '.')
-  const n = parseFloat(cleaned)
+  let s = String(v).trim()
+  // Supprime devise et espaces
+  s = s.replace(/[€$£¥\s]/g, '')
+  // Si format européen (virgule décimale), convertir
+  // ex: "1.234,56" → "1234.56" ou "12,50" → "12.50"
+  if (s.match(/,\d{1,2}$/)) {
+    s = s.replace(/\./g, '').replace(',', '.')
+  }
+  // Garde seulement chiffres, point, signe
+  s = s.replace(/[^\d.-]/g, '')
+  const n = parseFloat(s)
   return isNaN(n) ? 0 : n
 }
 
@@ -100,13 +68,10 @@ function parseNum(v) {
 function parseDate(v, fallback) {
   if (!v) return fallback
   const s = String(v).trim()
-  // ISO
-  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`
-  // DD/MM/YYYY ou DD-MM-YYYY
-  const eu = s.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})/)
-  if (eu) return `${eu[3]}-${eu[2]}-${eu[1]}`
-  // MM/DD/YYYY
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)
+  if (iso) return `${iso[1]}-${String(iso[2]).padStart(2,'0')}-${String(iso[3]).padStart(2,'0')}`
+  const eu = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/)
+  if (eu) return `${eu[3]}-${String(eu[2]).padStart(2,'0')}-${String(eu[1]).padStart(2,'0')}`
   const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)
   if (us) return `${us[3]}-${String(us[1]).padStart(2,'0')}-${String(us[2]).padStart(2,'0')}`
   try {
@@ -121,13 +86,47 @@ const CAT_ICONS = {
   matériel: '🔧', livres: '📚', jeux: '🎮', autre: '📦',
 }
 
+// Mappe une valeur catégorie libre vers nos clés internes
+function normalizeCat(raw, fallback) {
+  const n = norm(raw)
+  if (!n) return fallback
+  const candidates = {
+    'électronique': ['electronique', 'electronic', 'electronics', 'tech', 'phone', 'telephone'],
+    'mobilier':     ['mobilier', 'meuble', 'furniture', 'home'],
+    'vêtements':    ['vetement', 'vetements', 'clothes', 'clothing', 'fashion', 'mode'],
+    'matériel':     ['materiel', 'material', 'tools', 'outils'],
+    'livres':       ['livre', 'livres', 'book', 'books'],
+    'jeux':         ['jeu', 'jeux', 'game', 'games', 'gaming', 'console'],
+    'autre':        ['autre', 'other', 'misc', 'divers'],
+  }
+  for (const [key, keywords] of Object.entries(candidates)) {
+    if (keywords.some(k => n.includes(k))) return key
+  }
+  return fallback
+}
+
+function downloadTemplate() {
+  const csv = [
+    'article,categorie,plateforme,prix_achat,frais,prix_vente,date',
+    'Nike Air Max 90,vetements,Vinted,18.00,3.50,45.00,2026-04-12',
+    'Pull Zara beige,vetements,Leboncoin,5.00,0,18.00,2026-04-15',
+    'iPhone 12 coque,electronique,Vinted,2.00,1.20,12.00,2026-04-18',
+  ].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'icedep-modele.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function CsvImportModal({ open, onClose, userId, currentMonth, refreshData, isPremium }) {
   const t = useT()
   const fileInputRef = useRef(null)
   const [step, setStep] = useState('drop') // drop | mapping | importing | done
   const [rows, setRows] = useState([])
   const [headers, setHeaders] = useState([])
-  const [formatKey, setFormatKey] = useState('generic')
   const [mapping, setMapping] = useState({})
   const [defaultPlat, setDefaultPlat] = useState('Autre')
   const [defaultCat, setDefaultCat] = useState('autre')
@@ -137,7 +136,7 @@ export default function CsvImportModal({ open, onClose, userId, currentMonth, re
   const [dragOver, setDragOver] = useState(false)
 
   function reset() {
-    setStep('drop'); setRows([]); setHeaders([]); setFormatKey('generic')
+    setStep('drop'); setRows([]); setHeaders([])
     setMapping({}); setError(''); setProgress(0); setImported(0)
   }
 
@@ -151,25 +150,29 @@ export default function CsvImportModal({ open, onClose, userId, currentMonth, re
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      // Détection auto du séparateur : Excel FR utilise ;, Excel EN utilise ,
+      delimitersToGuess: [',', ';', '\t', '|'],
+      transformHeader: h => h.trim(),
       complete: (results) => {
         if (!results.data || results.data.length === 0) {
           setError(t('reventes.import_empty'))
           return
         }
-        const heads = results.meta.fields || []
-        const detected = detectFormat(heads)
+        const heads = (results.meta.fields || []).filter(Boolean)
+        if (heads.length === 0) {
+          setError(t('reventes.import_error'))
+          return
+        }
         setHeaders(heads)
         setRows(results.data)
-        setFormatKey(detected)
-        setDefaultPlat(FORMATS[detected].defaultPlat)
         setMapping({
-          name:  autoMap('name',  heads, detected),
-          vente: autoMap('vente', heads, detected),
-          frais: autoMap('frais', heads, detected),
-          achat: autoMap('achat', heads, detected),
-          date:  autoMap('date',  heads, detected),
-          plat:  autoMap('plat',  heads, detected),
-          cat:   autoMap('cat',   heads, detected),
+          name:  autoMap('name',  heads),
+          vente: autoMap('vente', heads),
+          frais: autoMap('frais', heads),
+          achat: autoMap('achat', heads),
+          date:  autoMap('date',  heads),
+          plat:  autoMap('plat',  heads),
+          cat:   autoMap('cat',   heads),
         })
         setStep('mapping')
       },
@@ -201,21 +204,20 @@ export default function CsvImportModal({ open, onClose, userId, currentMonth, re
       const r = rows[i]
       const name  = String(r[mapping.name] || '').trim()
       const vente = parseNum(r[mapping.vente])
-      if (!name || vente <= 0) { setProgress(((i+1)/rows.length)*100); continue }
+      if (!name) { setProgress(((i+1)/rows.length)*100); continue }
       const achat = mapping.achat ? parseNum(r[mapping.achat]) : 0
       const frais = mapping.frais ? parseNum(r[mapping.frais]) : 0
       const today = new Date().toISOString().split('T')[0]
       const date  = mapping.date ? parseDate(r[mapping.date], today) : today
-      const monthKey = date.slice(0, 7) // YYYY-MM (peut différer du mois courant)
+      const monthKey = date.slice(0, 7) // YYYY-MM
       const plat = mapping.plat ? (String(r[mapping.plat] || '').trim() || defaultPlat) : defaultPlat
       const cat  = mapping.cat
-        ? (String(r[mapping.cat] || '').trim().toLowerCase() || defaultCat)
+        ? normalizeCat(r[mapping.cat], defaultCat)
         : defaultCat
-      const safeCat = CAT_ICONS[cat] ? cat : defaultCat
       const { error: err } = await addRevente(userId, {
-        name, cat: safeCat, sub_cat: null, plat,
+        name, cat, sub_cat: null, plat,
         achat, frais, vente,
-        icon: CAT_ICONS[safeCat] || '📦',
+        icon: CAT_ICONS[cat] || '📦',
         date,
       }, monthKey)
       if (!err) ok++
@@ -283,6 +285,9 @@ export default function CsvImportModal({ open, onClose, userId, currentMonth, re
                 />
               </div>
               <p className="csv-hint">{t('reventes.import_hint')}</p>
+              <button className="csv-template-btn" onClick={downloadTemplate}>
+                <Download size={14}/> {t('reventes.import_template')}
+              </button>
               {error && <p className="csv-err">{error}</p>}
             </>
           )}
@@ -292,7 +297,7 @@ export default function CsvImportModal({ open, onClose, userId, currentMonth, re
               <div className="csv-meta">
                 <span className="csv-format-pill">
                   <FileSpreadsheet size={14}/>
-                  {t('reventes.import_format_detected')} : <b>{FORMATS[formatKey].label}</b>
+                  {headers.length} colonnes
                 </span>
                 <span className="csv-count">
                   {rows.length} {t('reventes.import_rows')}
