@@ -54,11 +54,11 @@ function CustomCursor() {
     <>
       <motion.div
         className="cursor-dot"
-        style={{ left: sx, top: sy }}
+        style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}
       />
       <motion.div
         className="cursor-ring"
-        style={{ left: sx, top: sy }}
+        style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}
         animate={{
           scale: variant === 'hover' ? 2.5 : 1,
           opacity: variant === 'hover' ? 0.4 : 1,
