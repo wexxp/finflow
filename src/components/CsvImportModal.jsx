@@ -86,6 +86,22 @@ const CAT_ICONS = {
   matériel: '🔧', livres: '📚', jeux: '🎮', autre: '📦',
 }
 
+// ── Sécurité : limites strictes pour éviter abus / DoS ──
+const MAX_FILE_SIZE  = 5 * 1024 * 1024 // 5 Mo max
+const MAX_ROWS       = 5000             // 5000 lignes max par import
+const MAX_FIELD_LEN  = 500              // chaque champ : 500 caractères max
+const ALLOWED_MIME   = ['text/csv', 'application/vnd.ms-excel', 'application/csv', '']
+
+// Clés interdites pour éviter la pollution de prototype
+const DANGEROUS_KEYS = ['__proto__', 'constructor', 'prototype']
+
+// Tronque toute valeur trop longue (anti-DoS sur l'affichage et la DB)
+function safeTrim(v) {
+  if (v == null) return ''
+  const s = String(v)
+  return s.length > MAX_FIELD_LEN ? s.slice(0, MAX_FIELD_LEN) : s
+}
+
 // Mappe une valeur catégorie libre vers nos clés internes
 function normalizeCat(raw, fallback) {
   const n = norm(raw)
@@ -147,24 +163,48 @@ export default function CsvImportModal({ open, onClose, userId, currentMonth, re
 
   function parseFile(file) {
     setError('')
+    // Validation taille & MIME
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`Fichier trop volumineux (${Math.round(file.size/1024/1024)} Mo, max ${MAX_FILE_SIZE/1024/1024} Mo)`)
+      return
+    }
+    if (file.type && !ALLOWED_MIME.includes(file.type)) {
+      setError('Format non supporté. Utilise un fichier .csv exporté depuis Excel ou Google Sheets.')
+      return
+    }
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      // Détection auto du séparateur : Excel FR utilise ;, Excel EN utilise ,
       delimitersToGuess: [',', ';', '\t', '|'],
-      transformHeader: h => h.trim(),
+      transformHeader: h => h.trim().slice(0, 100), // limite longueur des headers
       complete: (results) => {
         if (!results.data || results.data.length === 0) {
           setError(t('reventes.import_empty'))
           return
         }
-        const heads = (results.meta.fields || []).filter(Boolean)
+        // Limite anti-DoS
+        if (results.data.length > MAX_ROWS) {
+          setError(`Trop de lignes (${results.data.length}). Maximum ${MAX_ROWS} lignes par import.`)
+          return
+        }
+        // Filtre les headers dangereux (prototype pollution)
+        const heads = (results.meta.fields || [])
+          .filter(Boolean)
+          .filter(h => !DANGEROUS_KEYS.includes(h.toLowerCase()))
         if (heads.length === 0) {
           setError(t('reventes.import_error'))
           return
         }
+        // Sanitize chaque ligne : tronque les valeurs trop longues et enlève les clés dangereuses
+        const safeRows = results.data.map(row => {
+          const clean = Object.create(null) // pas d'héritage de Object.prototype
+          for (const k of heads) {
+            clean[k] = safeTrim(row[k])
+          }
+          return clean
+        })
         setHeaders(heads)
-        setRows(results.data)
+        setRows(safeRows)
         setMapping({
           name:  autoMap('name',  heads),
           vente: autoMap('vente', heads),
@@ -202,21 +242,28 @@ export default function CsvImportModal({ open, onClose, userId, currentMonth, re
     let ok = 0
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i]
-      const name  = String(r[mapping.name] || '').trim()
+      // Anti formula-injection : si une valeur commence par = + - @ → préfixer ' (Excel-safe)
+      const sanitize = (v) => {
+        const s = safeTrim(v).trim()
+        return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s
+      }
+      const name  = sanitize(r[mapping.name]).slice(0, 200)
       const vente = parseNum(r[mapping.vente])
       if (!name) { setProgress(((i+1)/rows.length)*100); continue }
-      const achat = mapping.achat ? parseNum(r[mapping.achat]) : 0
-      const frais = mapping.frais ? parseNum(r[mapping.frais]) : 0
+      // Bornes numériques : refuse valeurs négatives ou démesurées
+      const achat = mapping.achat ? Math.max(0, Math.min(parseNum(r[mapping.achat]), 1_000_000)) : 0
+      const frais = mapping.frais ? Math.max(0, Math.min(parseNum(r[mapping.frais]),   100_000)) : 0
+      const venteSafe = Math.max(0, Math.min(vente, 1_000_000))
       const today = new Date().toISOString().split('T')[0]
       const date  = mapping.date ? parseDate(r[mapping.date], today) : today
       const monthKey = date.slice(0, 7) // YYYY-MM
-      const plat = mapping.plat ? (String(r[mapping.plat] || '').trim() || defaultPlat) : defaultPlat
+      const plat = mapping.plat ? (sanitize(r[mapping.plat]).slice(0, 80) || defaultPlat) : defaultPlat
       const cat  = mapping.cat
         ? normalizeCat(r[mapping.cat], defaultCat)
         : defaultCat
       const { error: err } = await addRevente(userId, {
         name, cat, sub_cat: null, plat,
-        achat, frais, vente,
+        achat, frais, vente: venteSafe,
         icon: CAT_ICONS[cat] || '📦',
         date,
       }, monthKey)
