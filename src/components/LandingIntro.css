@@ -1,216 +1,153 @@
 /* ════════════════════════════════════════════════════════════
-   LANDING INTRO — Cinematic reveal sequence
-   DNA: cyan #26EEEB + purple #7C6AFF + noir profond
+   LANDING INTRO V2 — "Reveal through the line"
+   Concept : ligne cyan → s'écarte → révèle ICEdep
+   DNA : cyan #26EEEB + purple #7C6AFF + noir profond
    ════════════════════════════════════════════════════════════ */
 
-.intro-root {
+.intro2-root {
   position: fixed;
   inset: 0;
   z-index: 9999;
   background:
-    radial-gradient(circle at center, #0a0c12 0%, #050608 60%, #000 100%);
+    radial-gradient(ellipse at center, #0a0c12 0%, #050608 55%, #000 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   isolation: isolate;
   font-family: var(--font-body, 'DM Sans', sans-serif);
-  cursor: none;
 }
 
-/* ─── Grille en background ─── */
-.intro-grid {
-  position: absolute;
-  inset: -20%;
-  z-index: 1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, rgba(38, 238, 235, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(38, 238, 235, 0.08) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse at center, black 25%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 75%);
-}
-
-/* ─── Scan line verticale ─── */
-.intro-scanline {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  z-index: 3;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(38, 238, 235, 0.5) 30%,
-    rgba(38, 238, 235, 1) 50%,
-    rgba(38, 238, 235, 0.5) 70%,
-    transparent 100%
-  );
-  box-shadow:
-    0 0 20px rgba(38, 238, 235, 0.8),
-    0 0 40px rgba(38, 238, 235, 0.4);
-}
-
-/* ─── Orbes glow ambient ─── */
-.intro-orb {
+/* ─── Orbes ambient (loin, en background) ─── */
+.intro2-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(120px);
   pointer-events: none;
-  z-index: 2;
+  z-index: 1;
 }
-.intro-orb-cyan {
-  width: 700px;
-  height: 700px;
-  top: -200px;
-  left: -150px;
-  background: radial-gradient(circle, rgba(38, 238, 235, 0.5) 0%, transparent 70%);
+.intro2-orb-cyan {
+  width: 700px; height: 700px;
+  top: -200px; left: -200px;
+  background: radial-gradient(circle, rgba(38, 238, 235, 0.55) 0%, transparent 70%);
 }
-.intro-orb-purple {
-  width: 750px;
-  height: 750px;
-  bottom: -200px;
-  right: -200px;
+.intro2-orb-purple {
+  width: 750px; height: 750px;
+  bottom: -250px; right: -200px;
   background: radial-gradient(circle, rgba(124, 106, 255, 0.45) 0%, transparent 70%);
 }
 
-/* ─── Onde concentrique ─── */
-.intro-rings {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 5;
-  pointer-events: none;
-  width: 240px;
-  height: 240px;
-}
-.intro-ring {
+/* ─── Grille discrète ─── */
+.intro2-grid {
   position: absolute;
   inset: 0;
-  border: 1.5px solid #26eeeb;
-  border-radius: 50%;
-  box-shadow:
-    0 0 32px rgba(38, 238, 235, 0.55),
-    inset 0 0 24px rgba(38, 238, 235, 0.18);
+  z-index: 2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(38, 238, 235, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(38, 238, 235, 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
 }
 
-/* ─── Cœur lumineux (point central → logo) ─── */
-.intro-core {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 6;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #26eeeb;
-  box-shadow:
-    0 0 30px 8px rgba(38, 238, 235, 0.9),
-    0 0 70px 20px rgba(38, 238, 235, 0.45),
-    0 0 130px 40px rgba(38, 238, 235, 0.2);
-  animation: intro-core-pulse 1.6s ease-in-out infinite;
-}
-@keyframes intro-core-pulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50%      { transform: translate(-50%, -50%) scale(1.4); }
+/* ════════════════════════════════════════════
+   STAGE — bloc centré, composition propre
+   Chaque élément a sa place, aucun overlap
+   ════════════════════════════════════════════ */
+.intro2-stage {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(560px, 92vw);
+  gap: 0;
 }
 
-/* ─── Logo "I" qui descend ─── */
-.intro-logo-wrap {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 8;
+/* ─── Lignes horizontales (top + bottom) ─── */
+.intro2-line {
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(38, 238, 235, 0.4) 15%,
+    rgba(38, 238, 235, 1) 50%,
+    rgba(38, 238, 235, 0.4) 85%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 18px rgba(38, 238, 235, 0.65),
+    0 0 36px rgba(38, 238, 235, 0.3);
+  transform-origin: center center;
+}
+.intro2-line-top    { margin-bottom: 28px; }
+.intro2-line-bottom { margin-top:    28px; }
+
+/* ─── Wrapper du brand (assure une hauteur stable même quand vide) ─── */
+.intro2-brand-wrap {
+  position: relative;
+  min-height: clamp(72px, 11vw, 130px);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.intro-logo-i {
-  font-family: var(--font-display, 'DM Serif Display', serif);
-  font-size: clamp(110px, 18vw, 200px);
-  font-weight: 400;
-  font-style: italic;
-  line-height: 1;
-  background: linear-gradient(180deg, #26eeeb 0%, #7c6aff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  filter:
-    drop-shadow(0 0 22px rgba(38, 238, 235, 0.85))
-    drop-shadow(0 0 60px rgba(124, 106, 255, 0.4));
-  letter-spacing: -0.02em;
-}
-.intro-logo-flash {
-  position: absolute;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(38, 238, 235, 0.9) 0%, transparent 70%);
-  filter: blur(8px);
-  pointer-events: none;
+  width: 100%;
 }
 
-/* ─── "ICEdep" lettre par lettre ─── */
-.intro-brand {
-  position: absolute;
-  top: calc(50% + 60px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9;
+/* ─── "ICEdep" ─── */
+.intro2-brand {
   display: inline-flex;
+  align-items: baseline;
   font-family: var(--font-display, 'DM Serif Display', serif);
-  font-size: clamp(36px, 5.5vw, 64px);
+  font-size: clamp(64px, 10vw, 120px);
   font-weight: 400;
   font-style: italic;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  line-height: 1;
   white-space: nowrap;
 }
-.intro-letter {
+.intro2-letter {
   display: inline-block;
   background: linear-gradient(135deg, #26eeeb 0%, #7c6aff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 14px rgba(38, 238, 235, 0.4));
+  filter:
+    drop-shadow(0 0 18px rgba(38, 238, 235, 0.55))
+    drop-shadow(0 0 36px rgba(124, 106, 255, 0.25));
+  will-change: transform, opacity, filter;
 }
 
-/* ─── Tagline ─── */
-.intro-tagline {
-  position: absolute;
-  top: calc(50% + 150px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9;
-  font-size: clamp(13px, 1.4vw, 17px);
-  color: rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 400;
-  text-align: center;
-  white-space: nowrap;
+/* ─── Underline cyan sous le mot ─── */
+.intro2-underline {
+  width: clamp(60px, 8vw, 100px);
+  height: 2px;
+  margin-top: 22px;
+  background: linear-gradient(90deg, transparent 0%, #26eeeb 50%, transparent 100%);
+  box-shadow:
+    0 0 14px rgba(38, 238, 235, 0.8),
+    0 0 28px rgba(38, 238, 235, 0.4);
+  transform-origin: center center;
+  border-radius: 99px;
 }
-.intro-tagline-em {
-  background: linear-gradient(135deg, #26eeeb 0%, #7c6aff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  font-style: italic;
-  letter-spacing: 0;
-  text-transform: none;
+
+/* ─── Sous-titre ─── */
+.intro2-subtitle {
+  margin-top: 18px;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  font-size: clamp(11px, 1.2vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(230, 245, 245, 0.55);
+  text-align: center;
 }
 
 /* ─── Skip button ─── */
-.intro-skip {
+.intro2-skip {
   position: absolute;
   bottom: 32px;
   right: 32px;
@@ -229,7 +166,7 @@
   -webkit-backdrop-filter: blur(8px);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.intro-skip:hover {
+.intro2-skip:hover {
   background: rgba(38, 238, 235, 0.12);
   border-color: rgba(38, 238, 235, 0.6);
   color: #26eeeb;
@@ -237,8 +174,8 @@
   transform: translateX(2px);
 }
 
-/* ─── Barre de progression bas ─── */
-.intro-progress {
+/* ─── Progress bar ─── */
+.intro2-progress {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -251,18 +188,17 @@
 }
 
 /* ════════════════════════════════════════════════════════════
-   RESPONSIVE — version simplifiée mobile
+   Responsive mobile
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .intro-rings { width: 180px; height: 180px; }
-  .intro-orb-cyan, .intro-orb-purple { width: 500px; height: 500px; filter: blur(80px); }
-  .intro-tagline { top: calc(50% + 120px); font-size: 11px; }
-  .intro-brand { top: calc(50% + 48px); }
-  .intro-skip { bottom: 24px; right: 16px; padding: 6px 14px; font-size: 11px; }
-  .intro-grid { background-size: 40px 40px; }
+  .intro2-orb-cyan, .intro2-orb-purple { width: 500px; height: 500px; filter: blur(90px); }
+  .intro2-line-top    { margin-bottom: 22px; }
+  .intro2-line-bottom { margin-top:    22px; }
+  .intro2-underline   { margin-top: 18px; }
+  .intro2-subtitle    { margin-top: 14px; letter-spacing: 0.28em; }
+  .intro2-skip        { bottom: 24px; right: 16px; padding: 6px 14px; font-size: 11px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro-core { animation: none; }
-  .intro-ring { display: none; }
+  .intro2-letter { filter: drop-shadow(0 0 14px rgba(38, 238, 235, 0.4)); }
 }
