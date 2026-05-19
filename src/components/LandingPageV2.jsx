@@ -12,6 +12,7 @@ import {
   RefreshCw, Zap, Shield, Check, ChevronDown,
 } from 'lucide-react'
 import Logo from './Logo.jsx'
+import LandingIntro from './LandingIntro.jsx'
 import './LandingPageV2.css'
 
 // ════════════════════════════════════════════════════════════
@@ -754,20 +755,23 @@ function FooterV2() {
 // ════════════════════════════════════════════════════════════
 export default function LandingPageV2({ onLogin, onRegister }) {
   return (
-    <div className="landing-v2">
-      <CustomCursor/>
-      <AnimatedGrid/>
-      <MeshOrbs/>
-      <div className="noise-v2" aria-hidden="true"/>
-      <ScrollProgress/>
+    <>
+      <LandingIntro/>
+      <div className="landing-v2">
+        <CustomCursor/>
+        <AnimatedGrid/>
+        <MeshOrbs/>
+        <div className="noise-v2" aria-hidden="true"/>
+        <ScrollProgress/>
 
-      <NavV2 onLogin={onLogin} onRegister={onRegister}/>
-      <HeroV2 onLogin={onLogin} onRegister={onRegister}/>
-      <StatsV2/>
-      <FeaturesV2/>
-      <PricingV2 onRegister={onRegister}/>
-      <CTAV2 onRegister={onRegister}/>
-      <FooterV2/>
-    </div>
+        <NavV2 onLogin={onLogin} onRegister={onRegister}/>
+        <HeroV2 onLogin={onLogin} onRegister={onRegister}/>
+        <StatsV2/>
+        <FeaturesV2/>
+        <PricingV2 onRegister={onRegister}/>
+        <CTAV2 onRegister={onRegister}/>
+        <FooterV2/>
+      </div>
+    </>
   )
 }
