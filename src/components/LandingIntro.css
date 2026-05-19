@@ -1,15 +1,15 @@
 /* ════════════════════════════════════════════════════════════
-   LANDING INTRO V2 — "Reveal through the line"
-   Concept : ligne cyan → s'écarte → révèle ICEdep
-   DNA : cyan #26EEEB + purple #7C6AFF + noir profond
+   LANDING INTRO V3 — "Materialize"
+   Palette : NOIR + BLANC, cyan en accent uniquement
+   Concept : lettres blanches qui se matérialisent en ordre aléatoire
+   chacune annoncée par un flash radial cyan derrière elle
    ════════════════════════════════════════════════════════════ */
 
-.intro2-root {
+.intro3-root {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background:
-    radial-gradient(ellipse at center, #0a0c12 0%, #050608 55%, #000 100%);
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,78 +18,69 @@
   font-family: var(--font-body, 'DM Sans', sans-serif);
 }
 
-/* ─── Orbes ambient (loin, en background) ─── */
-.intro2-orb {
+/* ─── Vignette douce pour la profondeur ─── */
+.intro3-root::before {
+  content: '';
   position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  pointer-events: none;
+  inset: 0;
   z-index: 1;
-}
-.intro2-orb-cyan {
-  width: 700px; height: 700px;
-  top: -200px; left: -200px;
-  background: radial-gradient(circle, rgba(38, 238, 235, 0.55) 0%, transparent 70%);
-}
-.intro2-orb-purple {
-  width: 750px; height: 750px;
-  bottom: -250px; right: -200px;
-  background: radial-gradient(circle, rgba(124, 106, 255, 0.45) 0%, transparent 70%);
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.7) 100%);
 }
 
-/* ─── Grille discrète ─── */
-.intro2-grid {
+/* ─── Grille TRÈS subtile ─── */
+.intro3-grid {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(38, 238, 235, 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(38, 238, 235, 0.07) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
 }
 
 /* ════════════════════════════════════════════
-   STAGE — bloc centré, composition propre
-   Chaque élément a sa place, aucun overlap
+   STAGE — composition centrée
    ════════════════════════════════════════════ */
-.intro2-stage {
+.intro3-stage {
   position: relative;
   z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: min(560px, 92vw);
+  width: min(600px, 92vw);
   gap: 0;
 }
 
-/* ─── Lignes horizontales (top + bottom) ─── */
-.intro2-line {
+/* ─── Lignes (cyan thin — l'accent de marque) ─── */
+.intro3-line {
   width: 100%;
-  height: 1.5px;
+  height: 1px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(38, 238, 235, 0.4) 15%,
-    rgba(38, 238, 235, 1) 50%,
-    rgba(38, 238, 235, 0.4) 85%,
+    rgba(38, 238, 235, 0.4) 18%,
+    rgba(38, 238, 235, 0.95) 50%,
+    rgba(38, 238, 235, 0.4) 82%,
     transparent 100%
   );
   box-shadow:
-    0 0 18px rgba(38, 238, 235, 0.65),
-    0 0 36px rgba(38, 238, 235, 0.3);
+    0 0 12px rgba(38, 238, 235, 0.5),
+    0 0 28px rgba(38, 238, 235, 0.25);
   transform-origin: center center;
 }
-.intro2-line-top    { margin-bottom: 28px; }
-.intro2-line-bottom { margin-top:    28px; }
+.intro3-line-top    { margin-bottom: 32px; }
+.intro3-line-bottom { margin-top:    32px; }
 
-/* ─── Wrapper du brand (assure une hauteur stable même quand vide) ─── */
-.intro2-brand-wrap {
+/* ─── Wrapper brand ─── */
+.intro3-brand-wrap {
   position: relative;
-  min-height: clamp(72px, 11vw, 130px);
+  min-height: clamp(80px, 12vw, 140px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,66 +88,103 @@
 }
 
 /* ─── "ICEdep" ─── */
-.intro2-brand {
+.intro3-brand {
   display: inline-flex;
   align-items: baseline;
   font-family: var(--font-display, 'DM Serif Display', serif);
-  font-size: clamp(64px, 10vw, 120px);
+  font-size: clamp(68px, 11vw, 130px);
   font-weight: 400;
   font-style: italic;
   letter-spacing: -0.025em;
   line-height: 1;
   white-space: nowrap;
+  color: #ffffff;
 }
-.intro2-letter {
+
+/* ─── Slot par lettre (contient flash + lettre) ─── */
+.intro3-letter-slot {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+/* ─── Flash radial cyan derrière la lettre ─── */
+.intro3-flash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-width: clamp(80px, 12vw, 140px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(38, 238, 235, 0.95) 0%,
+    rgba(38, 238, 235, 0.5) 25%,
+    rgba(124, 106, 255, 0.2) 50%,
+    transparent 70%
+  );
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 1;
+  will-change: opacity, transform;
+  mix-blend-mode: screen;
+}
+
+/* ─── Lettre (BLANCHE, premium) ─── */
+.intro3-letter {
+  position: relative;
+  z-index: 2;
   display: inline-block;
-  background: linear-gradient(135deg, #26eeeb 0%, #7c6aff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  filter:
-    drop-shadow(0 0 18px rgba(38, 238, 235, 0.55))
-    drop-shadow(0 0 36px rgba(124, 106, 255, 0.25));
+  color: #ffffff;
+  text-shadow:
+    0 0 2px rgba(255, 255, 255, 0.4);
   will-change: transform, opacity, filter;
 }
 
-/* ─── Underline cyan sous le mot ─── */
-.intro2-underline {
-  width: clamp(60px, 8vw, 100px);
-  height: 2px;
-  margin-top: 22px;
-  background: linear-gradient(90deg, transparent 0%, #26eeeb 50%, transparent 100%);
+/* ─── Underline cyan ─── */
+.intro3-underline {
+  width: clamp(64px, 9vw, 110px);
+  height: 1.5px;
+  margin-top: 26px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #26eeeb 50%,
+    transparent 100%
+  );
   box-shadow:
-    0 0 14px rgba(38, 238, 235, 0.8),
-    0 0 28px rgba(38, 238, 235, 0.4);
+    0 0 12px rgba(38, 238, 235, 0.7),
+    0 0 24px rgba(38, 238, 235, 0.3);
   transform-origin: center center;
   border-radius: 99px;
 }
 
-/* ─── Sous-titre ─── */
-.intro2-subtitle {
-  margin-top: 18px;
+/* ─── Sous-titre (blanc, discret) ─── */
+.intro3-subtitle {
+  margin-top: 20px;
   font-family: var(--font-body, 'DM Sans', sans-serif);
   font-size: clamp(11px, 1.2vw, 14px);
   font-weight: 500;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: rgba(230, 245, 245, 0.55);
+  color: rgba(255, 255, 255, 0.5);
   text-align: center;
 }
 
-/* ─── Skip button ─── */
-.intro2-skip {
+/* ─── Skip button (minimaliste, blanc) ─── */
+.intro3-skip {
   position: absolute;
   bottom: 32px;
   right: 32px;
   z-index: 20;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(38, 238, 235, 0.25);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 99px;
-  color: rgba(230, 245, 245, 0.65);
+  color: rgba(255, 255, 255, 0.55);
   font-family: var(--font-body, 'DM Sans', sans-serif);
   font-size: 12px;
   font-weight: 500;
@@ -166,39 +194,39 @@
   -webkit-backdrop-filter: blur(8px);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.intro2-skip:hover {
-  background: rgba(38, 238, 235, 0.12);
-  border-color: rgba(38, 238, 235, 0.6);
+.intro3-skip:hover {
+  border-color: rgba(38, 238, 235, 0.5);
   color: #26eeeb;
-  box-shadow: 0 0 20px -4px rgba(38, 238, 235, 0.6);
+  background: rgba(38, 238, 235, 0.06);
   transform: translateX(2px);
 }
 
 /* ─── Progress bar ─── */
-.intro2-progress {
+.intro3-progress {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 1.5px;
   z-index: 15;
-  background: linear-gradient(90deg, #26eeeb 0%, #7c6aff 100%);
-  box-shadow: 0 0 12px rgba(38, 238, 235, 0.6);
+  background: linear-gradient(90deg, transparent 0%, #26eeeb 50%, transparent 100%);
+  box-shadow: 0 0 8px rgba(38, 238, 235, 0.5);
   transform-origin: left center;
+  opacity: 0.55;
 }
 
 /* ════════════════════════════════════════════════════════════
    Responsive mobile
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .intro2-orb-cyan, .intro2-orb-purple { width: 500px; height: 500px; filter: blur(90px); }
-  .intro2-line-top    { margin-bottom: 22px; }
-  .intro2-line-bottom { margin-top:    22px; }
-  .intro2-underline   { margin-top: 18px; }
-  .intro2-subtitle    { margin-top: 14px; letter-spacing: 0.28em; }
-  .intro2-skip        { bottom: 24px; right: 16px; padding: 6px 14px; font-size: 11px; }
+  .intro3-line-top    { margin-bottom: 26px; }
+  .intro3-line-bottom { margin-top:    26px; }
+  .intro3-underline   { margin-top: 20px; }
+  .intro3-subtitle    { margin-top: 16px; letter-spacing: 0.28em; }
+  .intro3-skip        { bottom: 24px; right: 16px; padding: 6px 14px; font-size: 11px; }
+  .intro3-grid        { background-size: 56px 56px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro2-letter { filter: drop-shadow(0 0 14px rgba(38, 238, 235, 0.4)); }
+  .intro3-flash { display: none; }
 }
